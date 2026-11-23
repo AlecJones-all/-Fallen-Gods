@@ -1,5 +1,5 @@
 extends Node2D
-## 战斗核心场景：网格怪物阵列 + 自定义弹球积分/镜面反射 + 敌弹 + 8 卡自动武器。
+## 战斗核心场景：7列棋子怪阵 + 自定义弹球积分/镜面反射 + 敌弹 + 手动瞄准远程武器。
 ## 公开契约（LevelDirector 接线）：
 ##   setup(level_id) / spawn_wave(wave_index, elite_count) / spawn_boss(boss_id)
 ##   set_combat_paused(paused)
@@ -11,12 +11,16 @@ signal wave_cleared(wave_index: int)
 signal boss_defeated
 
 # ---- 布局/规则常量（战场与判定几何，非 tuning 数值） ----
-const LOGICAL_SIZE := Vector2(480, 854)  # 竖屏逻辑分辨率（战场固定，不随窗口拉伸）
-const FIELD_TOP := 80.0            # 顶部 80px 留给 HUD
-const PLAYER_SPAWN := Vector2(240, 780)
+const LOGICAL_SIZE := Vector2(640, 360)  # 横屏逻辑分辨率（中央纵深道路固定，不随窗口拉伸）
+const FIELD_TOP := 44.0            # 顶部状态区；中央道路从其下方延伸至玩家
+const PLAYER_SPAWN := Vector2(320, 316)
 const MOB_SIZE := 40.0             # 近战/远程小怪 40px
 const ELITE_SIZE := 72.0           # 精英 72px（占多格）
 const MELEE_RADIUS := 64.0         # 近战环绕挥击半径（15号 1.2）
+const FORMATION_COLUMNS := 7       # 敌方棋子阵列每行固定最多 7 个单位
+const FORMATION_TOP_Y := 132.0     # 留出道路远端呼吸区；首排从这里开始
+const FORMATION_BOTTOM_Y := 270.0  # 与玩家出生点保留明确的闪避/瞄准空间
+const FORMATION_MIN_ROWS := 5
 const CHAIN_RANGE := 150.0         # 雷霆连锁搜索半径
 const SPLIT_DAMAGE_MULT := 0.5     # buff 分裂弹伤害系数（未指定，沿用许德拉 50%）
 const EFFECT_TTL := 0.18           # 挥击/连锁线视觉残留时长
@@ -42,17 +46,24 @@ var boss = null               # battle/Boss.gd 实例（可替换精细化脚本
 
 var _bg_color := Color(0.08, 0.08, 0.1)
 var _bg_node: TextureRect = null  # 关卡背景图（存在才挂；无图时 _draw 画原色块）
+var _background_draw_suppressed := false  # 有背景节点时不再用 _draw 的不透明底色遮盖它
 var _fx: Node2D = null            # battle/BattleFx.gd 特效池（纯视觉）
 var _view_size := LOGICAL_SIZE
 var _field := Rect2(0, FIELD_TOP, LOGICAL_SIZE.x, LOGICAL_SIZE.y - FIELD_TOP)
-var _cols: int = 10
-var _max_row: int = 15
+var _combat_lane
+var _cols: int = FORMATION_COLUMNS
+var _max_row: int = FORMATION_MIN_ROWS - 1
+var _formation_row_step := 32.0
 var _effects: Array = []
 var _rng := RandomNumberGenerator.new()
 var _grid_timer: float = 0.0
 var _contact_cd: float = 0.0
 var _cleanse_cd: float = 0.0
 var _weapon_timers: Dictionary = {}
+var _aim_direction := Vector2.UP
+var _aim_dragging := false
+var _aim_marker_pos := Vector2.ZERO
+var _aim_marker_left := 0.0
 var _wave_index: int = -1
 var _wave_active: bool = false
 var _next_mob_id: int = 1
@@ -70,16 +81,16 @@ const BOSS_SCRIPTS: Dictionary = {
 	"zeus": preload("res://battle/bosses/Zeus.gd"),
 	"chaos": preload("res://battle/bosses/Chaos.gd"),
 }
+const CombatLane := preload("res://battle/CombatLane.gd")
 
 
 func _ready() -> void:
 	_rng.randomize()
-	# 战场固定 480×854（契约），不取 viewport 实际尺寸（headless/拉伸下会变化）
+	# 战场固定 640×360；实际可玩区域由第1关纵深道路梯形决定。
 	_view_size = LOGICAL_SIZE
-	_field = Rect2(0.0, FIELD_TOP, LOGICAL_SIZE.x, LOGICAL_SIZE.y - FIELD_TOP)
-	var cell: float = Data.tuning.grid.cell_px
-	_cols = int(_field.size.x / cell)
-	_max_row = int(_field.size.y / cell) - 1
+	_combat_lane = CombatLane.new(Data.combat_lane_config(1))
+	_field = _combat_lane.bounds()
+	_configure_formation()
 	_fx = _fx_script.new()
 	add_child(_fx)
 	_juice = Juice.new()
@@ -91,6 +102,9 @@ func _ready() -> void:
 func setup(id: int) -> void:
 	level_id = id
 	level_cfg = Data.level_config(id)
+	_combat_lane = CombatLane.new(Data.combat_lane_config(id))
+	_field = _combat_lane.bounds()
+	_configure_formation()
 	_bg_color = Color(level_cfg.bg_color)
 	_setup_background(id)
 	if _fx != null:
@@ -102,11 +116,14 @@ func setup(id: int) -> void:
 	if boss != null:
 		boss.queue_free()
 		boss = null
-	player_pos = PLAYER_SPAWN
+	player_pos = _combat_lane.player_spawn(float(Data.tuning.player.radius_px))
 	_grid_timer = 0.0
 	_contact_cd = 0.0
 	_cleanse_cd = 0.0
 	_weapon_timers.clear()
+	_aim_direction = Vector2.UP
+	_aim_dragging = false
+	_aim_marker_left = 0.0
 	_wave_index = -1
 	_wave_active = false
 	combat_paused = false
@@ -158,10 +175,11 @@ func set_combat_paused(paused: bool) -> void:
 	combat_paused = paused
 
 
-## 关卡背景图挂接：res://assets/backgrounds/level_%02d.jpg 存在才承载（TextureRect 拉伸满屏）。
+## 关卡背景图挂接：关卡叙事专用横屏 PNG 优先，旧 JPG 为兼容回退（TextureRect 拉伸满屏）。
 ## 有图时 _draw 不再画整屏底色矩形；无图保持原色块。
 func _setup_background(id: int) -> void:
-	var path := "res://assets/backgrounds/level_%02d.jpg" % id
+	var narrative_path := "res://assets/backgrounds/level_%02d_graveyard_road_landscape.png" % id
+	var path := narrative_path if FileAccess.file_exists(narrative_path) else "res://assets/backgrounds/level_%02d.jpg" % id
 	var tex: Texture2D = null
 	if FileAccess.file_exists(path) and ResourceLoader.exists(path):
 		tex = load(path)
@@ -178,9 +196,13 @@ func _setup_background(id: int) -> void:
 			move_child(_bg_node, 0)  # 同 z 下先画背景，精英光环(-1)垫在怪之下、背景之上
 		_bg_node.texture = tex
 		_bg_node.show()
+		_background_draw_suppressed = true
 	elif _bg_node != null:
 		_bg_node.texture = null
 		_bg_node.hide()
+		_background_draw_suppressed = false
+	else:
+		_background_draw_suppressed = false
 
 
 # ================= 主循环 =================
@@ -188,6 +210,7 @@ func _setup_background(id: int) -> void:
 func _process(delta: float) -> void:
 	# 视觉层用真实 delta：暂停/顿帧期间横幅、震屏、飘字等照常收尾
 	_juice.update(delta)
+	_aim_marker_left = maxf(0.0, _aim_marker_left - delta)
 	var mobs_animating: bool = _decay_mob_juice(delta)
 	_sync_shake_nodes()
 	if combat_paused:
@@ -250,13 +273,58 @@ func add_damage_floater(pos: Vector2, amount: float, gold: bool) -> void:
 	_juice.add_floater(pos, amount, gold)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if combat_paused:
+func _input(event: InputEvent) -> void:
+	# _input 早于 Control 的 GUI 分发，确保全屏 Main / HUD 不会吞掉战斗左键。
+	if combat_paused or not visible:
 		return
-	# 触屏按住拖动 = 相对位移（emulate_touch_from_mouse 已开）
-	if event is InputEventScreenDrag:
-		player_pos += event.relative
-		_clamp_player()
+	# 键盘是唯一移动方式；左键/第一指只指定自动射击方向，松开后保留最后方向。
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_aim_dragging = event.pressed
+		if event.pressed:
+			_set_aim_from_input_event(event)
+	elif event is InputEventMouseMotion and _aim_dragging:
+		_set_aim_from_input_event(event)
+	elif event is InputEventScreenTouch and event.index == 0:
+		_aim_dragging = event.pressed
+		if event.pressed:
+			_set_aim_from_input_event(event)
+	elif event is InputEventScreenDrag and event.index == 0:
+		_set_aim_from_input_event(event)
+
+
+func _set_aim_direction(direction: Vector2) -> void:
+	if direction.length_squared() > 0.001:
+		_aim_direction = direction.normalized()
+
+
+func _set_aim_from_input_event(event: InputEvent) -> void:
+	# 交给 Godot 按当前 Canvas / Stretch 变换换算到本 Node2D 的局部战场坐标。
+	# 不能直接手写矩阵反算：全屏 Control 的锚点与窗口缩放会使其方向翻转。
+	var local_event: InputEvent = make_input_local(event)
+	var battle_position := Vector2.ZERO
+	if local_event is InputEventMouseButton:
+		battle_position = local_event.position
+	elif local_event is InputEventMouseMotion:
+		battle_position = local_event.position
+	elif local_event is InputEventScreenTouch:
+		battle_position = local_event.position
+	elif local_event is InputEventScreenDrag:
+		battle_position = local_event.position
+	else:
+		return
+	_set_aim_direction(battle_position - player_pos)
+	_aim_marker_pos = battle_position
+	_aim_marker_left = 0.18
+	queue_redraw()
+
+
+func _configure_formation() -> void:
+	_cols = FORMATION_COLUMNS
+	var density: int = int(level_cfg.get("density", 7))
+	var elites: int = int(level_cfg.get("elites", 0))
+	var required_rows: int = ceili(float(density + elites) / float(_cols))
+	_max_row = maxi(FORMATION_MIN_ROWS - 1, required_rows - 1)
+	_formation_row_step = (FORMATION_BOTTOM_Y - FORMATION_TOP_Y) / float(maxi(_max_row, 1))
 
 
 func _update_player(delta: float) -> void:
@@ -277,8 +345,7 @@ func _update_player(delta: float) -> void:
 
 func _clamp_player() -> void:
 	var r: float = Data.tuning.player.radius_px
-	player_pos.x = clampf(player_pos.x, _field.position.x + r, _field.end.x - r)
-	player_pos.y = clampf(player_pos.y, _field.position.y + r, _field.end.y - r)
+	player_pos = _combat_lane.clamp_point(player_pos, r)
 
 
 # ================= 怪物 =================
@@ -316,17 +383,20 @@ func _add_mob(kind: String, ranged: bool, cell: Vector2i) -> void:
 
 ## Boss 召唤小怪入口：把世界坐标吸附到网格，复用现有小怪逻辑（下移/吐弹/击杀发 mob_died）。
 func summon_mob(ranged: bool, world_pos: Vector2) -> void:
-	var cell: float = Data.tuning.grid.cell_px
-	var col: int = clampi(int((world_pos.x - _field.position.x) / cell), 0, _cols - 1)
-	var row: int = clampi(int((world_pos.y - FIELD_TOP) / cell), 0, _max_row)
+	var row: int = clampi(roundi((world_pos.y - FORMATION_TOP_Y) / _formation_row_step), 0, _max_row)
+	var y: float = FORMATION_TOP_Y + row * _formation_row_step
+	var col: int = _combat_lane.column_for_x(world_pos.x, _cols, y)
 	_add_mob("mob", ranged, Vector2i(col, row))
 
 
 func _grid_pos(col: int, row: int, half: float) -> Vector2:
-	var cell: float = Data.tuning.grid.cell_px
-	var x: float = _field.position.x + col * cell + cell / 2.0
-	var y: float = minf(FIELD_TOP + row * cell + cell / 2.0, _field.end.y - half)
-	return Vector2(x, y)
+	var y: float = clampf(FORMATION_TOP_Y + row * _formation_row_step, _combat_lane.top_y + half, FORMATION_BOTTOM_Y)
+	return _combat_lane.position_for_grid(col, _cols, y, half)
+
+
+func _mob_visual_scale(y: float) -> float:
+	var progress := inverse_lerp(FORMATION_TOP_Y, FORMATION_BOTTOM_Y, y)
+	return lerpf(0.58, 1.0, clampf(progress, 0.0, 1.0))
 
 
 func _rand_fire_interval() -> float:
@@ -348,7 +418,7 @@ func _update_grid(delta: float) -> void:
 ## 远程怪中场停驻当炮台；小怪概率横移包抄；底排近战蓄力冲刺；精英追踪玩家列。
 func _grid_tick() -> void:
 	var ai: Dictionary = Data.tuning.mob_ai
-	var player_col: int = clampi(int((player_pos.x - _field.position.x) / Data.tuning.grid.cell_px), 0, _cols - 1)
+	var player_col: int = _combat_lane.column_for_x(player_pos.x, _cols, player_pos.y)
 	for m in mobs:
 		if m.hp <= 0.0 or float(m.lunge_left) > 0.0:
 			continue
@@ -475,7 +545,7 @@ func _update_weapons(delta: float) -> void:
 			continue  # 埃癸斯无攻击，被动生效
 		var timer: float = float(_weapon_timers.get(card_id, 0.0)) - delta
 		if timer <= 0.0:
-			timer += GameState.weapon_interval(card_id)
+			timer = GameState.weapon_interval(card_id)
 			if card.kind == "ranged":
 				_fire_ranged(card_id, card, bp)
 			else:
@@ -505,8 +575,10 @@ func _fire_ranged(card_id: String, card: Dictionary, bp: Dictionary) -> void:
 		balls.append(_make_ball(player_pos + dir * spawn_r, dir * speed, dmg, card_id, card, bp, true))
 
 
-## 自动瞄准：锁定距玩家最近的活怪（无怪则 Boss），扇形弹以目标方向为中心；无目标朝正上。
+## 自动射击：方向由最近一次鼠标/触屏瞄准决定；无输入则保持朝上。
 func _aim_angle() -> float:
+	if _aim_direction.length_squared() > 0.001:
+		return _aim_direction.angle()
 	var best_d: float = INF
 	var target: Vector2 = Vector2.ZERO
 	var found: bool = false
@@ -638,27 +710,29 @@ func _update_balls(delta: float) -> void:
 		b.pos += b.vel * delta
 		var r: float = b.radius
 		var consumed: bool = false
-		# 墙（四边封闭）
-		if b.pos.x - r < _field.position.x:
-			b.pos.x = _field.position.x + r
-			b.vel.x = absf(b.vel.x)
-			consumed = true
-			_juice.add_bounce_ring(Vector2(_field.position.x, b.pos.y))
-		elif b.pos.x + r > _field.end.x:
-			b.pos.x = _field.end.x - r
-			b.vel.x = -absf(b.vel.x)
-			consumed = true
-			_juice.add_bounce_ring(Vector2(_field.end.x, b.pos.y))
-		if b.pos.y - r < _field.position.y:
-			b.pos.y = _field.position.y + r
+		# 纵深道路边界：上下为横墙，两侧为道路梯形的斜墙。
+		if b.pos.y - r < _combat_lane.top_y:
+			b.pos.y = _combat_lane.top_y + r
 			b.vel.y = absf(b.vel.y)
 			consumed = true
-			_juice.add_bounce_ring(Vector2(b.pos.x, _field.position.y))
-		elif b.pos.y + r > _field.end.y:
-			b.pos.y = _field.end.y - r
+			_juice.add_bounce_ring(Vector2(b.pos.x, _combat_lane.top_y))
+		elif b.pos.y + r > _combat_lane.bottom_y:
+			b.pos.y = _combat_lane.bottom_y - r
 			b.vel.y = -absf(b.vel.y)
 			consumed = true
-			_juice.add_bounce_ring(Vector2(b.pos.x, _field.end.y))
+			_juice.add_bounce_ring(Vector2(b.pos.x, _combat_lane.bottom_y))
+		var road_left: float = _combat_lane.left_at(b.pos.y)
+		var road_right: float = _combat_lane.right_at(b.pos.y)
+		if b.pos.x - r < road_left:
+			b.pos.x = road_left + r
+			b.vel = b.vel.bounce(_combat_lane.left_normal())
+			consumed = true
+			_juice.add_bounce_ring(Vector2(road_left, b.pos.y))
+		elif b.pos.x + r > road_right:
+			b.pos.x = road_right - r
+			b.vel = b.vel.bounce(_combat_lane.right_normal())
+			consumed = true
+			_juice.add_bounce_ring(Vector2(road_right, b.pos.y))
 		# 玩家（仅当球朝玩家运动时反弹，避免刚发射的球立即回弹）
 		if b.pos.distance_to(player_pos) < pr + r and b.vel.dot(player_pos - b.pos) > 0.0:
 			var n: Vector2 = (b.pos - player_pos).normalized()
@@ -783,7 +857,7 @@ func _update_enemy_bullets(delta: float) -> void:
 	for i in range(enemy_bullets.size() - 1, -1, -1):
 		var b: Dictionary = enemy_bullets[i]
 		b.pos += b.vel * delta
-		if not _field.grow(b.radius).has_point(b.pos):
+		if not _combat_lane.contains(b.pos, b.radius):
 			enemy_bullets.remove_at(i)
 			continue
 		if b.reflected:
@@ -883,10 +957,22 @@ func _update_effects(delta: float) -> void:
 
 func _draw() -> void:
 	var j: Dictionary = Data.tuning.juice
-	# 底色不随震屏，避免震屏露边
-	draw_rect(Rect2(Vector2.ZERO, _view_size), _bg_color)
+	# 无贴图时才画不随震屏的底色；有背景时不能遮盖 TextureRect 子节点。
+	if not _background_draw_suppressed:
+		draw_rect(Rect2(Vector2.ZERO, _view_size), _bg_color)
 	draw_set_transform(_juice.shake_offset)
 	draw_line(Vector2(0.0, FIELD_TOP), Vector2(_view_size.x, FIELD_TOP), Color(1, 1, 1, 0.08), 1.0)
+	# 实际战斗区的轻量边界：跟随背景道路的近窄远宽，不遮盖墓地场景细节。
+	var lane_left_top := Vector2(_combat_lane.top_left, _combat_lane.top_y)
+	var lane_left_bottom := Vector2(_combat_lane.bottom_left, _combat_lane.bottom_y)
+	var lane_right_top := Vector2(_combat_lane.top_right, _combat_lane.top_y)
+	var lane_right_bottom := Vector2(_combat_lane.bottom_right, _combat_lane.bottom_y)
+	var lane_glow := Color(0.62, 0.74, 0.78, 0.07)
+	var lane_line := Color(0.72, 0.82, 0.84, 0.28)
+	draw_line(lane_left_top, lane_left_bottom, lane_glow, 5.0, true)
+	draw_line(lane_right_top, lane_right_bottom, lane_glow, 5.0, true)
+	draw_line(lane_left_top, lane_left_bottom, lane_line, 1.0, true)
+	draw_line(lane_right_top, lane_right_bottom, lane_line, 1.0, true)
 	# 挥击环 / 连锁线
 	for e in _effects:
 		var a: float = clampf(e.t / EFFECT_TTL, 0.0, 1.0)
@@ -902,7 +988,8 @@ func _draw() -> void:
 	for m in mobs:
 		if m.hp <= 0.0:
 			continue
-		var h: float = m.half * (1.0 + (pop_scale - 1.0) * clampf(float(m.pop) / pop_dur, 0.0, 1.0))
+		var depth_scale: float = _mob_visual_scale(m.pos.y)
+		var h: float = m.half * depth_scale * (1.0 + (pop_scale - 1.0) * clampf(float(m.pop) / pop_dur, 0.0, 1.0))
 		var flash_k: float = clampf(float(m.flash) / flash_dur, 0.0, 1.0)
 		if m.kind == "elite":
 			draw_rect(Rect2(m.pos - Vector2(h, h), Vector2(h * 2.0, h * 2.0)), COLOR_ELITE.lerp(Color.WHITE, flash_k))
@@ -935,6 +1022,15 @@ func _draw() -> void:
 		draw_circle(b.pos, b.radius, bc)
 	# 玩家
 	draw_circle(player_pos, float(Data.tuning.player.radius_px), COLOR_PLAYER)
+	# 自动射击方向：短线只提示方向，不盖住纵深道路和敌方阵列。
+	var aim_end := player_pos + _aim_direction * 30.0
+	draw_line(player_pos + _aim_direction * 16.0, aim_end, Color(0.88, 0.82, 0.54, 0.72), 1.5, true)
+	draw_circle(aim_end, 2.0, Color(0.95, 0.88, 0.58, 0.82))
+	if _aim_marker_left > 0.0:
+		var marker_alpha: float = _aim_marker_left / 0.18
+		draw_arc(_aim_marker_pos, 8.0, 0.0, TAU, 16, Color(1.0, 0.87, 0.44, marker_alpha * 0.85), 1.5)
+		draw_line(_aim_marker_pos + Vector2(-4.0, 0.0), _aim_marker_pos + Vector2(4.0, 0.0), Color(1.0, 0.87, 0.44, marker_alpha), 1.0)
+		draw_line(_aim_marker_pos + Vector2(0.0, -4.0), _aim_marker_pos + Vector2(0.0, 4.0), Color(1.0, 0.87, 0.44, marker_alpha), 1.0)
 	if "aegis" in GameState.meta.weapons:
 		draw_arc(player_pos, _player_bounce_radius(), 0.0, TAU, 32, Color(0.5, 0.9, 1.0, 0.5), 2.0)
 	_juice.draw_floaters(self)

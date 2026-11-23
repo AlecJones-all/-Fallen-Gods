@@ -49,6 +49,7 @@ func _ready() -> void:
 	EventBus.mob_died.connect(_on_mob_died)
 	EventBus.corruption_tier_changed.connect(_on_tier_changed)
 	menu_panel.start_requested.connect(_on_start_requested)
+	menu_panel.demo_requested.connect(_on_demo_requested)
 	altar_panel.chosen.connect(func(_k: String, _s: String) -> void: _altar_resolved.emit())
 	altar_panel.skipped.connect(func() -> void: _altar_resolved.emit())
 	menu_panel.set_mode(false)
@@ -62,6 +63,13 @@ func _on_start_requested() -> void:
 	var level_id: int = current_level if retry_mode else GameState.meta.unlocked_level
 	retry_mode = false
 	_run_level(level_id)
+
+
+func _on_demo_requested() -> void:
+	menu_panel.visible = false
+	transition.fade_in(0.3)
+	retry_mode = false
+	_run_level(1)
 
 func _on_player_died() -> void:
 	_run_token += 1
