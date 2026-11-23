@@ -1,0 +1,9 @@
+[
+	{ "index": 1, "name": "持火", "greek": "Pyrophoros", "unlock_level": 0, "bonuses": {}, "cost_text": "失去对黑暗的安心感" },
+	{ "index": 2, "name": "燃炬", "greek": "Lampas", "unlock_level": 5, "bonuses": { "power": 5, "hp": 50 }, "cost_text": "失去味觉与睡眠" },
+	{ "index": 3, "name": "凝痕", "greek": "Stigma", "unlock_level": 7, "bonuses": { "speed": 0.2, "power": 5 }, "cost_text": "失去对凡人哭声的共情" },
+	{ "index": 4, "name": "铸躯", "greek": "Ichor", "unlock_level": 10, "bonuses": { "hp": 100, "power": 10 }, "cost_text": "镜中映不出自己的脸" },
+	{ "index": 5, "name": "开域", "greek": "Temenos", "unlock_level": 12, "bonuses": { "all_mult": 0.10 }, "cost_text": "开始听见帷外语法" },
+	{ "index": 6, "name": "掌律", "greek": "Nomos", "unlock_level": 14, "bonuses": { "power": 20 }, "cost_text": "忘记母亲的声音" },
+	{ "index": 7, "name": "登神", "greek": "Apotheosis", "unlock_level": 15, "bonuses": { "hp": 200 }, "cost_text": "自我边界溶解" }
+]

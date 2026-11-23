@@ -1,0 +1,129 @@
+{
+	"grid": {
+		"cell_px": 48,
+		"tick_s": 1
+	},
+	"player": {
+		"base_power": 10,
+		"base_hp": 100,
+		"base_speed": 1,
+		"move_px_s": 300,
+		"radius_px": 16,
+		"move_bonus_per_02_speed": 0.1,
+		"contact_cooldown_s": 0.5
+	},
+	"power_damage_per_point": 0.05,
+	"caps": {
+		"power": 100,
+		"attack_speed_mult": 3
+	},
+	"ball": {
+		"speed_px_s": 400,
+		"spread_deg": 15,
+		"radius_px": 6,
+		"base_bounces": 3,
+		"max_bounces": 8,
+		"base_count": 1,
+		"max_count": 6
+	},
+	"enemy_bullet": {
+		"speed_px_s": 240,
+		"radius_px": 8,
+		"interval_s_min": 2.5,
+		"interval_s_max": 3,
+		"interval_dense_s": 2,
+		"dense_levels": [
+			11,
+			12,
+			13,
+			14
+		],
+		"damage_mult": 0.5
+	},
+	"mob_ranged_ratio": 0.3,
+	"corruption": {
+		"max": 100,
+		"per_level_natural": 5,
+		"per_remote_hit": 1,
+		"per_elite_boss_hit": 2,
+		"chaos_damage_bonus_per_point": 0.005,
+		"tier_thresholds": [
+			30,
+			60,
+			90
+		],
+		"tier_names": [
+			"清明",
+			"低语",
+			"裂隙",
+			"溶解"
+		]
+	},
+	"rarity_damage": {
+		"common": 10,
+		"rare": 18,
+		"divine": 30,
+		"artifact": 50
+	},
+	"rarity_order": [
+		"common",
+		"rare",
+		"divine",
+		"artifact"
+	],
+	"elite": {
+		"hp_mult": 3,
+		"damage_mult": 1.5,
+		"bullet_damage_mult": 0.75
+	},
+	"boss": {
+		"hp_mult": 15,
+		"damage_mult": 2,
+		"bullet_damage_mult": 1
+	},
+	"juice": {
+		"hit_flash_s": 0.08,
+		"hit_pop_s": 0.1,
+		"hit_pop_scale": 1.15,
+		"floater_max": 32,
+		"floater_life_s": 0.5,
+		"floater_rise_px": 24,
+		"floater_font_size": 16,
+		"floater_gold_font_size": 22,
+		"trail_len": 6,
+		"trail_alpha": 0.25,
+		"bounce_ring_s": 0.18,
+		"bounce_ring_r0_px": 4,
+		"bounce_ring_r1_px": 18,
+		"bounce_ring_max": 24,
+		"dying_max": 64,
+		"dying_s": 0.12,
+		"shake_elite_px": 4,
+		"shake_elite_s": 0.2,
+		"shake_boss_px": 8,
+		"shake_boss_s": 0.4,
+		"shake_player_px": 5,
+		"shake_player_s": 0.25,
+		"shake_boss_hit_px": 6,
+		"shake_boss_hit_s": 0.3,
+		"hurt_flash_s": 0.3,
+		"hurt_edge_px": 60,
+		"hurt_alpha": 0.45,
+		"freeze_s": 0.05,
+		"banner_slide_s": 0.2,
+		"banner_hold_s": 0.7,
+		"banner_fade_s": 0.3,
+		"banner_font_size": 34,
+		"slowmo_s": 0.4,
+		"slowmo_scale": 0.3
+	},
+	"mob_ai": {
+		"ranged_hold_row": 3,
+		"strafe_chance": 0.22,
+		"elite_strafe_chance": 0.5,
+		"lunge_from_bottom": 4,
+		"lunge_chance": 0.15,
+		"lunge_rows": 2,
+		"lunge_windup_s": 0.35
+	}
+}

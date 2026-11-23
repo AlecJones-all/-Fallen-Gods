@@ -1,0 +1,134 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/panels/ShopPanel.gd" id="1"]
+
+[node name="ShopPanel" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_bottom = 2
+script = ExtResource("1")
+
+[node name="Mask" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_bottom = 2
+color = Color(0, 0, 0, 0.62)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_bottom = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(440, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "结算商店"
+horizontal_alignment = 1
+
+[node name="Settle" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="Forge" type="Label" parent="Center/Panel/Margin/VBox"]
+visible = false
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Balance" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Ichor：0 ｜ 残片：0"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="Center/Panel/Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="NewWeaponTitle" type="Label" parent="Center/Panel/Margin/VBox/Scroll/List"]
+layout_mode = 2
+text = "新武器 · 50 Ichor"
+
+[node name="OfferName" type="Label" parent="Center/Panel/Margin/VBox/Scroll/List"]
+layout_mode = 2
+text = ""
+
+[node name="OfferDesc" type="Label" parent="Center/Panel/Margin/VBox/Scroll/List"]
+layout_mode = 2
+text = ""
+autowrap_mode = 2
+
+[node name="BuyBtn" type="Button" parent="Center/Panel/Margin/VBox/Scroll/List"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "购买新武器 · 50"
+
+[node name="WeaponsTitle" type="Label" parent="Center/Panel/Margin/VBox/Scroll/List"]
+layout_mode = 2
+text = "武器升级（凡→灵 60 ｜ 灵→神 150）"
+
+[node name="Weapons" type="VBoxContainer" parent="Center/Panel/Margin/VBox/Scroll/List"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StatsTitle" type="Label" parent="Center/Panel/Margin/VBox/Scroll/List"]
+layout_mode = 2
+text = "属性点 · 30 Ichor / 项"
+
+[node name="Stats" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Scroll/List"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PowerBtn" type="Button" parent="Center/Panel/Margin/VBox/Scroll/List/Stats"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "神力 +5"
+
+[node name="HpBtn" type="Button" parent="Center/Panel/Margin/VBox/Scroll/List/Stats"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "神性 +50"
+
+[node name="SpeedBtn" type="Button" parent="Center/Panel/Margin/VBox/Scroll/List/Stats"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "神速 +0.2"
+
+[node name="ContinueBtn" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "继续"

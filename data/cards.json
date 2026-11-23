@@ -1,0 +1,75 @@
+{
+	"prometheus_fire": {
+		"name": "普罗米修斯之火",
+		"faction": "order",
+		"kind": "ranged",
+		"base_damage": 8,
+		"attack_speed": 2.0,
+		"corruption_per_hit": 0,
+		"initial": true,
+		"effects": { "burn": { "dps": 2, "duration_s": 2 } }
+	},
+	"artemis_bow": {
+		"name": "阿尔忒弥斯之弓",
+		"faction": "order",
+		"kind": "ranged",
+		"base_damage": 16,
+		"attack_speed": 1.0,
+		"corruption_per_hit": 0,
+		"effects": { "pierce": 3 }
+	},
+	"zeus_thunder": {
+		"name": "宙斯雷霆",
+		"faction": "order",
+		"kind": "ranged",
+		"base_damage": 12,
+		"attack_speed": 1.5,
+		"corruption_per_hit": 0,
+		"effects": { "chain": 2 }
+	},
+	"ares_spear": {
+		"name": "阿瑞斯之矛",
+		"faction": "order",
+		"kind": "melee",
+		"base_damage": 20,
+		"attack_speed": 1.0,
+		"corruption_per_hit": 0,
+		"effects": { "knockback_px": 48, "reflect_enemy_bullets": true }
+	},
+	"aegis": {
+		"name": "埃癸斯",
+		"faction": "order",
+		"kind": "shield",
+		"base_damage": 0,
+		"attack_speed": 0,
+		"corruption_per_hit": 0,
+		"effects": { "bounce_radius_mult": 1.5, "cleanse_on_ball": 1, "cleanse_interval_s": 1.0 }
+	},
+	"abyss_touch": {
+		"name": "噬渊之触",
+		"faction": "chaos",
+		"kind": "melee",
+		"base_damage": 24,
+		"attack_speed": 1.0,
+		"corruption_per_hit": 2,
+		"effects": { "lifesteal": 0.10 }
+	},
+	"veil_eye": {
+		"name": "帷裂之瞳",
+		"faction": "chaos",
+		"kind": "ranged",
+		"base_damage": 22,
+		"attack_speed": 1.0,
+		"corruption_per_hit": 2,
+		"effects": { "speed_variance": 0.3 }
+	},
+	"hydra_fang": {
+		"name": "许德拉之牙",
+		"faction": "chaos",
+		"kind": "melee",
+		"base_damage": 10,
+		"attack_speed": 1.0,
+		"corruption_per_hit": 1,
+		"effects": { "split": 3, "split_damage_mult": 0.5 }
+	}
+}

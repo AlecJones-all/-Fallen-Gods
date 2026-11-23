@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="TaTokens" format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSansSC-Regular.otf" id="1_8p8io"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSansSC-Bold.otf" id="2_rmj1u"]
+[ext_resource type="Script" path="res://addons/theme_assist/src/core/ta_tokens.gd" id="3_ndy66"]
+
+[resource]
+script = ExtResource("3_ndy66")
+look_id = "framed"
+family = 1
+color_bg = Color(0.0627451, 0.0627451, 0.09411765, 1)
+color_panel = Color(0.105882354, 0.105882354, 0.14901961, 1)
+color_card = Color(0.1254902, 0.1254902, 0.18039216, 1)
+color_surface = Color(0.1254902, 0.1254902, 0.18039216, 1)
+color_surface_hover = Color(0.16470589, 0.16470589, 0.23529412, 1)
+color_surface_pressed = Color(0.19607843, 0.19607843, 0.2901961, 1)
+color_text = Color(0.9490196, 0.9490196, 0.96862745, 1)
+color_muted = Color(0.6039216, 0.6039216, 0.69803923, 1)
+color_accent = Color(0.9098039, 0.7529412, 0.3529412, 1)
+color_border = Color(0.2901961, 0.2901961, 0.3764706, 1)
+color_shadow = Color(0.050980393, 0.039215688, 0.03137255, 1)
+color_danger = Color(0.8784314, 0.33333334, 0.33333334, 1)
+color_success = Color(0.5254902, 0.7411765, 0.36078432, 1)
+color_warning = Color(0.90588236, 0.7764706, 0.38039216, 1)
+color_rarity = Color(0.6392157, 0.52156866, 0.8392157, 1)
+color_disabled_bg = Color(0.16470589, 0.14117648, 0.11764706, 1)
+color_disabled_text = Color(0.46666667, 0.41568628, 0.34117648, 1)
+face = ExtResource("1_8p8io")
+face_title = ExtResource("2_rmj1u")
+face_bold = ExtResource("2_rmj1u")
+fallback_fonts = Array[Font]([ExtResource("1_8p8io")])
+font_size = 11
+font_size_title = 22
+font_size_caption = 7
+radius = 1
+border_width = 3
+control_border = 1
+edge = 1
+inset = 1
+lip = 1
+chip_ribbon = true
+select_brackets = true
+title_mark = true
+content_margin = 4
+panel_margin = 7
+button_min_height = 20
+focus_width = 1
+pixel_scale = 2
+fanfare = 0.8
+metadata/ta_kit_faces = {
+"face_caption": "grain_small"
+}
+metadata/ta_no_faces = PackedStringArray("face_italic")

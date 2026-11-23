@@ -1,0 +1,25 @@
+{
+	"ichor_gain": {
+		"mob": 2,
+		"elite": 15,
+		"boss": 40,
+		"settle": 20,
+		"first_clear_bonus": 50
+	},
+	"altar": {
+		"purify": { "cost": 20, "corruption_delta": -15 },
+		"heal": { "cost": 15, "hp_delta": 50 },
+		"enhance": {
+			"cost": 20,
+			"options": { "power": 5, "hp": 50, "speed": 0.2 }
+		}
+	},
+	"shop": {
+		"new_weapon": 50,
+		"upgrade_common_to_rare": 60,
+		"upgrade_rare_to_divine": 150,
+		"stat_point": 30,
+		"stat_point_options": { "power": 5, "hp": 50, "speed": 0.2 }
+	},
+	"shards": { "elite_drop": 1, "boss_drop": 2, "forge_cost": 3 }
+}

@@ -1,0 +1,95 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/panels/AltarPanel.gd" id="1"]
+
+[node name="AltarPanel" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_bottom = 2
+script = ExtResource("1")
+
+[node name="Mask" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_bottom = 2
+color = Color(0, 0, 0, 0.62)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_bottom = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "净礼坛"
+horizontal_alignment = 1
+
+[node name="Balance" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Ichor 余额：0"
+horizontal_alignment = 1
+
+[node name="PurifyBtn" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "净礼 · 20 Ichor ｜ 污秽 −15"
+
+[node name="HealBtn" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "疗愈 · 15 Ichor ｜ 回血 +50"
+
+[node name="EnhanceBtn" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "强化 · 20 Ichor ｜ 指定属性 +1 项"
+
+[node name="EnhanceBox" type="VBoxContainer" parent="Center/Panel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PowerBtn" type="Button" parent="Center/Panel/Margin/VBox/EnhanceBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "神力 +5"
+
+[node name="HpBtn" type="Button" parent="Center/Panel/Margin/VBox/EnhanceBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "神性 +50"
+
+[node name="SpeedBtn" type="Button" parent="Center/Panel/Margin/VBox/EnhanceBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "神速 +0.2"
+
+[node name="LeaveBtn" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "离开"
