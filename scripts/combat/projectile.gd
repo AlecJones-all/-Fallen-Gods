@@ -1,7 +1,7 @@
 extends Area3D
 
 ## Shared projectile (player crossbow and enemy shots). Motion is a manual
-## raycast sweep so travel is deterministic and cheap in headless runs.
+## sphere sweep so travel is deterministic and cheap in headless runs.
 
 const LAYER_WORLD: int = 1
 const LAYER_PLAYER: int = 2
@@ -67,24 +67,52 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_queued_for_deletion():
+		return
+
 	_life_left -= delta
 	if _life_left <= 0.0:
 		queue_free()
 		return
 
-	var from := global_position
-	var to := from + _direction * _speed * delta
+	sweep_to(global_position + _direction * _speed * delta)
 
-	var query := PhysicsRayQueryParameters3D.create(from, to, collision_mask)
+
+func sweep_to(destination: Vector3) -> void:
+	if is_queued_for_deletion():
+		return
+
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = _collision.shape
+	query.transform = _collision.global_transform
+	query.collision_mask = collision_mask
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
-	query.exclude.append(get_rid())
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	query.exclude = [get_rid()]
 
-	if not hit.is_empty():
-		_impact(hit.get("collider"))
+	var space := get_world_3d().direct_space_state
+	var hits: Array[Dictionary] = space.intersect_shape(query, 1)
+	if not hits.is_empty():
+		_impact(hits[0].get("collider"))
 		return
-	global_position = to
+
+	var from := global_position
+	var motion := destination - from
+	if motion == Vector3.ZERO:
+		return
+
+	query.motion = motion
+	var fractions: PackedFloat32Array = space.cast_motion(query)
+	if fractions[0] >= 1.0:
+		global_position = destination
+		return
+
+	global_position = from + motion * fractions[1]
+	query.transform = _collision.global_transform
+	query.motion = Vector3.ZERO
+	query.margin = 0.001
+	hits = space.intersect_shape(query, 1)
+	_impact(hits[0].get("collider") if not hits.is_empty() else null)
 
 
 func _apply_layers() -> void:
@@ -132,7 +160,7 @@ func _apply_visuals() -> void:
 
 func _impact(collider: Variant) -> void:
 	if collider != null and collider is Object and (collider as Object).has_method(&"take_damage"):
-		collider.call(&"take_damage", _damage, global_position)
+		collider.call(&"take_damage", _damage, global_position if _hostile else _direction)
 	else:
 		Audio.play_at(&"bolt_wall", global_position)
 	queue_free()

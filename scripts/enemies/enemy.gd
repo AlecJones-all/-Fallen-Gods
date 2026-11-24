@@ -31,10 +31,11 @@ const WINDUP_COLOR: Color = Color(1.0, 0.95, 0.25)
 const WINDUP_ENERGY: float = 1.6
 const AFFIX_AURA_ENERGY: float = 0.4
 
-const TELEGRAPH_COLOR: Color = Color(1.0, 0.82, 0.2, 0.18)
+const TELEGRAPH_COLOR: Color = Color(1.0, 0.82, 0.2, 0.28)
 const TELEGRAPH_Y: float = 0.03
-const TELEGRAPH_START_SCALE: float = 0.55
-const TELEGRAPH_HEIGHT: float = 0.02
+const TELEGRAPH_SEGMENTS: int = 48
+const TELEGRAPH_BOUNDARY_WIDTH: float = 0.045
+const AIM_LINE_WIDTH: float = 0.045
 
 const DAMAGE_NUMBER_COLOR: Color = Color(1.0, 0.86, 0.45)
 
@@ -73,12 +74,18 @@ var _affix_data: Dictionary = {}
 var _damage_taken_mult: float = 1.0
 
 var _attack_range: float = 1.8
+var _attack_arc_deg: float = 110.0
 var _windup_sec: float = 0.45
+var _aim_lock_sec: float = 0.1
 var _attack_cooldown: float = 1.1
 var _preferred_range: float = 8.0
 var _min_range: float = 4.5
 var _fire_interval: float = 1.7
 var _projectile_speed: float = 13.0
+var _attack_origin: Vector3 = Vector3.ZERO
+var _attack_direction: Vector3 = Vector3.FORWARD
+var _aim_locked: bool = false
+var _windup_target: Node3D
 
 var _gravity: float = 9.8
 var _state: State = State.MOVE
@@ -100,8 +107,12 @@ var _eye: MeshInstance3D
 var _eye_material: StandardMaterial3D
 var _body_material: StandardMaterial3D
 var _body_color: Color = Color(0.70, 0.22, 0.20)
-var _telegraph: MeshInstance3D
-var _telegraph_tween: Tween
+var _telegraph: Node3D
+var _telegraph_boundary: MeshInstance3D
+var _telegraph_fill: MeshInstance3D
+var _aim_telegraph: Node3D
+var _aim_boundary: MeshInstance3D
+var _aim_fill: MeshInstance3D
 
 
 func configure(kind: StringName, floor_number: int, spawn_position: Vector3) -> void:
@@ -198,16 +209,24 @@ func _physics_process(delta: float) -> void:
 	_poll_player(delta)
 
 	var target: Node3D = _player if _is_usable_player(_player) else null
+	var cancelled := _state == State.WINDUP and (
+		not _is_usable_player(_windup_target) or target != _windup_target)
+	if cancelled:
+		_cancel_windup()
 	var desired := Vector3.ZERO
-	if target != null:
-		_face(target.global_position)
+	if target != null and not cancelled:
+		var was_winding_up := _state == State.WINDUP
+		if not was_winding_up:
+			_face(target.global_position)
 		desired = _decide(delta, target)
-		if _state != State.WINDUP:
+		if _state != State.WINDUP and not was_winding_up:
 			desired += _separation() * SEPARATION_WEIGHT
 		if desired.length_squared() > 1.0:
 			desired = desired.normalized()
 
 	_drive(desired, delta)
+	if _state == State.WINDUP:
+		look_at(global_position + _attack_direction, Vector3.UP)
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 	move_and_slide()
@@ -229,7 +248,9 @@ func _read_tuning() -> void:
 	_knockback_resist = float(block.get("knockback_resist", 0.0))
 
 	_attack_range = float(block.get("attack_range", 1.8))
-	_windup_sec = float(block.get("windup_sec", 0.45))
+	_attack_arc_deg = clampf(float(block.get("attack_arc_deg", 110.0)), 1.0, 180.0)
+	_windup_sec = maxf(float(block.get("windup_sec", 0.3 if _kind == KIND_SHOOTER else 0.45)), 0.01)
+	_aim_lock_sec = clampf(float(block.get("aim_lock_sec", 0.1)), 0.0, _windup_sec)
 	_attack_cooldown = float(block.get("attack_cooldown", 1.1))
 	_preferred_range = float(block.get("preferred_range", 8.0))
 	_min_range = float(block.get("min_range", 4.5))
@@ -282,26 +303,83 @@ func _build_visuals() -> void:
 
 
 func _build_telegraph() -> void:
+	_telegraph = Node3D.new()
+	_telegraph.name = "WindupTelegraph"
+	_telegraph.top_level = true
+	_telegraph.visible = false
+	add_child(_telegraph)
+	_telegraph_boundary = _telegraph_part(_telegraph, "Boundary", Color(TELEGRAPH_COLOR, 0.9))
+	_telegraph_fill = _telegraph_part(_telegraph, "Fill", TELEGRAPH_COLOR)
+	_telegraph_fill.position.y = 0.002
+
+	_aim_telegraph = Node3D.new()
+	_aim_telegraph.name = "AimTelegraph"
+	_aim_telegraph.top_level = true
+	_aim_telegraph.visible = false
+	add_child(_aim_telegraph)
+	_aim_boundary = _telegraph_part(_aim_telegraph, "Boundary", Color(0.65, 0.85, 1.0, 0.9))
+	_aim_fill = _telegraph_part(_aim_telegraph, "Fill", Color(0.65, 0.85, 1.0, 0.5))
+	_aim_fill.position.y = 0.002
+
+
+func _telegraph_part(parent: Node3D, part_name: String, color: Color) -> MeshInstance3D:
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.albedo_color = TELEGRAPH_COLOR
+	material.albedo_color = color
+	material.emission_enabled = true
+	material.emission = color
+	material.emission_energy_multiplier = 0.8
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var part := MeshInstance3D.new()
+	part.name = part_name
+	part.material_override = material
+	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(part)
+	return part
 
-	var disc := CylinderMesh.new()
-	disc.top_radius = 1.0
-	disc.bottom_radius = 1.0
-	disc.height = TELEGRAPH_HEIGHT
-	disc.radial_segments = 24
-	disc.rings = 1
 
-	_telegraph = MeshInstance3D.new()
-	_telegraph.name = "WindupTelegraph"
-	_telegraph.mesh = disc
-	_telegraph.material_override = material
-	_telegraph.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_telegraph.visible = false
-	add_child(_telegraph)
+func _sector_point(radius: float, angle: float) -> Vector3:
+	return Vector3(sin(angle) * radius, 0.0, -cos(angle) * radius)
+
+
+func _sector_mesh(radius: float, boundary: bool) -> ArrayMesh:
+	var vertices := PackedVector3Array()
+	var half_angle := deg_to_rad(_attack_arc_deg) * 0.5
+	var inner_radius := maxf(radius - TELEGRAPH_BOUNDARY_WIDTH, 0.0)
+	for i: int in TELEGRAPH_SEGMENTS:
+		var angle_a := -half_angle + 2.0 * half_angle * float(i) / float(TELEGRAPH_SEGMENTS)
+		var angle_b := -half_angle + 2.0 * half_angle * float(i + 1) / float(TELEGRAPH_SEGMENTS)
+		var a := _sector_point(radius, angle_a)
+		var b := _sector_point(radius, angle_b)
+		if boundary:
+			var inner_a := _sector_point(inner_radius, angle_a)
+			var inner_b := _sector_point(inner_radius, angle_b)
+			vertices.append_array(PackedVector3Array([inner_a, a, b, inner_a, b, inner_b]))
+		else:
+			vertices.append_array(PackedVector3Array([Vector3.ZERO, a, b]))
+	if boundary:
+		var inset := minf(TELEGRAPH_BOUNDARY_WIDTH / maxf(radius, 0.01), half_angle)
+		vertices.append_array(PackedVector3Array([
+			Vector3.ZERO, _sector_point(radius, -half_angle), _sector_point(radius, -half_angle + inset),
+			Vector3.ZERO, _sector_point(radius, half_angle - inset), _sector_point(radius, half_angle)]))
+	return _ground_mesh(vertices)
+
+
+func _aim_mesh(length: float, width: float) -> ArrayMesh:
+	var half := width * 0.5
+	return _ground_mesh(PackedVector3Array([
+		Vector3(-half, 0.0, 0.0), Vector3(half, 0.0, 0.0), Vector3(half, 0.0, -length),
+		Vector3(-half, 0.0, 0.0), Vector3(half, 0.0, -length), Vector3(-half, 0.0, -length)]))
+
+
+func _ground_mesh(vertices: PackedVector3Array) -> ArrayMesh:
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
 
 
 func _apply_geometry() -> void:
@@ -415,60 +493,129 @@ func _decide(delta: float, target: Node3D) -> Vector3:
 
 func _decide_melee(delta: float, target: Node3D, direction: Vector3, distance: float) -> Vector3:
 	if _state == State.WINDUP:
-		_windup_left -= delta
+		_advance_windup(delta, target)
 		if _windup_left <= 0.0:
-			_resolve_attack(target, distance)
+			_resolve_attack(target)
 		return Vector3.ZERO
 
 	if _state == State.RECOVER:
 		return direction if distance > _attack_range * 0.9 else Vector3.ZERO
 
 	if distance <= _attack_range and _cooldown_left <= 0.0:
-		_state = State.WINDUP
-		_windup_left = _windup_sec
-		_start_telegraph()
+		_begin_windup(target)
 		return Vector3.ZERO
 
 	return direction if distance > _attack_range * 0.9 else Vector3.ZERO
 
 
-func _start_telegraph() -> void:
-	if _telegraph == null:
-		return
-	if _telegraph_tween != null and _telegraph_tween.is_valid():
-		_telegraph_tween.kill()
+func _begin_windup(target: Node3D) -> void:
+	_state = State.WINDUP
+	_windup_left = _windup_sec
+	_windup_target = target
+	_attack_origin = global_position
+	velocity.x = 0.0
+	velocity.z = 0.0
+	_attack_direction = -global_basis.z
+	_attack_direction.y = 0.0
+	_attack_direction = _attack_direction.normalized()
+	_track_windup_target(target)
+	_aim_locked = _windup_left <= _aim_lock_sec + 0.000001
+	_start_telegraph()
 
-	var reach := _attack_range * ATTACK_REACH_SLACK
-	_telegraph.visible = true
-	_telegraph.position = Vector3(0.0, TELEGRAPH_Y, 0.0)
-	_telegraph.scale = Vector3(reach * TELEGRAPH_START_SCALE, 1.0, reach * TELEGRAPH_START_SCALE)
-	_telegraph_tween = create_tween()
-	_telegraph_tween.tween_property(_telegraph, "scale", Vector3(reach, 1.0, reach),
-		maxf(_windup_sec, 0.05))
+
+func _track_windup_target(target: Node3D) -> void:
+	var flat := target.global_position - _attack_origin
+	flat.y = 0.0
+	if flat.length_squared() > FLAT_EPSILON:
+		_attack_direction = flat.normalized()
+	look_at(global_position + _attack_direction, Vector3.UP)
+
+
+func _advance_windup(delta: float, target: Node3D) -> void:
+	if not _aim_locked:
+		_track_windup_target(target)
+	_windup_left = maxf(_windup_left - delta, 0.0)
+	if _windup_left <= _aim_lock_sec + 0.000001:
+		_aim_locked = true
+	_update_windup_telegraph()
+
+
+func _start_telegraph() -> void:
+	_stop_telegraph()
+	if _kind == KIND_SHOOTER:
+		var length := _preferred_range * FIRE_RANGE_FACTOR
+		_aim_boundary.mesh = _aim_mesh(length, AIM_LINE_WIDTH)
+		_aim_fill.mesh = _aim_mesh(length, AIM_LINE_WIDTH * 3.0)
+		_aim_telegraph.global_position = _attack_origin + Vector3.UP * TELEGRAPH_Y
+		_aim_telegraph.visible = true
+	else:
+		var reach := _attack_range * ATTACK_REACH_SLACK
+		_telegraph_boundary.mesh = _sector_mesh(reach, true)
+		_telegraph_fill.mesh = _sector_mesh(1.0, false)
+		_telegraph.global_position = _attack_origin + Vector3.UP * TELEGRAPH_Y
+		_telegraph.visible = true
+	_update_windup_telegraph()
+
+
+func _update_windup_telegraph() -> void:
+	var progress := clampf(1.0 - _windup_left / _windup_sec, 0.0, 1.0)
+	if _kind == KIND_SHOOTER:
+		_aim_telegraph.look_at(_aim_telegraph.global_position + _attack_direction, Vector3.UP)
+		_aim_fill.visible = progress > 0.0
+		_aim_fill.scale = Vector3(1.0, 1.0, progress)
+	else:
+		_telegraph.look_at(_telegraph.global_position + _attack_direction, Vector3.UP)
+		var fill_radius := _attack_range * ATTACK_REACH_SLACK * progress
+		_telegraph_fill.visible = progress > 0.0
+		_telegraph_fill.scale = Vector3(fill_radius, 1.0, fill_radius)
 
 
 func _stop_telegraph() -> void:
-	if _telegraph_tween != null and _telegraph_tween.is_valid():
-		_telegraph_tween.kill()
-	_telegraph_tween = null
 	if _telegraph != null:
 		_telegraph.visible = false
+	if _aim_telegraph != null:
+		_aim_telegraph.visible = false
 
 
-func _resolve_attack(target: Node3D, distance: float) -> void:
+func _cancel_windup() -> void:
+	_state = State.MOVE
+	_windup_left = 0.0
+	_windup_target = null
+	_aim_locked = false
+	_stop_telegraph()
+
+
+func _resolve_attack(target: Node3D) -> void:
 	_state = State.RECOVER
 	_cooldown_left = _attack_cooldown
+	_windup_target = null
 	_stop_telegraph()
-	Audio.play_at(&"enemy_swing", global_position)
-	if distance > _attack_range * ATTACK_REACH_SLACK:
-		return
+	Audio.play_at(&"enemy_swing", _attack_origin)
 	if not _is_usable_player(target) or not target.has_method(&"take_damage"):
 		return
-	target.call(&"take_damage", _damage, global_position)
+	var flat := target.global_position - _attack_origin
+	flat.y = 0.0
+	var reach := _attack_range * ATTACK_REACH_SLACK
+	if flat.length_squared() > reach * reach:
+		return
+	if flat.length_squared() > 0.0:
+		if _attack_direction.dot(flat.normalized()) < cos(deg_to_rad(_attack_arc_deg) * 0.5):
+			return
+	if not _wall_clear(_attack_origin + Vector3.UP * PLAYER_TORSO_HEIGHT,
+		target.global_position + Vector3.UP * PLAYER_TORSO_HEIGHT):
+		return
+	target.call(&"take_damage", _damage, _attack_origin)
 
 
-func _decide_shooter(_delta: float, target: Node3D, direction: Vector3, distance: float) -> Vector3:
+func _decide_shooter(delta: float, target: Node3D, direction: Vector3, distance: float) -> Vector3:
+	if _state == State.WINDUP:
+		_advance_windup(delta, target)
+		if _windup_left <= 0.0:
+			_resolve_shot(target)
+		return Vector3.ZERO
 	_try_fire(target, distance)
+	if _state == State.WINDUP:
+		return Vector3.ZERO
 
 	if distance < _min_range:
 		return -direction
@@ -478,49 +625,65 @@ func _decide_shooter(_delta: float, target: Node3D, direction: Vector3, distance
 
 
 func _try_fire(target: Node3D, distance: float) -> void:
-	if _fire_left > 0.0 or distance > _preferred_range * FIRE_RANGE_FACTOR:
+	if _state != State.MOVE or _fire_left > 0.0 or distance > _preferred_range * FIRE_RANGE_FACTOR:
 		return
-	if not _has_line_of_sight(target):
+	if not _is_usable_player(target) or not _has_line_of_sight(target):
 		return
-
-	_fire_left = _fire_interval
 	var to_player := target.global_position - global_position
 	to_player.y = 0.0
 	if to_player.length_squared() < FLAT_EPSILON:
 		return
-	_spawn_projectile(to_player.normalized())
+	_begin_windup(target)
+
+
+func _resolve_shot(target: Node3D) -> void:
+	_state = State.MOVE
+	_fire_left = _fire_interval
+	_windup_target = null
+	_stop_telegraph()
+	if _is_usable_player(target):
+		_spawn_projectile(_attack_direction, _attack_origin)
 
 
 func _has_line_of_sight(target: Node3D) -> bool:
-	var from := global_position + Vector3.UP * _height * EYE_HEIGHT_FACTOR
-	var to := target.global_position + Vector3.UP * PLAYER_TORSO_HEIGHT
+	return _wall_clear(global_position + Vector3.UP * _height * EYE_HEIGHT_FACTOR,
+		target.global_position + Vector3.UP * PLAYER_TORSO_HEIGHT)
+
+
+func _wall_clear(from: Vector3, to: Vector3) -> bool:
+	if from.distance_squared_to(to) < FLAT_EPSILON:
+		return true
 	var query := PhysicsRayQueryParameters3D.create(from, to, 1)
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
+	query.exclude = [get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	return hit.is_empty()
 
 
-func _spawn_projectile(direction: Vector3) -> void:
+func _spawn_projectile(direction: Vector3, source_origin: Vector3) -> void:
 	var shot := PROJECTILE_SCENE.instantiate()
-	if shot == null or not shot.has_method(&"configure"):
+	if shot == null:
+		return
+	var shot_node := shot as Node3D
+	if shot_node == null or not shot.has_method(&"configure") or not shot.has_method(&"sweep_to"):
+		shot.queue_free()
 		return
 
 	shot.call(&"configure", direction, _projectile_speed, _damage, true, PROJECTILE_LIFETIME)
-
 	var parent := get_tree().get_first_node_in_group(GROUP_PROJECTILE_ROOT)
 	if parent == null:
 		parent = get_parent()
 	if parent == null:
+		shot.queue_free()
 		return
 
 	parent.add_child(shot)
-	var shot_node := shot as Node3D
-	if shot_node != null:
-		var muzzle := global_position + Vector3.UP * _height * EYE_HEIGHT_FACTOR
-		muzzle += direction * PROJECTILE_MUZZLE_OFFSET
-		shot_node.global_position = muzzle
-		Audio.play_at(&"enemy_shot", muzzle)
+	var source := source_origin + Vector3.UP * _height * EYE_HEIGHT_FACTOR
+	var muzzle := source + direction * PROJECTILE_MUZZLE_OFFSET
+	shot_node.global_position = source
+	shot.call(&"sweep_to", muzzle)
+	Audio.play_at(&"enemy_shot", muzzle)
 
 
 func _separation() -> Vector3:
@@ -580,7 +743,7 @@ func _die() -> void:
 	_state = State.MOVE
 	velocity = Vector3.ZERO
 	set_physics_process(false)
-	_stop_telegraph()
+	_cancel_windup()
 	if _collision != null:
 		_collision.set_deferred("disabled", true)
 	set_deferred("collision_layer", 0)

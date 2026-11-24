@@ -22,8 +22,6 @@ const WEAPON_CROSSBOW: int = 1
 const WEAPON_COUNT: int = 2
 const WEAPON_LABELS: Array[String] = ["长剑", "连弩"]
 
-const SWING_SEC: float = 0.16
-const MELEE_REACH_SLACK: float = 0.9
 const MUZZLE_FORWARD: float = 0.9
 const MUZZLE_HEIGHT: float = 0.9
 const HIT_FLASH_TINT: Color = Color(1.0, 0.25, 0.2)
@@ -49,8 +47,14 @@ var _base_albedo: Color = Color(0.8, 0.8, 0.82)
 
 var _move_speed: float = 5.5
 var _sprint_multiplier: float = 1.6
-var _acceleration: float = 40.0
-var _friction: float = 30.0
+var _acceleration: float = 60.0
+var _friction: float = 75.0
+var _turn_acceleration: float = 90.0
+var _attack_buffer_sec: float = 0.1
+var _dash_buffer_sec: float = 0.08
+var _attack_buffer_until_msec: int = 0
+var _dash_buffer_until_msec: int = 0
+var _dash_ended: bool = false
 var _dash_speed: float = 16.0
 var _dash_time: float = 0.16
 var _dash_cooldown: float = 1.0
@@ -66,10 +70,15 @@ var _ghost_left: float = 0.0
 
 var _weapon_index: int = WEAPON_BLADE
 var _attack_left: float = 0.0
-var _swing_left: float = 0.0
+var _swing_elapsed: float = -1.0
+var _swing_direction: Vector3 = Vector3.FORWARD
+var _swing_hits: Array[int] = []
+var _swing_visible_frame: int = -1
 
 var _blade_damage: float = 26.0
-var _blade_cooldown: float = 0.42
+var _blade_startup: float = 0.035
+var _blade_active: float = 0.09
+var _blade_recovery: float = 0.295
 var _blade_range: float = 2.7
 var _blade_arc_deg: float = 110.0
 var _blade_knockback: float = 7.0
@@ -98,8 +107,8 @@ func _physics_process(delta: float) -> void:
 	_update_aim()
 	_update_dash(delta)
 	_update_survival(delta)
-	_update_attack(delta)
 	_update_swing(delta)
+	_update_attack(delta)
 	_update_velocity(delta)
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
@@ -107,11 +116,24 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _dead or get_tree().paused:
+		return
+	var now := Time.get_ticks_msec()
+	if event.is_action_pressed("attack"):
+		_attack_buffer_until_msec = now + int(_attack_buffer_sec * 1000.0)
+	if event.is_action_pressed("dash"):
+		_dash_buffer_until_msec = now + int(_dash_buffer_sec * 1000.0)
 	if not OS.is_debug_build():
 		return
 	var key := event as InputEventKey
 	if key != null and key.pressed and not key.echo and key.physical_keycode == KEY_F1:
 		take_damage(10.0)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PAUSED:
+		_attack_buffer_until_msec = 0
+		_dash_buffer_until_msec = 0
 
 
 func get_current_hp() -> float:
@@ -144,7 +166,9 @@ func take_damage(amount: float, source_position: Vector3 = Vector3.INF) -> void:
 	if _current_hp > 0.0:
 		return
 	_dead = true
-	_swing_left = 0.0
+	_end_swing()
+	_attack_buffer_until_msec = 0
+	_dash_buffer_until_msec = 0
 	_hide_combat_visuals()
 	set_physics_process(false)
 	Audio.play(&"player_death")
@@ -173,8 +197,10 @@ func get_dash_total() -> float:
 
 func select_weapon(index: int) -> void:
 	var wrapped := posmod(index, WEAPON_COUNT)
-	if wrapped == _weapon_index:
+	if wrapped == _weapon_index or (_swing_elapsed >= 0.0 and _swing_elapsed < _blade_startup + _blade_active):
 		return
+	_end_swing()
+	_attack_buffer_until_msec = 0
 	_weapon_index = wrapped
 	weapon_changed.emit(_weapon_index, get_weapon_label())
 
@@ -195,8 +221,11 @@ func _read_tuning() -> void:
 	_max_hp = float(Tuning.value("player", "max_hp", 100.0))
 	_move_speed = float(Tuning.value("player", "move_speed", 5.5))
 	_sprint_multiplier = float(Tuning.value("player", "sprint_multiplier", 1.6))
-	_acceleration = float(Tuning.value("player", "acceleration", 40.0))
-	_friction = float(Tuning.value("player", "friction", 30.0))
+	_acceleration = float(Tuning.value("player", "acceleration", 60.0))
+	_friction = float(Tuning.value("player", "friction", 75.0))
+	_turn_acceleration = float(Tuning.value("player", "turn_acceleration", 90.0))
+	_attack_buffer_sec = float(Tuning.value("player", "attack_buffer_sec", 0.1))
+	_dash_buffer_sec = float(Tuning.value("player", "dash_buffer_sec", 0.08))
 	_dash_speed = float(Tuning.value("player", "dash_speed", 16.0))
 	_dash_time = float(Tuning.value("player", "dash_time", 0.16))
 	_dash_cooldown = float(Tuning.value("player", "dash_cooldown", 1.0))
@@ -208,7 +237,9 @@ func _read_tuning() -> void:
 
 	var blade: Dictionary = Tuning.section("weapons").get("blade", {})
 	_blade_damage = float(blade.get("damage", 26.0))
-	_blade_cooldown = float(blade.get("cooldown", 0.42))
+	_blade_startup = float(blade.get("startup_sec", 0.035))
+	_blade_active = float(blade.get("active_sec", 0.09))
+	_blade_recovery = float(blade.get("recovery_sec", 0.295))
 	_blade_range = float(blade.get("range", 2.7))
 	_blade_arc_deg = float(blade.get("arc_deg", 110.0))
 	_blade_knockback = float(blade.get("knockback", 7.0))
@@ -241,6 +272,10 @@ func _apply_geometry() -> void:
 	_body_mesh.position = Vector3(0.0, _height * 0.5, 0.0)
 
 	_facing.position = Vector3(0.0, _height * 0.6, 0.0)
+	var blade := _blade_mesh.mesh.duplicate() as BoxMesh
+	blade.size.z = _blade_range
+	_blade_mesh.mesh = blade
+	_blade_mesh.position.z = -_blade_range * 0.5
 
 
 func _setup_hit_flash() -> void:
@@ -284,6 +319,7 @@ func _update_aim() -> void:
 	_aim_marker.global_position = Vector3(point.x, AIM_MARKER_Y, point.z)
 
 	if _has_aim and point.distance_squared_to(_aim_point) < AIM_EPSILON:
+		_face_aim()
 		return
 	_has_aim = true
 	_aim_point = point
@@ -292,6 +328,8 @@ func _update_aim() -> void:
 
 
 func _face_aim() -> void:
+	if _swing_elapsed >= 0.0 and _swing_elapsed < _blade_startup + _blade_active:
+		return
 	var flat := _aim_point - _facing.global_position
 	flat.y = 0.0
 	if flat.length_squared() < AIM_EPSILON:
@@ -324,16 +362,17 @@ func _update_attack(delta: float) -> void:
 		return
 
 	_handle_weapon_input()
-	if _attack_left > 0.0:
+	if _attack_left > 0.0 or _dash_left > 0.0:
 		return
 
 	var aim_dir := _aim_direction()
+	var buffered := _attack_buffer_until_msec > 0 and Time.get_ticks_msec() <= _attack_buffer_until_msec
 	if _weapon_index == WEAPON_BLADE:
-		if Input.is_action_just_pressed("attack"):
-			_attack_left = _blade_cooldown
-			_begin_swing()
-			_do_melee(aim_dir)
-	elif Input.is_action_pressed("attack"):
+		if buffered:
+			_attack_buffer_until_msec = 0
+			_begin_swing(aim_dir)
+	elif buffered or Input.is_action_pressed("attack"):
+		_attack_buffer_until_msec = 0
 		_attack_left = _bolt_cooldown
 		_do_ranged(aim_dir)
 
@@ -363,34 +402,28 @@ func _aim_direction() -> Vector3:
 	return _last_move_dir
 
 
-func _do_melee(direction: Vector3) -> void:
-	var aim := direction
-	aim.y = 0.0
-	if aim.length_squared() > AIM_EPSILON:
-		aim = aim.normalized()
-	var min_dot := cos(deg_to_rad(_blade_arc_deg * 0.5))
-	var reach := _blade_range + MELEE_REACH_SLACK
-
-	# Damage lands on press; the sweep mesh below is pure feedback.
-	for node in get_tree().get_nodes_in_group("enemies"):
-		var target := node as Node3D
-		if target == null or not is_instance_valid(target):
+func _do_melee(from_angle: float, to_angle: float) -> void:
+	for target: Node3D in get_tree().get_nodes_in_group("enemies"):
+		if bool(target.call("is_dead")) or target.get_instance_id() in _swing_hits:
 			continue
-		var enemy = node
-		if not enemy.has_method("take_damage"):
-			continue
-		if enemy.has_method("is_dead") and enemy.is_dead():
-			continue
-
 		var to_enemy := target.global_position - global_position
 		to_enemy.y = 0.0
-		var distance := to_enemy.length()
-		if distance > reach:
+		var collision := target.get_node("CollisionShape3D") as CollisionShape3D
+		var shape := collision.shape as CapsuleShape3D
+		var angle := _swing_direction.signed_angle_to(to_enemy.normalized(), Vector3.UP)
+		var closest_dir := _swing_direction.rotated(Vector3.UP, clampf(angle, from_angle, to_angle))
+		var closest := closest_dir * clampf(to_enemy.dot(closest_dir), 0.0, _blade_range)
+		if to_enemy.distance_squared_to(closest) > shape.radius * shape.radius:
 			continue
-		var dir_to_enemy := to_enemy / distance if distance > AIM_EPSILON else aim
-		if aim.length_squared() > AIM_EPSILON and aim.dot(dir_to_enemy) < min_dot:
+		var from := global_position + Vector3.UP * MUZZLE_HEIGHT
+		var to := target.global_position + Vector3.UP * MUZZLE_HEIGHT
+		var query := PhysicsRayQueryParameters3D.create(from, to, LAYER_WORLD)
+		query.collide_with_areas = false
+		if not get_world_3d().direct_space_state.intersect_ray(query).is_empty():
 			continue
-		enemy.take_damage(_blade_damage, dir_to_enemy, _blade_knockback)
+		_swing_hits.append(target.get_instance_id())
+		var knockback_dir := to_enemy.normalized() if to_enemy.length_squared() > AIM_EPSILON else _swing_direction
+		target.call("take_damage", _blade_damage, knockback_dir, _blade_knockback)
 
 
 func _do_ranged(direction: Vector3) -> void:
@@ -406,7 +439,8 @@ func _do_ranged(direction: Vector3) -> void:
 		return
 	shot.configure(dir, _bolt_speed, _bolt_damage, false, _bolt_lifetime)
 	parent.add_child(shot)
-	shot.global_position = global_position + dir * MUZZLE_FORWARD + Vector3.UP * MUZZLE_HEIGHT
+	shot.global_position = global_position + Vector3.UP * MUZZLE_HEIGHT
+	shot.sweep_to(shot.global_position + dir * MUZZLE_FORWARD)
 	Audio.play(&"crossbow_fire")
 
 
@@ -417,25 +451,43 @@ func _projectile_parent() -> Node3D:
 	return get_parent() as Node3D
 
 
-func _begin_swing() -> void:
-	if _swing_pivot == null:
-		return
-	_swing_left = SWING_SEC
+func _begin_swing(direction: Vector3) -> void:
+	_swing_elapsed = 0.0
+	_swing_direction = direction.normalized()
+	_swing_hits.clear()
+	_attack_left = _blade_startup + _blade_active + _blade_recovery
+	_facing.look_at(_facing.global_position + _swing_direction, Vector3.UP)
 	_swing_pivot.visible = true
 	_swing_pivot.rotation.y = -deg_to_rad(_blade_arc_deg * 0.5)
-	Audio.play(&"sword_swing")
 
 
 func _update_swing(delta: float) -> void:
-	if _swing_left <= 0.0:
+	if _swing_elapsed < 0.0:
 		return
-	_swing_left = maxf(_swing_left - delta, 0.0)
+	var previous := _swing_elapsed
+	_swing_elapsed += delta
+	var active_end := _blade_startup + _blade_active
 	var half_arc := deg_to_rad(_blade_arc_deg * 0.5)
-	var progress := 1.0 - _swing_left / SWING_SEC
-	if _swing_pivot != null:
-		_swing_pivot.rotation.y = lerpf(-half_arc, half_arc, progress)
-	if _swing_left <= 0.0 and _swing_pivot != null:
+	if _swing_elapsed >= _blade_startup and previous < active_end:
+		if previous < _blade_startup:
+			Audio.play(&"sword_swing")
+		var from_progress := clampf((previous - _blade_startup) / _blade_active, 0.0, 1.0)
+		var to_progress := clampf((_swing_elapsed - _blade_startup) / _blade_active, 0.0, 1.0)
+		var from_angle := lerpf(-half_arc, half_arc, from_progress)
+		var to_angle := lerpf(-half_arc, half_arc, to_progress)
+		_swing_pivot.rotation.y = to_angle
+		_swing_visible_frame = Engine.get_process_frames()
+		_do_melee(from_angle, to_angle)
+	if _swing_elapsed >= active_end and Engine.get_process_frames() > _swing_visible_frame:
 		_swing_pivot.visible = false
+	if _swing_elapsed >= active_end + _blade_recovery:
+		_end_swing()
+
+
+func _end_swing() -> void:
+	_swing_elapsed = -1.0
+	_swing_hits.clear()
+	_swing_pivot.visible = false
 
 
 func _hide_combat_visuals() -> void:
@@ -449,9 +501,18 @@ func _hide_combat_visuals() -> void:
 
 func _update_dash(delta: float) -> void:
 	_cooldown_left = maxf(_cooldown_left - delta, 0.0)
+	_dash_ended = _dash_left > 0.0 and _dash_left <= delta
 	_dash_left = maxf(_dash_left - delta, 0.0)
 
-	if Input.is_action_just_pressed("dash") and _dash_left <= 0.0 and _cooldown_left <= 0.0:
+	var buffered := _dash_buffer_until_msec > 0 and Time.get_ticks_msec() <= _dash_buffer_until_msec
+	var swing_active := _swing_elapsed >= _blade_startup and _swing_elapsed < _blade_startup + _blade_active
+	if buffered and not swing_active and _dash_left <= 0.0 and _cooldown_left <= 0.0:
+		_dash_buffer_until_msec = 0
+		if _swing_elapsed >= 0.0:
+			_end_swing()
+			_attack_left = 0.0
+		_attack_buffer_until_msec = 0
+		_dash_ended = false
 		_dash_dir = _pick_dash_direction()
 		_dash_left = _dash_time
 		_cooldown_left = _dash_cooldown
@@ -502,9 +563,16 @@ func _update_velocity(delta: float) -> void:
 		speed *= _sprint_multiplier
 
 	var target := input_dir * speed
-	var rate := _acceleration if input_dir.length_squared() > AIM_EPSILON else _friction
-	velocity.x = move_toward(velocity.x, target.x, rate * delta)
-	velocity.z = move_toward(velocity.z, target.z, rate * delta)
+	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+	if _dash_ended:
+		horizontal = target
+	else:
+		var rate := _acceleration if input_dir.length_squared() > AIM_EPSILON else _friction
+		if horizontal.dot(target) < 0.0:
+			rate = _turn_acceleration
+		horizontal = horizontal.move_toward(target, rate * delta)
+	velocity.x = horizontal.x
+	velocity.z = horizontal.z
 
 
 func _read_move_input() -> Vector3:

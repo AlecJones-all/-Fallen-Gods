@@ -12,8 +12,11 @@
 	"player": {
 		"move_speed": 5.5,
 		"sprint_multiplier": 1.6,
-		"acceleration": 40.0,
-		"friction": 30.0,
+		"acceleration": 60.0,
+		"friction": 75.0,
+		"turn_acceleration": 90.0,
+		"attack_buffer_sec": 0.1,
+		"dash_buffer_sec": 0.08,
 		"dash_speed": 16.0,
 		"dash_time": 0.16,
 		"dash_cooldown": 1.0,
@@ -26,7 +29,9 @@
 	"weapons": {
 		"blade": {
 			"damage": 26.0,
-			"cooldown": 0.42,
+			"startup_sec": 0.035,
+			"active_sec": 0.09,
+			"recovery_sec": 0.295,
 			"range": 2.7,
 			"arc_deg": 110.0,
 			"knockback": 7.0
@@ -221,6 +226,8 @@
 			"damage": 10.0,
 			"attack_range": 1.8,
 			"windup_sec": 0.45,
+			"attack_arc_deg": 110.0,
+			"aim_lock_sec": 0.1,
 			"attack_cooldown": 1.1,
 			"radius": 0.45,
 			"height": 1.7
@@ -232,6 +239,8 @@
 			"preferred_range": 8.0,
 			"min_range": 4.5,
 			"fire_interval": 1.7,
+			"windup_sec": 0.3,
+			"aim_lock_sec": 0.1,
 			"projectile_speed": 13.0,
 			"radius": 0.4,
 			"height": 1.55
@@ -242,6 +251,8 @@
 			"damage": 18.0,
 			"attack_range": 2.4,
 			"windup_sec": 0.65,
+			"attack_arc_deg": 110.0,
+			"aim_lock_sec": 0.1,
 			"attack_cooldown": 1.6,
 			"radius": 0.85,
 			"height": 2.4,
@@ -264,6 +275,7 @@
 			"slam_windup": 0.65,
 			"slam_cooldown": 2.4,
 			"volley_interval": 4.4,
+			"volley_windup_sec": 0.45,
 			"volley_count": 10,
 			"projectile_speed": 11.0,
 			"phase_two": 0.66,

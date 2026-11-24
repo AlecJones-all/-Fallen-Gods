@@ -130,9 +130,8 @@ func _weapon_test() -> bool:
 
 	var hp_before := float(dummy.call(&"get_current_hp"))
 	var hit_audio_before := Audio.play_count(&"enemy_hit")
-	_player.call(&"_do_melee", Vector3(1.0, 0.0, 0.0))
-	await _tree.process_frame
-	await _tree.process_frame
+	_player.call(&"_begin_swing", Vector3(1.0, 0.0, 0.0))
+	await _tree.create_timer(0.2).timeout
 	if not is_instance_valid(dummy):
 		return _fail_bool("melee destroyed the dummy before the hp check")
 	if float(dummy.call(&"get_current_hp")) >= hp_before:

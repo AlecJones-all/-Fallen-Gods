@@ -32,10 +32,11 @@ const PHASE_COLORS: Array[Color] = [
 	Color(0.90, 0.28, 0.12),
 ]
 
-const TELEGRAPH_COLOR: Color = Color(1.0, 0.3, 0.12, 0.22)
+const TELEGRAPH_COLOR: Color = Color(1.0, 0.3, 0.12, 0.28)
 const TELEGRAPH_Y: float = 0.04
-const TELEGRAPH_START_SCALE: float = 0.35
-const TELEGRAPH_HEIGHT: float = 0.03
+const TELEGRAPH_SEGMENTS: int = 96
+const TELEGRAPH_BOUNDARY_WIDTH: float = 0.055
+const VOLLEY_LINE_WIDTH: float = 0.055
 
 const DAMAGE_NUMBER_COLOR: Color = Color(1.0, 0.72, 0.3)
 const DAMAGE_NUMBER_SCALE: float = 1.5
@@ -44,7 +45,6 @@ const PROJECTILE_LIFETIME: float = 3.0
 const VOLLEY_DAMAGE_MULT: float = 0.75
 const MUZZLE_OFFSET: float = 1.1
 const PLAYER_TORSO_HEIGHT: float = 0.9
-const SLAM_HIT_SLACK: float = 0.4
 
 const EYE_HEIGHT_FACTOR: float = 0.78
 const EYE_ENERGY: float = 2.2
@@ -54,7 +54,7 @@ const DEATH_SCALE: float = 0.04
 
 const SPIKES: int = 6
 
-enum State { CHASE, SLAM }
+enum State { CHASE, SLAM, VOLLEY }
 
 var _floor_number: int = 1
 var _spawn_position: Vector3 = Vector3.ZERO
@@ -76,16 +76,22 @@ var _slam_radius: float = 3.6
 var _slam_windup: float = 0.65
 var _slam_cooldown: float = 2.4
 var _volley_interval: float = 4.4
+var _volley_windup_sec: float = 0.45
 var _volley_count: int = 10
 var _projectile_speed: float = 11.0
 var _phase_two_ratio: float = 0.66
 var _phase_three_ratio: float = 0.33
+var _slam_origin: Vector3 = Vector3.ZERO
+var _volley_origin: Vector3 = Vector3.ZERO
+var _volley_directions: Array[Vector3] = []
+var _windup_target: Node3D
 
 var _gravity: float = 9.8
 var _state: State = State.CHASE
 var _slam_cd_left: float = 0.0
 var _slam_windup_left: float = 0.0
 var _volley_left: float = 0.0
+var _volley_windup_left: float = 0.0
 var _flash_left: float = 0.0
 
 var _player: Node3D
@@ -99,8 +105,12 @@ var _facing: Node3D
 var _eye: MeshInstance3D
 var _eye_material: StandardMaterial3D
 var _aura_material: StandardMaterial3D
-var _telegraph: MeshInstance3D
-var _telegraph_tween: Tween
+var _telegraph: Node3D
+var _telegraph_boundary: MeshInstance3D
+var _telegraph_fill: MeshInstance3D
+var _volley_telegraph: Node3D
+var _volley_boundary: MeshInstance3D
+var _volley_fill: MeshInstance3D
 
 
 func configure(floor_number: int, spawn_position: Vector3) -> void:
@@ -187,9 +197,14 @@ func _physics_process(delta: float) -> void:
 	_poll_player(delta)
 
 	var target: Node3D = _player if _is_usable_player(_player) else null
+	var cancelled := _state != State.CHASE and (
+		not _is_usable_player(_windup_target) or target != _windup_target)
+	if cancelled:
+		_cancel_windup()
 	var desired := Vector3.ZERO
-	if target != null:
-		_face(target.global_position)
+	if target != null and not cancelled:
+		if _state != State.VOLLEY:
+			_face(target.global_position)
 		desired = _decide(delta, target)
 
 	_drive(desired, delta)
@@ -219,6 +234,7 @@ func _read_tuning() -> void:
 	_slam_windup = float(block.get("slam_windup", 0.65))
 	_slam_cooldown = float(block.get("slam_cooldown", 2.4))
 	_volley_interval = float(block.get("volley_interval", 4.4))
+	_volley_windup_sec = maxf(float(block.get("volley_windup_sec", 0.45)), 0.01)
 	_volley_count = maxi(int(block.get("volley_count", 10)), 1)
 	_projectile_speed = float(block.get("projectile_speed", 11.0))
 	_phase_two_ratio = clampf(float(block.get("phase_two", 0.66)), 0.05, 0.95)
@@ -298,26 +314,77 @@ func _build_visuals() -> void:
 
 
 func _build_telegraph() -> void:
+	_telegraph = Node3D.new()
+	_telegraph.name = "SlamTelegraph"
+	_telegraph.top_level = true
+	_telegraph.visible = false
+	add_child(_telegraph)
+	_telegraph_boundary = _telegraph_part(_telegraph, "Boundary", Color(TELEGRAPH_COLOR, 0.9))
+	_telegraph_fill = _telegraph_part(_telegraph, "Fill", TELEGRAPH_COLOR)
+	_telegraph_fill.position.y = 0.002
+
+	_volley_telegraph = Node3D.new()
+	_volley_telegraph.name = "VolleyTelegraph"
+	_volley_telegraph.top_level = true
+	_volley_telegraph.visible = false
+	add_child(_volley_telegraph)
+	_volley_boundary = _telegraph_part(_volley_telegraph, "Boundary", Color(1.0, 0.55, 0.18, 0.9))
+	_volley_fill = _telegraph_part(_volley_telegraph, "Fill", Color(1.0, 0.55, 0.18, 0.5))
+	_volley_fill.position.y = 0.002
+
+
+func _telegraph_part(parent: Node3D, part_name: String, color: Color) -> MeshInstance3D:
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.albedo_color = TELEGRAPH_COLOR
+	material.albedo_color = color
+	material.emission_enabled = true
+	material.emission = color
+	material.emission_energy_multiplier = 0.8
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var part := MeshInstance3D.new()
+	part.name = part_name
+	part.material_override = material
+	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(part)
+	return part
 
-	var disc := CylinderMesh.new()
-	disc.top_radius = 1.0
-	disc.bottom_radius = 1.0
-	disc.height = TELEGRAPH_HEIGHT
-	disc.radial_segments = 32
-	disc.rings = 1
 
-	_telegraph = MeshInstance3D.new()
-	_telegraph.name = "SlamTelegraph"
-	_telegraph.mesh = disc
-	_telegraph.material_override = material
-	_telegraph.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_telegraph.visible = false
-	add_child(_telegraph)
+func _circle_mesh(radius: float, boundary: bool) -> ArrayMesh:
+	var vertices := PackedVector3Array()
+	var inner_radius := maxf(radius - TELEGRAPH_BOUNDARY_WIDTH, 0.0)
+	for i: int in TELEGRAPH_SEGMENTS:
+		var angle_a := TAU * float(i) / float(TELEGRAPH_SEGMENTS)
+		var angle_b := TAU * float(i + 1) / float(TELEGRAPH_SEGMENTS)
+		var direction_a := Vector3(sin(angle_a), 0.0, cos(angle_a))
+		var direction_b := Vector3(sin(angle_b), 0.0, cos(angle_b))
+		var a := direction_a * radius
+		var b := direction_b * radius
+		if boundary:
+			var inner_a := direction_a * inner_radius
+			var inner_b := direction_b * inner_radius
+			vertices.append_array(PackedVector3Array([inner_a, a, b, inner_a, b, inner_b]))
+		else:
+			vertices.append_array(PackedVector3Array([Vector3.ZERO, a, b]))
+	return _ground_mesh(vertices)
+
+
+func _volley_mesh(length: float, width: float) -> ArrayMesh:
+	var vertices := PackedVector3Array()
+	for direction: Vector3 in _volley_directions:
+		var side := direction.cross(Vector3.UP) * width * 0.5
+		var end := direction * length
+		vertices.append_array(PackedVector3Array([-side, side, end + side, -side, end + side, end - side]))
+	return _ground_mesh(vertices)
+
+
+func _ground_mesh(vertices: PackedVector3Array) -> ArrayMesh:
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
 
 
 func _apply_geometry() -> void:
@@ -394,96 +461,153 @@ func _decide(delta: float, target: Node3D) -> Vector3:
 	var direction := to_player / distance if distance > FLAT_EPSILON else Vector3.ZERO
 
 	if _state == State.SLAM:
-		_slam_windup_left -= delta
+		_slam_windup_left = maxf(_slam_windup_left - delta, 0.0)
+		_update_slam_telegraph()
 		if _slam_windup_left <= 0.0:
 			_resolve_slam(target)
 		return Vector3.ZERO
+	if _state == State.VOLLEY:
+		_volley_windup_left = maxf(_volley_windup_left - delta, 0.0)
+		_update_volley_telegraph()
+		if _volley_windup_left <= 0.0:
+			_fire_volley()
+		return Vector3.ZERO
 
 	_try_volley(target, direction)
+	if _state == State.VOLLEY:
+		return Vector3.ZERO
 
 	if distance <= _slam_range and _slam_cd_left <= 0.0:
-		_start_slam()
+		_start_slam(target)
 		return Vector3.ZERO
 
 	return direction if distance > _slam_range * 0.7 else Vector3.ZERO
 
 
-func _start_slam() -> void:
+func _start_slam(target: Node3D) -> void:
 	_state = State.SLAM
 	_slam_windup_left = _slam_windup
+	_windup_target = target
+	_slam_origin = global_position
+	velocity.x = 0.0
+	velocity.z = 0.0
 	_show_telegraph()
 
 
 func _resolve_slam(target: Node3D) -> void:
 	_state = State.CHASE
 	_slam_cd_left = _slam_cooldown * _phase_slam_cooldown_mult()
+	_windup_target = null
 	_hide_telegraph()
-	Audio.play_at(&"boss_slam", global_position)
+	Audio.play_at(&"boss_slam", _slam_origin)
 	Juice.shake(0.4, 0.25)
 
 	if not _is_usable_player(target) or not target.has_method(&"take_damage"):
 		return
-	var flat := target.global_position - global_position
+	var flat := target.global_position - _slam_origin
 	flat.y = 0.0
-	if flat.length() <= _slam_radius + SLAM_HIT_SLACK:
-		target.call(&"take_damage", _damage, global_position)
+	if flat.length_squared() <= _slam_radius * _slam_radius:
+		target.call(&"take_damage", _damage, _slam_origin)
 
 
 func _show_telegraph() -> void:
-	if _telegraph == null:
-		return
-	if _telegraph_tween != null and _telegraph_tween.is_valid():
-		_telegraph_tween.kill()
-
+	_hide_volley_telegraph()
+	_telegraph.global_transform = Transform3D(Basis.IDENTITY, _slam_origin + Vector3.UP * TELEGRAPH_Y)
+	_telegraph_boundary.mesh = _circle_mesh(_slam_radius, true)
+	_telegraph_fill.mesh = _circle_mesh(1.0, false)
 	_telegraph.visible = true
-	_telegraph.position = Vector3(0.0, TELEGRAPH_Y, 0.0)
-	var start := _slam_radius * TELEGRAPH_START_SCALE
-	_telegraph.scale = Vector3(start, 1.0, start)
-	_telegraph_tween = create_tween()
-	_telegraph_tween.tween_property(_telegraph, "scale",
-		Vector3(_slam_radius, 1.0, _slam_radius), maxf(_slam_windup, 0.05))
+	_update_slam_telegraph()
+
+
+func _update_slam_telegraph() -> void:
+	var progress := clampf(1.0 - _slam_windup_left / maxf(_slam_windup, 0.01), 0.0, 1.0)
+	var fill_radius := _slam_radius * progress
+	_telegraph_fill.visible = progress > 0.0
+	_telegraph_fill.scale = Vector3(fill_radius, 1.0, fill_radius)
 
 
 func _hide_telegraph() -> void:
-	if _telegraph_tween != null and _telegraph_tween.is_valid():
-		_telegraph_tween.kill()
-	_telegraph_tween = null
 	if _telegraph != null:
 		_telegraph.visible = false
 
 
 func _try_volley(target: Node3D, direction: Vector3) -> void:
-	if _volley_left > 0.0 or direction.length_squared() < FLAT_EPSILON:
+	if _state != State.CHASE or _volley_left > 0.0 or direction.length_squared() < FLAT_EPSILON:
 		return
-	if not _has_line_of_sight(target):
+	if not _is_usable_player(target) or not _has_line_of_sight(target):
 		return
-	_volley_left = _volley_interval * _phase_volley_interval_mult()
-	_fire_volley(direction)
-
-
-func _fire_volley(direction: Vector3) -> void:
+	_state = State.VOLLEY
+	_volley_windup_left = _volley_windup_sec
+	_windup_target = target
+	_volley_origin = global_position
+	velocity.x = 0.0
+	velocity.z = 0.0
+	_volley_directions.clear()
 	var extra := 2 if _phase >= 2 else 0
 	extra += 2 if _phase >= 3 else 0
 	var count := maxi(_volley_count + extra, 1)
 	var base_angle := atan2(direction.x, direction.z)
 	var spin := 0.35 * float(_phase)
-
 	for i: int in count:
 		var angle := base_angle + spin + TAU * float(i) / float(count)
-		_spawn_projectile(Vector3(sin(angle), 0.0, cos(angle)))
+		_volley_directions.append(Vector3(sin(angle), 0.0, cos(angle)))
+	_show_volley_telegraph()
 
-	Audio.play_at(&"boss_volley", global_position + Vector3.UP * _height * 0.6)
+
+func _show_volley_telegraph() -> void:
+	_hide_telegraph()
+	_volley_telegraph.global_transform = Transform3D(Basis.IDENTITY, _volley_origin + Vector3.UP * TELEGRAPH_Y)
+	var length := maxf(_projectile_speed * 0.65, _slam_radius * 1.6)
+	_volley_boundary.mesh = _volley_mesh(length, VOLLEY_LINE_WIDTH)
+	_volley_fill.mesh = _volley_mesh(length, VOLLEY_LINE_WIDTH * 3.0)
+	_volley_telegraph.visible = true
+	_update_volley_telegraph()
+
+
+func _update_volley_telegraph() -> void:
+	var progress := clampf(1.0 - _volley_windup_left / _volley_windup_sec, 0.0, 1.0)
+	_volley_fill.visible = progress > 0.0
+	_volley_fill.scale = Vector3(progress, 1.0, progress)
+
+
+func _hide_volley_telegraph() -> void:
+	if _volley_telegraph != null:
+		_volley_telegraph.visible = false
+
+
+func _cancel_windup() -> void:
+	_state = State.CHASE
+	_slam_windup_left = 0.0
+	_volley_windup_left = 0.0
+	_windup_target = null
+	_volley_directions.clear()
+	_hide_telegraph()
+	_hide_volley_telegraph()
+
+
+func _fire_volley() -> void:
+	_state = State.CHASE
+	_volley_left = _volley_interval * _phase_volley_interval_mult()
+	_windup_target = null
+	_hide_volley_telegraph()
+	for direction: Vector3 in _volley_directions:
+		_spawn_projectile(direction, _volley_origin)
+	_volley_directions.clear()
+	Audio.play_at(&"boss_volley", _volley_origin + Vector3.UP * _height * 0.6)
 	Juice.shake(0.12, 0.12)
 
 
-func _spawn_projectile(direction: Vector3) -> void:
+func _spawn_projectile(direction: Vector3, source_origin: Vector3) -> void:
 	var shot := PROJECTILE_SCENE.instantiate()
-	if shot == null or not shot.has_method(&"configure"):
+	if shot == null:
+		return
+	var shot_node := shot as Node3D
+	if shot_node == null or not shot.has_method(&"configure") or not shot.has_method(&"sweep_to"):
+		shot.queue_free()
 		return
 
 	shot.call(&"configure", direction, _projectile_speed, _damage * VOLLEY_DAMAGE_MULT,
 		true, PROJECTILE_LIFETIME)
-
 	var parent := get_tree().get_first_node_in_group(GROUP_PROJECTILE_ROOT)
 	if parent == null:
 		parent = get_parent()
@@ -492,11 +616,9 @@ func _spawn_projectile(direction: Vector3) -> void:
 		return
 
 	parent.add_child(shot)
-	var shot_node := shot as Node3D
-	if shot_node != null:
-		var muzzle := global_position + Vector3.UP * _height * 0.55
-		muzzle += direction * MUZZLE_OFFSET
-		shot_node.global_position = muzzle
+	var source := source_origin + Vector3.UP * _height * 0.55
+	shot_node.global_position = source
+	shot.call(&"sweep_to", source + direction * MUZZLE_OFFSET)
 
 
 func _has_line_of_sight(target: Node3D) -> bool:
@@ -505,6 +627,7 @@ func _has_line_of_sight(target: Node3D) -> bool:
 	var query := PhysicsRayQueryParameters3D.create(from, to, 1)
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
+	query.exclude = [get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	return hit.is_empty()
 
@@ -569,7 +692,7 @@ func _update_appearance() -> void:
 
 	if _flash_left > 0.0:
 		_set_tint(FLASH_COLOR, FLASH_ENERGY)
-	elif _state == State.SLAM:
+	elif _state == State.SLAM or _state == State.VOLLEY:
 		_set_tint(WINDUP_COLOR, WINDUP_ENERGY)
 	else:
 		_set_tint(_phase_color().lightened(0.15), AURA_ENERGY)
@@ -586,7 +709,7 @@ func _die() -> void:
 	_state = State.CHASE
 	velocity = Vector3.ZERO
 	set_physics_process(false)
-	_hide_telegraph()
+	_cancel_windup()
 	if _collision != null:
 		_collision.set_deferred("disabled", true)
 	set_deferred("collision_layer", 0)
