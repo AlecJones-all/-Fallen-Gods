@@ -1,0 +1,32 @@
+{
+	"camera": {
+		"yaw_deg": 45.0,
+		"pitch_deg": -55.0,
+		"distance": 24.0,
+		"ortho_size": 12.0,
+		"follow_speed": 10.0,
+		"target_height": 1.0
+	},
+	"player": {
+		"move_speed": 5.5,
+		"sprint_multiplier": 1.6,
+		"acceleration": 40.0,
+		"friction": 30.0,
+		"dash_speed": 16.0,
+		"dash_time": 0.16,
+		"dash_cooldown": 1.0,
+		"max_hp": 100.0,
+		"radius": 0.45,
+		"height": 1.8
+	},
+	"world": {
+		"tile_size": 2.0,
+		"room_tiles_x": 10,
+		"room_tiles_z": 10,
+		"wall_height": 3.0,
+		"wall_thickness": 0.4
+	},
+	"ui": {
+		"theme_preset": "medieval_dark"
+	}
+}
