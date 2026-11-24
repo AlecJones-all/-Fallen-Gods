@@ -47,12 +47,20 @@
 		"projectile_radius": 0.16
 	},
 	"fx": {
-		"hitstop_sec": 0.028,
-		"hitstop_kill_sec": 0.055,
 		"hitstop_scale": 0.08,
-		"shake_hit": 0.09,
-		"shake_kill": 0.2,
-		"shake_time": 0.16
+		"impact_interval_sec": 0.16,
+		"shake_max": 0.45,
+		"spark_sec": 0.09,
+		"spark_melee_size": 0.24,
+		"spark_ranged_size": 0.14,
+		"impacts": {
+			"ranged": {"priority": 0, "hitstop_sec": 0.012, "shake": 0.035, "shake_time": 0.07},
+			"melee": {"priority": 1, "hitstop_sec": 0.028, "shake": 0.075, "shake_time": 0.1},
+			"kill": {"priority": 2, "hitstop_sec": 0.055, "shake": 0.18, "shake_time": 0.18},
+			"boss_phase": {"priority": 3, "hitstop_sec": 0.0, "shake": 0.2, "shake_time": 0.16},
+			"hurt": {"priority": 4, "hitstop_sec": 0.045, "shake": 0.22, "shake_time": 0.18},
+			"boss_kill": {"priority": 5, "hitstop_sec": 0.075, "shake": 0.4, "shake_time": 0.26}
+		}
 	},
 	"audio": {
 		"events": {
@@ -64,7 +72,7 @@
 			},
 			"sword_swing": {
 				"files": ["res://addons/soundza_game_sfx_starter/swords_melee/weapon_swing_1.wav"],
-				"db": -5.0,
+				"db": -10.0,
 				"pitch": 1.0,
 				"vary": 0.06,
 				"min_interval": 0.05
@@ -82,6 +90,13 @@
 				"pitch": 1.15,
 				"vary": 0.05,
 				"min_interval": 0.05
+			},
+			"bolt_hit": {
+				"files": ["res://addons/soundza_game_sfx_starter/hits_impacts/hit_5.wav"],
+				"db": -10.0,
+				"pitch": 0.95,
+				"vary": 0.06,
+				"min_interval": 0.04
 			},
 			"bolt_wall": {
 				"files": ["res://addons/soundza_game_sfx_starter/hits_impacts/hit_5.wav"],

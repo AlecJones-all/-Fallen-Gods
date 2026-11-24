@@ -17,6 +17,7 @@ var _target: Node3D = null
 var _snapped: bool = false
 
 var _base_camera_position: Vector3 = Vector3.ZERO
+var _shake_max: float = 0.45
 var _shake_strength: float = 0.0
 var _shake_duration: float = 0.0
 var _shake_left: float = 0.0
@@ -28,6 +29,7 @@ func _ready() -> void:
 	var distance := float(Tuning.value("camera", "distance", 24.0))
 	_follow_speed = float(Tuning.value("camera", "follow_speed", 10.0))
 	_target_height = float(Tuning.value("camera", "target_height", 1.0))
+	_shake_max = float(Tuning.value("fx", "shake_max", 0.45))
 
 	rotation = Vector3(pitch, yaw, 0.0)
 	_base_camera_position = Vector3(0.0, 0.0, distance)
@@ -68,35 +70,42 @@ func _update_projection() -> void:
 
 ## Jumps the rig to the player, e.g. after a floor transition repositions them.
 func snap_to_target() -> void:
+	_shake_strength = 0.0
+	_shake_duration = 0.0
+	_shake_left = 0.0
+	_camera.position = _base_camera_position
 	_target = get_tree().get_first_node_in_group(PLAYER_GROUP) as Node3D
 	if _target == null:
 		return
 	global_position = _target.global_position + Vector3(0.0, _target_height, 0.0)
 	_snapped = true
-	_shake_left = 0.0
-	_camera.position = _base_camera_position
 
 
 func add_shake(strength: float, duration: float) -> void:
 	if strength <= 0.0 or duration <= 0.0:
 		return
-	_shake_strength = maxf(_shake_strength, strength)
-	_shake_duration = maxf(_shake_duration, duration)
-	_shake_left = maxf(_shake_left, duration)
+	strength = clampf(strength, 0.0, _shake_max)
+	if _shake_left > 0.0 and strength <= _shake_strength:
+		return
+	_shake_strength = strength
+	_shake_duration = duration
+	_shake_left = duration
 
 
 func _process(delta: float) -> void:
-	_update_shake(delta)
+	_update_shake(delta / maxf(Engine.time_scale, 0.01))
 
 
 func _update_shake(delta: float) -> void:
+	_shake_left = maxf(_shake_left - delta, 0.0)
 	if _shake_left <= 0.0:
 		_shake_strength = 0.0
+		_shake_duration = 0.0
+		_shake_left = 0.0
 		if _camera.position != _base_camera_position:
 			_camera.position = _base_camera_position
 		return
 
-	_shake_left = maxf(_shake_left - delta, 0.0)
 	var decay := _shake_left / _shake_duration if _shake_duration > 0.0 else 0.0
 	var amplitude := _shake_strength * decay
 	_camera.position = _base_camera_position + Vector3(

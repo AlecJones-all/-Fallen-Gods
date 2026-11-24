@@ -79,8 +79,9 @@ static func action_keys(action: StringName) -> Array:
 		if key.shift_pressed: parts.append("Shift")
 		if key.meta_pressed: parts.append("Cmd" if OS.has_feature("macos") else "Meta")
 		var code := key.physical_keycode if key.physical_keycode != KEY_NONE else key.keycode
-		var name := OS.get_keycode_string(DisplayServer.keyboard_get_keycode_from_physical(code)) \
-			if key.physical_keycode != KEY_NONE else OS.get_keycode_string(code)
+		if key.physical_keycode != KEY_NONE and DisplayServer.get_name() != "headless":
+			code = DisplayServer.keyboard_get_keycode_from_physical(code)
+		var name := OS.get_keycode_string(code)
 		if not name.is_empty(): parts.append(name)
 		if not parts.is_empty(): return parts
 	return []

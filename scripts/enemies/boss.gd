@@ -146,7 +146,8 @@ func is_dead() -> bool:
 	return _dead
 
 
-func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO, knockback_force: float = 6.0) -> void:
+func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO,
+		knockback_force: float = 6.0, ranged_hit: bool = false) -> void:
 	if _dead or amount <= 0.0:
 		return
 
@@ -154,18 +155,19 @@ func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO, knockback
 	_flash_left = FLASH_SEC
 	Juice.damage_number(global_position + Vector3.UP * _height * 0.85, amount,
 		DAMAGE_NUMBER_COLOR, DAMAGE_NUMBER_SCALE)
-	Juice.hitstop_hit()
-	Juice.hit_shake()
-	Audio.play_at(&"enemy_hit", global_position + Vector3.UP * _height * 0.6)
+	var hit_position := global_position + Vector3.UP * _height * 0.6
+	Audio.play_at(&"bolt_hit" if ranged_hit else &"enemy_hit", hit_position)
 	health_changed.emit(_current_hp, _max_hp)
 
 	var flat := Vector3(knockback_dir.x, 0.0, knockback_dir.z)
+	Juice.hit_spark(hit_position - flat.normalized() * _radius, ranged_hit)
 	if flat.length_squared() > FLAT_EPSILON:
 		velocity += flat.normalized() * knockback_force * (1.0 - _knockback_resist)
 
 	if _current_hp <= 0.0:
 		_die()
 		return
+	Juice.impact(&"ranged" if ranged_hit else &"melee")
 	_check_phase()
 
 
@@ -681,7 +683,7 @@ func _check_phase() -> void:
 		_phase += 1
 		phase_changed.emit(_phase)
 		Audio.play_at(&"boss_phase", global_position)
-		Juice.kill_shake()
+		Juice.impact(&"boss_phase")
 		_volley_left = minf(_volley_left, 0.6)
 		_apply_phase_look()
 
@@ -718,8 +720,7 @@ func _die() -> void:
 	Juice.death_burst(burst_center, _phase_color())
 	Juice.death_burst(burst_center + Vector3(0.6, 0.4, 0.0), _phase_color().lightened(0.2))
 	Juice.death_burst(burst_center + Vector3(-0.5, -0.3, 0.4), _phase_color().lightened(0.2))
-	Juice.hitstop_kill()
-	Juice.kill_shake()
+	Juice.impact(&"boss_kill")
 	Audio.play_at(&"boss_die", burst_center)
 	health_changed.emit(0.0, _max_hp)
 	died.emit(self)

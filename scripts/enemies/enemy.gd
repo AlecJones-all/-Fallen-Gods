@@ -165,7 +165,8 @@ func is_dead() -> bool:
 	return _dead
 
 
-func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO, knockback_force: float = 6.0) -> void:
+func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO,
+		knockback_force: float = 6.0, ranged_hit: bool = false) -> void:
 	if _dead or amount <= 0.0:
 		return
 
@@ -174,16 +175,18 @@ func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO, knockback
 	_flash_left = FLASH_SEC
 	Juice.damage_number(global_position + Vector3.UP * _height * 0.9, applied,
 		DAMAGE_NUMBER_COLOR)
-	Juice.hitstop_hit()
-	Juice.hit_shake()
-	Audio.play_at(&"enemy_hit", global_position + Vector3.UP * _height * 0.6)
+	var hit_position := global_position + Vector3.UP * _height * 0.6
+	Audio.play_at(&"bolt_hit" if ranged_hit else &"enemy_hit", hit_position)
 
 	var flat := Vector3(knockback_dir.x, 0.0, knockback_dir.z)
+	Juice.hit_spark(hit_position - flat.normalized() * _radius, ranged_hit)
 	if flat.length_squared() > FLAT_EPSILON:
 		velocity += flat.normalized() * knockback_force * (1.0 - _knockback_resist)
 
 	if _current_hp <= 0.0:
 		_die()
+	else:
+		Juice.impact(&"ranged" if ranged_hit else &"melee")
 
 
 func _ready() -> void:
@@ -748,8 +751,7 @@ func _die() -> void:
 		_collision.set_deferred("disabled", true)
 	set_deferred("collision_layer", 0)
 	Juice.death_burst(global_position + Vector3.UP * _height * 0.5, _body_color)
-	Juice.hitstop_kill()
-	Juice.kill_shake()
+	Juice.impact(&"kill")
 	Audio.play_at(&"enemy_die", global_position + Vector3.UP * _height * 0.5)
 	died.emit(self)
 

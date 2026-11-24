@@ -4,6 +4,7 @@ const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
 const ENEMY_SCENE := preload("res://scenes/enemies/enemy.tscn")
 const BOSS_SCENE := preload("res://scenes/enemies/boss.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/combat/projectile.tscn")
+const CAMERA_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 
 var _player: CharacterBody3D
 
@@ -37,6 +38,8 @@ func _run() -> void:
 		return
 	if not await _boss_timing_test():
 		return
+	if not await _feedback_test():
+		return
 	for voice: AudioStreamPlayer3D in get_tree().get_nodes_in_group(&"audio_voices_3d"):
 		voice.stop()
 		voice.stream = null
@@ -46,6 +49,9 @@ func _run() -> void:
 		voice.stream = null
 	await get_tree().process_frame
 	await get_tree().process_frame
+	# Stopped audio playbacks retire on mixer ticks, not scene frames.
+	var mix_cycle := AudioServer.get_time_since_last_mix() + AudioServer.get_time_to_next_mix()
+	await _wait_wall_msec(int(ceil(mix_cycle * 2000.0)))
 	print("FEEL OK")
 	get_tree().quit(0)
 
@@ -523,6 +529,218 @@ func _boss_timing_test() -> bool:
 	_clear_shots()
 	await _sync_physics()
 	return true
+
+
+func _feedback_test() -> bool:
+	await _wait_feedback_idle()
+	var rig: CameraRig = CAMERA_SCENE.instantiate()
+	add_child(rig)
+	rig.set_process(false)
+	rig.set_physics_process(false)
+	_player.global_position = Vector3.ZERO
+	_player.set("_aim_point", Vector3(10.0, 0.0, 0.0))
+	_player.set("_dash_left", 0.0)
+	var profiles: Dictionary = Tuning.section("fx")["impacts"]
+	var swing_audio := Audio.play_count(&"sword_swing")
+	var hit_audio := Audio.play_count(&"enemy_hit")
+	_player.call("_begin_swing", Vector3.RIGHT)
+	_player.call("_update_swing", 0.13)
+	_player.call("_end_swing")
+	if not _check(Audio.play_count(&"sword_swing") == swing_audio + 1 and Audio.play_count(&"enemy_hit") == hit_audio, "empty swing mixed in a hit sound"):
+		return false
+	if not _check(int(Juice.get("_stop_until_msec")) == 0 and float(rig.get("_shake_left")) == 0.0 and get_tree().get_nodes_in_group(&"hit_sparks").is_empty(), "empty swing produced impact feedback"):
+		return false
+
+	var front := _dummy(&"grunt", Vector3.RIGHT.rotated(Vector3.UP, deg_to_rad(-30.0)) * 2.0)
+	var edge := _dummy(&"grunt", Vector3.RIGHT.rotated(Vector3.UP, deg_to_rad(50.0)) * 2.5)
+	await _sync_physics()
+	var numbers_before := get_tree().get_nodes_in_group(&"damage_numbers").size()
+	_player.call("_begin_swing", Vector3.RIGHT)
+	_player.call("_update_swing", 0.06)
+	if not _check(is_equal_approx(float(front.call("get_current_hp")), 20.0), "first sword contact produced no damage"):
+		return false
+	var stop_until := int(Juice.get("_stop_until_msec"))
+	var budget_until := int(Juice.get("_impact_until_msec"))
+	if not _check(stop_until > 0 and float(rig.get("_shake_strength")) == float(profiles["melee"]["shake"]), "sword contact produced no melee impact"):
+		return false
+	await _wait_wall_msec(5)
+	_player.call("_update_swing", 0.07)
+	_player.call("_end_swing")
+	if not _check(is_equal_approx(float(edge.call("get_current_hp")), 20.0) and Audio.play_count(&"enemy_hit") > hit_audio, "late sword contact lost damage or hit audio"):
+		return false
+	if not _check(int(Juice.get("_stop_until_msec")) == stop_until and int(Juice.get("_impact_until_msec")) == budget_until, "multi-target sword refreshed the global impact budget"):
+		return false
+	var sparks := get_tree().get_nodes_in_group(&"hit_sparks")
+	if not _check(sparks.size() == 2 and get_tree().get_nodes_in_group(&"damage_numbers").size() == numbers_before + 2, "merged impact swallowed a target's local feedback"):
+		return false
+	var melee_size := (sparks[0] as MeshInstance3D).mesh.get_aabb().size.length()
+	var melee_material := (sparks[0] as MeshInstance3D).material_override as StandardMaterial3D
+	if not _check(melee_material.albedo_color.is_equal_approx(Juice.SPARK_MELEE_COLOR), "melee contact used the wrong spark color"):
+		return false
+	front.queue_free()
+	edge.queue_free()
+	await _wait_feedback_idle()
+	rig.call("_update_shake", 1.0)
+	if not await _timed_multi_target_feedback_test(rig):
+		return false
+	await _wait_feedback_idle()
+	rig.call("_update_shake", 1.0)
+
+	var target := _dummy(&"grunt", Vector3(4.0, 0.0, 0.0))
+	await _sync_physics()
+	var bolt_audio := Audio.play_count(&"bolt_hit")
+	hit_audio = Audio.play_count(&"enemy_hit")
+	var shot := _shot(Vector3(0.0, 0.9, 0.0), false)
+	shot.call("sweep_to", Vector3(6.0, 0.9, 0.0))
+	if not _check(is_equal_approx(float(target.call("get_current_hp")), 30.0) and Audio.play_count(&"bolt_hit") == bolt_audio + 1 and Audio.play_count(&"enemy_hit") == hit_audio, "ranged impact did not use its own hit sound"):
+		return false
+	if not _check(int(Juice.get("_impact_priority")) == int(profiles["ranged"]["priority"]) and float(rig.get("_shake_strength")) == float(profiles["ranged"]["shake"]), "ranged impact used melee feedback strength"):
+		return false
+	sparks = get_tree().get_nodes_in_group(&"hit_sparks")
+	if not _check(sparks.size() == 1, "ranged contact produced no spark"):
+		return false
+	var ranged_spark := sparks[0] as MeshInstance3D
+	var ranged_material := ranged_spark.material_override as StandardMaterial3D
+	if not _check(ranged_spark.mesh.get_aabb().size.length() < melee_size and ranged_material.albedo_color.is_equal_approx(Juice.SPARK_RANGED_COLOR), "ranged spark was not smaller and distinct"):
+		return false
+	if not _check(ranged_spark.global_position.is_equal_approx(Vector3(3.55, 1.02, 0.0)), "spark was not placed on the contacted side of the target"):
+		return false
+
+	target.call("take_damage", 9999.0, Vector3.RIGHT, 6.0, true)
+	stop_until = int(Juice.get("_stop_until_msec"))
+	budget_until = int(Juice.get("_impact_until_msec"))
+	if not _check(int(Juice.get("_impact_priority")) == int(profiles["kill"]["priority"]) and float(rig.get("_shake_strength")) == float(profiles["kill"]["shake"]), "kill did not upgrade a light hit"):
+		return false
+	await _wait_wall_msec(5)
+	target = _dummy(&"grunt", Vector3(4.0, 0.0, 2.0))
+	target.call("take_damage", 9999.0)
+	if not _check(int(Juice.get("_stop_until_msec")) == stop_until and int(Juice.get("_impact_until_msec")) == budget_until, "nearby kills repeatedly extended hit-stop"):
+		return false
+	_player.set("_invuln_left", 0.0)
+	var hp_before := float(_player.call("get_current_hp"))
+	_player.call("take_damage", 7.0, Vector3.LEFT)
+	if not _check(float(_player.call("get_current_hp")) == hp_before - 7.0 and int(Juice.get("_impact_priority")) == int(profiles["hurt"]["priority"]) and float(rig.get("_shake_strength")) == float(profiles["hurt"]["shake"]), "player damage lost its stronger feedback"):
+		return false
+	stop_until = int(Juice.get("_stop_until_msec"))
+	budget_until = int(Juice.get("_impact_until_msec"))
+	await _wait_wall_msec(5)
+	Juice.impact(&"ranged")
+	if not _check(int(Juice.get("_stop_until_msec")) == stop_until and int(Juice.get("_impact_until_msec")) == budget_until and float(rig.get("_shake_strength")) == float(profiles["hurt"]["shake"]), "light hit refreshed or weakened player-hurt feedback"):
+		return false
+	var boss := _boss(Vector3(8.0, 0.0, 0.0))
+	boss.call("take_damage", 999999.0)
+	if not _check(int(Juice.get("_impact_priority")) == int(profiles["boss_kill"]["priority"]) and float(rig.get("_shake_strength")) == float(profiles["boss_kill"]["shake"]), "boss kill lost its strongest feedback"):
+		return false
+	await _wait_feedback_idle()
+	if not _check(is_equal_approx(Engine.time_scale, 1.0), "hit-stop did not recover on the wall clock"):
+		return false
+	if not _camera_feedback_test(rig):
+		return false
+	await _wait_feedback_idle()
+	Juice.impact(&"melee")
+	get_tree().paused = true
+	await _wait_feedback_idle()
+	if not _check(is_equal_approx(Engine.time_scale, 1.0), "pause prevented hit-stop recovery"):
+		return false
+	get_tree().paused = false
+	Engine.time_scale = 0.08
+	Juice.hit_spark(Vector3.UP)
+	await _wait_wall_msec(120)
+	if not _check(get_tree().get_nodes_in_group(&"hit_sparks").is_empty(), "hit sparks lingered during slow motion"):
+		return false
+	Engine.time_scale = 1.0
+	rig.queue_free()
+	await _sync_physics()
+	return true
+
+
+func _timed_multi_target_feedback_test(rig: CameraRig) -> bool:
+	var front := _dummy(&"grunt", Vector3.RIGHT.rotated(Vector3.UP, deg_to_rad(-55.0)) * 2.5)
+	var edge := _dummy(&"grunt", Vector3.RIGHT.rotated(Vector3.UP, deg_to_rad(55.0)) * 2.7)
+	front.call("take_damage", 26.0)
+	await _wait_feedback_idle()
+	rig.call("_update_shake", 1.0)
+	await _sync_physics()
+	_player.call("_begin_swing", Vector3.RIGHT)
+	var previous := Time.get_ticks_usec()
+	var deadline := previous + 1000000
+	var kill_at: int = 0
+	var budget_until: int = 0
+	var edge_hit_at: int = 0
+	while is_equal_approx(float(edge.call("get_current_hp")), 46.0) and Time.get_ticks_usec() < deadline:
+		var time_scale := Engine.time_scale
+		await get_tree().process_frame
+		var now := Time.get_ticks_usec()
+		var numbers_before := get_tree().get_nodes_in_group(&"damage_numbers").size()
+		var sparks_before := get_tree().get_nodes_in_group(&"hit_sparks").size()
+		var hit_audio := Audio.play_count(&"enemy_hit")
+		_player.call("_update_swing", float(now - previous) * time_scale / 1000000.0)
+		previous = now
+		if kill_at == 0 and bool(front.call("is_dead")):
+			kill_at = Time.get_ticks_usec()
+			budget_until = int(Juice.get("_impact_until_msec"))
+		if not is_equal_approx(float(edge.call("get_current_hp")), 46.0):
+			edge_hit_at = Time.get_ticks_usec()
+			if not _check(get_tree().get_nodes_in_group(&"damage_numbers").size() == numbers_before + 1 and get_tree().get_nodes_in_group(&"hit_sparks").size() == sparks_before + 1 and Audio.play_count(&"enemy_hit") == hit_audio + 1, "timed late contact lost its local feedback"):
+				return false
+	if not _check(kill_at > 0 and edge_hit_at - kill_at >= 100000, "timed sword contacts did not cross the old 100 ms budget"):
+		return false
+	if not _check(is_equal_approx(float(edge.call("get_current_hp")), 20.0), "timed sword missed its late target"):
+		return false
+	if not _check(int(Juice.get("_impact_until_msec")) == budget_until and int(Juice.get("_stop_until_msec")) == 0 and is_equal_approx(Engine.time_scale, 1.0), "timed late contact restarted global impact after a kill"):
+		return false
+	var kill_profile: Dictionary = Tuning.section("fx")["impacts"]["kill"]
+	if not _check(int(Juice.get("_impact_priority")) == int(kill_profile["priority"]) and is_equal_approx(float(rig.get("_shake_strength")), float(kill_profile["shake"])), "timed late contact replaced kill feedback"):
+		return false
+	_player.call("_end_swing")
+	if is_instance_valid(front):
+		front.queue_free()
+	edge.queue_free()
+	await _wait_wall_msec(int(ceil(float(Tuning.value("fx", "spark_sec")) * 1000.0)))
+	await _sync_physics()
+	return true
+
+
+func _camera_feedback_test(rig: CameraRig) -> bool:
+	rig.call("_update_shake", 1.0)
+	rig.add_shake(0.4, 0.25)
+	rig.add_shake(0.01, 1.0)
+	if not _check(is_equal_approx(float(rig.get("_shake_left")), 0.25), "weak shake extended a heavy shake"):
+		return false
+	Engine.time_scale = 0.08
+	rig.call("_process", 0.008)
+	if not _check(is_equal_approx(float(rig.get("_shake_left")), 0.15), "hit-stop stretched the shake envelope"):
+		return false
+	Engine.time_scale = 1.0
+	rig.call("_update_shake", 0.12)
+	rig.add_shake(0.18, 1.0)
+	if not _check(is_equal_approx(float(rig.get("_shake_left")), 0.03) and is_equal_approx(float(rig.get("_shake_strength")), 0.4) and is_equal_approx(float(rig.get("_shake_duration")), 0.25), "weak event restarted a heavy shake's decaying tail"):
+		return false
+	rig.add_shake(10.0, 0.2)
+	if not _check(is_equal_approx(float(rig.get("_shake_strength")), float(Tuning.value("fx", "shake_max"))), "shake exceeded its configured amplitude cap"):
+		return false
+	rig.call("_update_shake", 0.3)
+	var camera := rig.get_node("Camera3D") as Camera3D
+	if not _check(float(rig.get("_shake_left")) == 0.0 and float(rig.get("_shake_duration")) == 0.0 and camera.position.is_equal_approx(rig.get("_base_camera_position")), "shake did not clear and return the camera to its origin"):
+		return false
+	rig.add_shake(0.05, 0.07)
+	if not _check(is_equal_approx(float(rig.get("_shake_duration")), 0.07), "new shake inherited an old longer duration"):
+		return false
+	rig.snap_to_target()
+	return _check(float(rig.get("_shake_left")) == 0.0 and float(rig.get("_shake_strength")) == 0.0, "floor snap retained shake state")
+
+
+func _wait_feedback_idle() -> void:
+	var deadline := maxi(int(Juice.get("_impact_until_msec")), int(Juice.get("_stop_until_msec")))
+	while Time.get_ticks_msec() <= deadline:
+		await get_tree().process_frame
+	await get_tree().process_frame
+
+
+func _wait_wall_msec(duration: int) -> void:
+	var deadline := Time.get_ticks_msec() + duration
+	while Time.get_ticks_msec() <= deadline:
+		await get_tree().process_frame
 
 
 func _boss(position: Vector3) -> CharacterBody3D:

@@ -5,6 +5,10 @@ extends Node
 
 const GROUP_DAMAGE_NUMBERS: StringName = &"damage_numbers"
 const GROUP_FX_TRANSIENT: StringName = &"fx_transient"
+const GROUP_HIT_SPARKS: StringName = &"hit_sparks"
+const SPARK_RAYS: int = 5
+const SPARK_MELEE_COLOR := Color(1.0, 0.84, 0.42)
+const SPARK_RANGED_COLOR := Color(0.55, 0.9, 1.0)
 
 const DAMAGE_RISE: float = 1.0
 const DAMAGE_LIFETIME: float = 0.55
@@ -21,25 +25,27 @@ const SHARD_LIFETIME: float = 0.35
 const SHARD_SIZE: float = 0.18
 const SHARD_END_SCALE: float = 0.05
 
-var _hitstop_sec: float = 0.028
-var _hitstop_kill_sec: float = 0.055
 var _hitstop_scale: float = 0.08
-var _shake_hit: float = 0.09
-var _shake_kill: float = 0.2
-var _shake_time: float = 0.16
 var _stop_until_msec: int = 0
+var _impacts: Dictionary = {}
+var _impact_interval_msec: int = 160
+var _impact_until_msec: int = 0
+var _impact_priority: int = -1
+var _spark_sec: float = 0.09
+var _spark_melee_size: float = 0.24
+var _spark_ranged_size: float = 0.14
 
 
 func _ready() -> void:
 	# Feedback must keep ticking while the tree is paused so time_scale is restored.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var fx: Dictionary = Tuning.section("fx")
-	_hitstop_sec = float(fx.get("hitstop_sec", _hitstop_sec))
-	_hitstop_kill_sec = float(fx.get("hitstop_kill_sec", _hitstop_kill_sec))
 	_hitstop_scale = clampf(float(fx.get("hitstop_scale", _hitstop_scale)), 0.01, 1.0)
-	_shake_hit = float(fx.get("shake_hit", _shake_hit))
-	_shake_kill = float(fx.get("shake_kill", _shake_kill))
-	_shake_time = float(fx.get("shake_time", _shake_time))
+	_impacts = fx["impacts"]
+	_impact_interval_msec = int(float(fx.get("impact_interval_sec", 0.16)) * 1000.0)
+	_spark_sec = float(fx.get("spark_sec", _spark_sec))
+	_spark_melee_size = float(fx.get("spark_melee_size", _spark_melee_size))
+	_spark_ranged_size = float(fx.get("spark_ranged_size", _spark_ranged_size))
 
 
 func _process(_delta: float) -> void:
@@ -60,32 +66,72 @@ func hitstop(duration: float) -> void:
 	Engine.time_scale = minf(Engine.time_scale, _hitstop_scale)
 
 
-func hitstop_hit() -> void:
-	hitstop(_hitstop_sec)
+func impact(kind: StringName) -> void:
+	var profile: Dictionary = _impacts[String(kind)]
+	var priority := int(profile["priority"])
+	var now := Time.get_ticks_msec()
+	if now < _impact_until_msec and priority <= _impact_priority:
+		return
+	_impact_until_msec = now + _impact_interval_msec
+	_impact_priority = priority
+	hitstop(float(profile["hitstop_sec"]))
+	shake(float(profile["shake"]), float(profile["shake_time"]))
 
 
-func hitstop_kill() -> void:
-	hitstop(_hitstop_kill_sec)
-
-
-func shake(strength: float, duration: float = -1.0) -> void:
-	var sec := duration if duration >= 0.0 else _shake_time
-	if strength <= 0.0 or sec <= 0.0:
+func shake(strength: float, duration: float) -> void:
+	if strength <= 0.0 or duration <= 0.0:
 		return
 	var camera := get_viewport().get_camera_3d()
 	if camera == null:
 		return
 	var rig := camera.get_parent()
 	if rig != null and rig.has_method(&"add_shake"):
-		rig.call(&"add_shake", strength, sec)
+		rig.call(&"add_shake", strength, duration)
 
 
-func hit_shake() -> void:
-	shake(_shake_hit)
-
-
-func kill_shake() -> void:
-	shake(_shake_kill)
+func hit_spark(world_position: Vector3, ranged: bool = false) -> void:
+	var parent := _fx_parent()
+	if parent == null:
+		return
+	var size := _spark_ranged_size if ranged else _spark_melee_size
+	var vertices := PackedVector3Array()
+	for i in SPARK_RAYS:
+		var angle := TAU * float(i) / float(SPARK_RAYS)
+		var direction := Vector3(cos(angle), sin(angle), 0.0)
+		var side := Vector3(-sin(angle), cos(angle), 0.0) * size * 0.08
+		var inner := direction * size * 0.1
+		var outer := direction * size
+		vertices.append_array(PackedVector3Array([
+			inner - side, inner + side, outer + side,
+			inner - side, outer + side, outer - side]))
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.albedo_color = SPARK_RANGED_COLOR if ranged else SPARK_MELEE_COLOR
+	material.emission_enabled = true
+	material.emission = material.albedo_color
+	material.emission_energy_multiplier = 1.8
+	var spark := MeshInstance3D.new()
+	spark.name = "RangedHitSpark" if ranged else "MeleeHitSpark"
+	spark.mesh = mesh
+	spark.material_override = material
+	spark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(spark)
+	spark.global_position = world_position
+	spark.add_to_group(GROUP_HIT_SPARKS)
+	spark.add_to_group(GROUP_FX_TRANSIENT)
+	var tween := spark.create_tween().set_ignore_time_scale(true)
+	tween.set_parallel(true)
+	tween.tween_property(spark, "scale", Vector3.ONE * 0.25, _spark_sec)
+	tween.tween_property(spark, "transparency", 1.0, _spark_sec)
+	tween.chain().tween_callback(spark.queue_free)
 
 
 func damage_number(world_position: Vector3, amount: float, color: Color = Color.WHITE,

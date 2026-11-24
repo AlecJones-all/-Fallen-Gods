@@ -34,7 +34,7 @@ const KEY_HINT_ROWS := {
 
 ## `OS.get_keycode_string` prints the engine's own words, which read badly on a key cap.
 const KEY_WORD_OVERRIDES := {
-	" ": "空格",
+	"Space": "空格",
 	"Escape": "Esc",
 }
 

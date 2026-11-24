@@ -12,6 +12,14 @@ const MIN_WINDOW := Vector2i(960, 540)
 const FIT_TOLERANCE := 0.01
 const WRAP_TOLERANCE := 0.05
 const KEY_HINT_LABELS := ["移动", "冲刺", "闪避", "攻击", "换武器", "暂停"]
+const KEY_HINT_KEYS := [
+	["W", "A", "S", "D"],
+	["Shift"],
+	["空格"],
+	["左键"],
+	["1", "2", "滚轮↓"],
+	["Esc"],
+]
 
 
 var _tree: SceneTree
@@ -134,16 +142,16 @@ func _check_hud_summary() -> bool:
 	for _frame in 4:
 		await _tree.process_frame
 
-	for label in [floor_label, objective_label]:
+	for label: Label in [floor_label, objective_label]:
 		var font: Font = label.get_theme_font(&"font")
 		if font == null:
 			return _fail_bool("%s has no theme font" % label.name)
-		var one_line := font.get_line_height(label.get_theme_font_size(&"font_size"))
+		var one_line: float = font.get_height(label.get_theme_font_size(&"font_size"))
 		if label.autowrap_mode != TextServer.AUTOWRAP_OFF:
 			return _fail_bool("%s still wraps" % label.name)
 		if label.size.y > one_line * 2.0:
 			return _fail_bool("%s is %.1f tall, one line is %.1f" % [label.name, label.size.y, one_line])
-		var natural := font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0,
+		var natural: float = font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0,
 			label.get_theme_font_size(&"font_size")).x
 		if label.size.x < natural * (1.0 - WRAP_TOLERANCE):
 			return _fail_bool("%s is %.1f wide, its text needs %.1f" % [label.name, label.size.x, natural])
@@ -178,10 +186,47 @@ func _check_key_hints(hud: Node) -> bool:
 			return _fail_bool("key hint row %d reads %s, expected %s" % [index, caption.text, want])
 		if caps.get_child_count() == 0:
 			return _fail_bool("key hint %s has no caps" % want)
+		var actual := PackedStringArray()
 		for kbd in caps.get_children():
 			var keys: PackedStringArray = (kbd as GoKbd).keys()
 			if keys.is_empty():
 				return _fail_bool("key hint %s resolves no cap — unknown action?" % want)
+			actual.append_array(keys)
+		if actual != PackedStringArray(KEY_HINT_KEYS[index]):
+			return _fail_bool("key hint %s shows %s, expected %s" % [want, actual, KEY_HINT_KEYS[index]])
+	return _check_key_binding(hud)
+
+
+func _check_key_binding(hud: Node) -> bool:
+	var action := &"display_probe_binding"
+	InputMap.add_action(action)
+	var key := InputEventKey.new()
+	key.physical_keycode = KEY_W
+	key.ctrl_pressed = true
+	InputMap.action_add_event(action, key)
+	var physical := GoKbd.action_keys(action)
+	InputMap.action_erase_events(action)
+	key = InputEventKey.new()
+	key.keycode = KEY_Q
+	key.alt_pressed = true
+	InputMap.action_add_event(action, key)
+	var rebound := GoKbd.action_keys(action)
+	InputMap.action_erase_events(action)
+	var mouse := InputEventMouseButton.new()
+	mouse.button_index = MOUSE_BUTTON_RIGHT
+	InputMap.action_add_event(action, mouse)
+	var cap: GoKbd = hud.call(&"_kbd_for", action)
+	var mouse_keys := cap.keys()
+	cap.free()
+	InputMap.erase_action(action)
+	if physical != ["Ctrl", "W"]:
+		return _fail_bool("physical key modifier/name mismatch: %s" % str(physical))
+	if rebound != ["Alt", "Q"]:
+		return _fail_bool("logical key rebind was not reflected: %s" % str(rebound))
+	if mouse_keys != PackedStringArray(["右键"]):
+		return _fail_bool("mouse rebind was not reflected: %s" % str(mouse_keys))
+	if not GoKbd.action_keys(action).is_empty():
+		return _fail_bool("missing action still resolved key caps")
 	return true
 
 

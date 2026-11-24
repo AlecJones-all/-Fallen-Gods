@@ -160,8 +160,7 @@ func take_damage(amount: float, source_position: Vector3 = Vector3.INF) -> void:
 	hp_changed.emit(_current_hp, _max_hp)
 	damaged_from.emit(source_position)
 	Juice.damage_number(global_position + Vector3.UP * _height, amount, HURT_NUMBER_COLOR)
-	Juice.hit_shake()
-	Juice.hitstop_hit()
+	Juice.impact(&"hurt")
 	Audio.play(&"player_hurt")
 	if _current_hp > 0.0:
 		return

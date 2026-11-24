@@ -160,7 +160,10 @@ func _apply_visuals() -> void:
 
 func _impact(collider: Variant) -> void:
 	if collider != null and collider is Object and (collider as Object).has_method(&"take_damage"):
-		collider.call(&"take_damage", _damage, global_position if _hostile else _direction)
+		if _hostile:
+			collider.call(&"take_damage", _damage, global_position)
+		else:
+			collider.call(&"take_damage", _damage, _direction, 6.0, true)
 	else:
 		Audio.play_at(&"bolt_wall", global_position)
 	queue_free()
