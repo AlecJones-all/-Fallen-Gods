@@ -1,6 +1,8 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/player/rogue_knight_v2.tscn" id="2_rogue_knight"]
+[ext_resource type="Script" path="res://scripts/player/player_visual.gd" id="3_visual"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.45
@@ -55,6 +57,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_player")
 
 [node name="Body" type="MeshInstance3D" parent="."]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 mesh = SubResource("CapsuleMesh_player")
 surface_material_override/0 = SubResource("Material_player")
@@ -63,6 +66,7 @@ surface_material_override/0 = SubResource("Material_player")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.08, 0)
 
 [node name="Wedge" type="MeshInstance3D" parent="FacingWedge"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.35)
 mesh = SubResource("BoxMesh_wedge")
 surface_material_override/0 = SubResource("Material_wedge")
@@ -73,8 +77,13 @@ visible = false
 [node name="Blade" type="MeshInstance3D" parent="FacingWedge/SwingPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.2)
 cast_shadow = 0
-mesh = SubResource("BoxMesh_blade")
-surface_material_override/0 = SubResource("Material_blade")
+
+[node name="Visual" type="Node3D" parent="FacingWedge"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, -1.08, 0)
+script = ExtResource("3_visual")
+
+[node name="RogueKnight" parent="FacingWedge/Visual" instance=ExtResource("2_rogue_knight")]
+transform = Transform3D(0.84320982, 0, 0, 0, 0.84320982, 0, 0, 0, 0.84320982, 0, 0, 0)
 
 [node name="AimMarker" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
