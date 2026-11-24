@@ -135,27 +135,56 @@ func _build_visuals() -> void:
 	_material.emission_enabled = true
 	_material.emission_energy_multiplier = EMISSION_ENERGY
 
+	# 弩箭造型：箭杆(沿 Z) + 箭头(-Z 端) + 尾羽(+Z 端)
 	_mesh = MeshInstance3D.new()
 	_mesh.name = "Mesh"
-	_mesh.mesh = SphereMesh.new()
+	var shaft := CylinderMesh.new()
+	shaft.top_radius = 0.011
+	shaft.bottom_radius = 0.011
+	shaft.height = 0.36
+	shaft.radial_segments = 6
+	shaft.rings = 1
+	_mesh.mesh = shaft
 	_mesh.material_override = _material
+	_mesh.rotation_degrees = Vector3(90, 0, 0)
 	_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_mesh)
+
+	var tip := MeshInstance3D.new()
+	var tm := CylinderMesh.new()
+	tm.top_radius = 0.0
+	tm.bottom_radius = 0.022
+	tm.height = 0.09
+	tm.radial_segments = 6
+	tip.mesh = tm
+	tip.material_override = _material
+	tip.rotation_degrees = Vector3(-90, 0, 0)
+	tip.position = Vector3(0, 0, -0.21)
+	tip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(tip)
+
+	for fx in [-1.0, 1.0]:
+		var fin := MeshInstance3D.new()
+		var fm := BoxMesh.new()
+		fm.size = Vector3(0.005, 0.045, 0.09)
+		fin.mesh = fm
+		fin.material_override = _material
+		fin.position = Vector3(0.016 * fx, 0, 0.15)
+		fin.rotation_degrees = Vector3(0, 0, 22.0 * fx)
+		fin.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(fin)
 
 
 func _apply_visuals() -> void:
 	var shape := _collision.shape as SphereShape3D
 	shape.radius = _radius
 
-	var sphere := _mesh.mesh as SphereMesh
-	sphere.radius = _radius
-	sphere.height = _radius * 2.0
-	sphere.radial_segments = 12
-	sphere.rings = 6
-
 	var color := HOSTILE_COLOR if _hostile else FRIENDLY_COLOR
 	_material.albedo_color = color
 	_material.emission = color
+	# 箭身朝飞行方向（视觉模型沿 -Z 为前）
+	if _direction != null and _direction.length_squared() > 0.0001:
+		basis = Basis.looking_at(_direction.normalized(), Vector3.UP)
 
 
 func _impact(collider: Variant) -> void:

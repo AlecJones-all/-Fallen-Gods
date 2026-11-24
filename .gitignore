@@ -1,3 +1,10 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Local assistant data
+.workbuddy/
+
+# Mixamo source FBX files are not redistributed
+assets/anim_src/*.fbx
+assets/anim_src/*.fbx.import
