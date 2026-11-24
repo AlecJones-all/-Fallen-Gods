@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-## In-game HUD: HP and dash readiness bars, floor progress, and the weapon line.
+## In-game HUD: HP and dash readiness bars, floor progress, the weapon line and the key hints.
 
 const FALLBACK_PRESET := &"medieval_dark"
 const PLAYER_GROUP := &"player"
@@ -10,7 +10,6 @@ const BOSS_FALLBACK_NAME := "BOSS"
 const POLL_SECONDS := 0.25
 const FALLBACK_MAX_HP := 100.0
 const DEFAULT_FLOOR := 1
-const WEAPON_SLOTS := 2
 const DEFAULT_WEAPON := "长剑"
 const HIT_FLASH_COLOR: Color = Color(0.78, 0.05, 0.05, 0.32)
 const HIT_FLASH_SEC: float = 0.24
@@ -22,6 +21,29 @@ const HURT_ARROW_COLOR: Color = Color(1.0, 0.32, 0.26, 0.9)
 const HURT_ARROW_SIZE: float = 16.0
 const HURT_ARROW_RADIUS: float = 0.34
 const HURT_ARROW_SEC: float = 0.55
+
+## Caption text, then the actions whose bound keys to show for it.
+const KEY_HINT_ROWS := {
+	"移动": ["move_forward", "move_left", "move_back", "move_right"],
+	"冲刺": ["sprint"],
+	"闪避": ["dash"],
+	"攻击": ["attack"],
+	"换武器": ["weapon_1", "weapon_2", "weapon_next"],
+	"暂停": ["pause"],
+}
+
+## `OS.get_keycode_string` prints the engine's own words, which read badly on a key cap.
+const KEY_WORD_OVERRIDES := {
+	" ": "空格",
+	"Escape": "Esc",
+}
+
+const MOUSE_WORDS := {
+	MOUSE_BUTTON_LEFT: "左键",
+	MOUSE_BUTTON_RIGHT: "右键",
+	MOUSE_BUTTON_WHEEL_UP: "滚轮↑",
+	MOUSE_BUTTON_WHEEL_DOWN: "滚轮↓",
+}
 
 var _hp_bar: GoBar
 var _dash_bar: GoBar
@@ -98,8 +120,8 @@ func _build() -> void:
 	_dash_bar.set_ratio(1.0, false)
 	column.add_child(_dash_bar)
 
-	_weapon_label = GoStyle.label(_weapon_text(0, DEFAULT_WEAPON),
-		GoTheme.ROLE_MICRO, GoUi.color(GoTheme.MUTED))
+	_weapon_label = GoStyle.one_line(GoStyle.label(_weapon_text(DEFAULT_WEAPON),
+		GoTheme.ROLE_MICRO, GoUi.color(GoTheme.MUTED)))
 	_weapon_label.name = "WeaponLabel"
 	_weapon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_weapon_label)
@@ -121,18 +143,27 @@ func _build() -> void:
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	plate.add_child(stack)
 
-	_floor_label = GoStyle.label("第 %d 层" % DEFAULT_FLOOR,
-		GoTheme.ROLE_COMPACT, GoUi.color(GoTheme.MUTED))
+	var summary := GoStyle.row(GoUi.metric(GoTheme.GAP))
+	summary.name = "FloorSummary"
+	summary.alignment = BoxContainer.ALIGNMENT_CENTER
+	summary.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(summary)
+
+	_floor_label = GoStyle.one_line(GoStyle.label("第 %d 层" % DEFAULT_FLOOR,
+		GoTheme.ROLE_COMPACT, GoUi.color(GoTheme.MUTED)))
 	_floor_label.name = "FloorLabel"
 	_floor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_floor_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_floor_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.add_child(_floor_label)
+	summary.add_child(_floor_label)
 
-	_objective_label = GoStyle.label("", GoTheme.ROLE_MICRO, GoUi.color(GoTheme.MUTED))
+	_objective_label = GoStyle.one_line(GoStyle.label("", GoTheme.ROLE_MICRO, GoUi.color(GoTheme.MUTED)))
 	_objective_label.name = "ObjectiveLabel"
 	_objective_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_objective_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_objective_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.add_child(_objective_label)
+	summary.add_child(_objective_label)
 
 	_boss_bar = GoBar.new()
 	_boss_bar.name = "BossBar"
@@ -145,14 +176,82 @@ func _build() -> void:
 	_boss_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(_boss_bar)
 
-	_warning_label = GoStyle.label(LOW_HP_TEXT, GoTheme.ROLE_COMPACT, GoUi.color(GoTheme.DANGER))
+	_warning_label = GoStyle.one_line(GoStyle.label(LOW_HP_TEXT, GoTheme.ROLE_COMPACT, GoUi.color(GoTheme.DANGER)))
 	_warning_label.name = "LowHpWarning"
 	_warning_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_warning_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_warning_label.visible = false
 	stack.add_child(_warning_label)
 
+	_build_key_hints()
 	_build_hit_flash()
+
+
+func _build_key_hints() -> void:
+	var anchor := GoHudAnchor.new()
+	anchor.name = "KeyHintAnchor"
+	anchor.spot = GoHudAnchor.Spot.BOTTOM_RIGHT
+	anchor.keyboard_focus = false
+	anchor.reserve_space = false
+	add_child(anchor)
+
+	var panel := GoStyle.hud_panel(Color.TRANSPARENT, 12, 8, GoTheme.BOX_HUD)
+	panel.name = "KeyHints"
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	anchor.add_child(panel)
+
+	var grid := GridContainer.new()
+	grid.name = "KeyHintGrid"
+	grid.columns = 2
+	grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	grid.add_theme_constant_override(&"h_separation", GoUi.metric(GoTheme.GAP_SMALL))
+	grid.add_theme_constant_override(&"v_separation", GoUi.metric(GoTheme.GAP_TINY))
+	panel.add_child(grid)
+
+	for caption_text: String in KEY_HINT_ROWS:
+		var caption := GoStyle.label(caption_text, GoTheme.ROLE_MICRO, GoUi.color(GoTheme.MUTED))
+		caption.name = "HintName"
+		caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		GoStyle.natural_width(caption)
+		grid.add_child(caption)
+
+		var caps := GoStyle.row(GoUi.metric(GoTheme.GAP_TINY))
+		caps.name = "HintCaps"
+		caps.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var actions: Array = KEY_HINT_ROWS[caption_text]
+		for action: String in actions:
+			caps.add_child(_kbd_for(StringName(action)))
+		grid.add_child(caps)
+
+
+## The caps for one action, read out of `InputMap` so a rebind cannot leave a lying hint behind.
+## `GoKbd` only knows keyboard events, so the mouse bindings are worded here.
+func _kbd_for(action: StringName) -> GoKbd:
+	var keys: Array = []
+	for word in GoKbd.action_keys(action):
+		var text := String(word)
+		keys.append(KEY_WORD_OVERRIDES.get(text, text))
+	if keys.is_empty():
+		var mouse := _mouse_word(action)
+		if not mouse.is_empty():
+			keys.append(mouse)
+	var node := GoKbd.new()
+	node.name = "Kbd"
+	node.set_keys(keys)
+	return node
+
+
+func _mouse_word(action: StringName) -> String:
+	if not InputMap.has_action(action):
+		return ""
+	for event in InputMap.action_get_events(action):
+		var button := event as InputEventMouseButton
+		if button == null:
+			continue
+		var word := String(MOUSE_WORDS.get(button.button_index, ""))
+		if not word.is_empty():
+			return word
+	return ""
 
 
 func _build_hit_flash() -> void:
@@ -294,7 +393,7 @@ func _seed_weapon() -> void:
 		var value: Variant = _player.call(&"get_weapon_label")
 		if value is String or value is StringName:
 			label = String(value)
-	_apply_weapon(_node_int(_player, &"get_weapon_index", 0), label)
+	_apply_weapon(label)
 
 
 func _player_value(method: StringName, fallback: float) -> float:
@@ -403,8 +502,8 @@ func _on_dash_state_changed(remaining: float, total: float) -> void:
 	_apply_dash(remaining, total)
 
 
-func _on_weapon_changed(index: int, label: String) -> void:
-	_apply_weapon(index, label)
+func _on_weapon_changed(_index: int, label: String) -> void:
+	_apply_weapon(label)
 
 
 func _on_dungeon_status(floor_number: int, cleared: int, total: int,
@@ -412,12 +511,12 @@ func _on_dungeon_status(floor_number: int, cleared: int, total: int,
 	_apply_dungeon_status(floor_number, cleared, total, active_left)
 
 
-func _apply_weapon(index: int, label: String) -> void:
-	_weapon_label.text = _weapon_text(index, label)
+func _apply_weapon(label: String) -> void:
+	_weapon_label.text = _weapon_text(label)
 
 
-func _weapon_text(index: int, label: String) -> String:
-	return "武器　%s　·　%d / %d 切换" % [label, index + 1, WEAPON_SLOTS]
+func _weapon_text(label: String) -> String:
+	return "武器　%s" % label
 
 
 func _apply_dungeon_status(floor_number: int, cleared: int, total: int, active_left: int) -> void:

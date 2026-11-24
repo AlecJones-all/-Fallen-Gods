@@ -5,10 +5,13 @@ extends Node
 ##   godot --headless --path . res://tests/display_probe.tscn
 
 const CAMERA_SCENE := "res://scenes/camera/camera_rig.tscn"
+const HUD_SCENE := "res://scenes/ui/hud.tscn"
 const SETTINGS_SCENE := "res://scenes/ui/settings_panel.tscn"
 const DESIGN_SIZE := Vector2i(1280, 720)
 const MIN_WINDOW := Vector2i(960, 540)
 const FIT_TOLERANCE := 0.01
+const WRAP_TOLERANCE := 0.05
+const KEY_HINT_LABELS := ["移动", "冲刺", "闪避", "攻击", "换武器", "暂停"]
 
 
 var _tree: SceneTree
@@ -28,6 +31,8 @@ func _run() -> void:
 	if not _check_fit_math():
 		return
 	if not await _check_camera():
+		return
+	if not await _check_hud_summary():
 		return
 	if not await _check_settings_ui():
 		return
@@ -99,6 +104,84 @@ func _check_camera() -> bool:
 	if absf(camera.size - expected) > FIT_TOLERANCE:
 		return _fail_bool("camera size %.3f, expected %.3f at aspect %.3f"
 			% [camera.size, expected, view.x / view.y])
+	return true
+
+
+func _check_hud_summary() -> bool:
+	var packed := load(HUD_SCENE) as PackedScene
+	if packed == null:
+		return _fail_bool("HUD scene missing")
+	var hud := packed.instantiate()
+	_tree.root.add_child(hud)
+	await _tree.process_frame
+
+	var floor_label := hud.find_child("FloorLabel", true, false) as Label
+	var objective_label := hud.find_child("ObjectiveLabel", true, false) as Label
+	if floor_label == null or objective_label == null:
+		return _fail_bool("HUD floor/objective labels missing")
+	var row := floor_label.get_parent()
+	if not row is HBoxContainer:
+		return _fail_bool("floor label is not in a horizontal row")
+	if objective_label.get_parent() != row:
+		return _fail_bool("objective label is not in the same row as the floor label")
+	if (row as HBoxContainer).alignment != BoxContainer.ALIGNMENT_CENTER:
+		return _fail_bool("floor summary row is not centered")
+
+	# A wrapping label's minimum width is one glyph, and GoHudAnchor sizes itself from its
+	# children's minimum width, so an unwrapped-on-purpose plate folds into a vertical column.
+	floor_label.text = "第 1 层 · 清剿 0/4"
+	objective_label.text = "探索房间 · 清剿敌人"
+	for _frame in 4:
+		await _tree.process_frame
+
+	for label in [floor_label, objective_label]:
+		var font: Font = label.get_theme_font(&"font")
+		if font == null:
+			return _fail_bool("%s has no theme font" % label.name)
+		var one_line := font.get_line_height(label.get_theme_font_size(&"font_size"))
+		if label.autowrap_mode != TextServer.AUTOWRAP_OFF:
+			return _fail_bool("%s still wraps" % label.name)
+		if label.size.y > one_line * 2.0:
+			return _fail_bool("%s is %.1f tall, one line is %.1f" % [label.name, label.size.y, one_line])
+		var natural := font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0,
+			label.get_theme_font_size(&"font_size")).x
+		if label.size.x < natural * (1.0 - WRAP_TOLERANCE):
+			return _fail_bool("%s is %.1f wide, its text needs %.1f" % [label.name, label.size.x, natural])
+
+	if not _check_key_hints(hud):
+		return false
+
+	hud.queue_free()
+	await _tree.process_frame
+	return true
+
+
+## Every advertised hint has to resolve to a real key cap. `GoKbd` hides an unknown action
+## instead of complaining, so a mistyped action name simply drops a row off the screen.
+## The expected list is deliberately written out here again: the probe checks what the HUD
+## promises, not whatever the HUD happens to have built.
+func _check_key_hints(hud: Node) -> bool:
+	var grid := hud.find_child("KeyHintGrid", true, false) as GridContainer
+	if grid == null:
+		return _fail_bool("key hint grid missing")
+	if grid.get_child_count() != KEY_HINT_LABELS.size() * 2:
+		return _fail_bool("key hint grid has %d children, expected %d"
+			% [grid.get_child_count(), KEY_HINT_LABELS.size() * 2])
+
+	for index in KEY_HINT_LABELS.size():
+		var want := String(KEY_HINT_LABELS[index])
+		var caption := grid.get_child(index * 2) as Label
+		var caps := grid.get_child(index * 2 + 1) as HBoxContainer
+		if caption == null or caps == null:
+			return _fail_bool("key hint row %d is not caption + caps" % index)
+		if caption.text != want:
+			return _fail_bool("key hint row %d reads %s, expected %s" % [index, caption.text, want])
+		if caps.get_child_count() == 0:
+			return _fail_bool("key hint %s has no caps" % want)
+		for kbd in caps.get_children():
+			var keys: PackedStringArray = (kbd as GoKbd).keys()
+			if keys.is_empty():
+				return _fail_bool("key hint %s resolves no cap — unknown action?" % want)
 	return true
 
 
