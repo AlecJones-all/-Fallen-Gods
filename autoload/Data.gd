@@ -7,7 +7,6 @@ var build_pool: Array
 var realms: Array
 var levels: Array
 var bosses: Dictionary
-var combat_lanes: Dictionary
 
 func _ready() -> void:
 	tuning = _load("res://data/tuning.json")
@@ -17,14 +16,9 @@ func _ready() -> void:
 	realms = _load("res://data/realms.json")
 	levels = _load("res://data/levels.json")
 	bosses = _load("res://data/bosses.json")
-	combat_lanes = _load("res://data/combat_lanes.json")
 
 func level_config(level_id: int) -> Dictionary:
 	return levels[level_id - 1]
-
-
-func combat_lane_config(level_id: int) -> Dictionary:
-	return combat_lanes.levels.get(str(level_id), combat_lanes.default)
 
 func _load(path: String) -> Variant:
 	var text := FileAccess.get_file_as_string(path)
