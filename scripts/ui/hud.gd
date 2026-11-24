@@ -1,23 +1,31 @@
 extends CanvasLayer
 
-## In-game HUD: HP and dash readiness bars, plus the floor title.
+## In-game HUD: HP and dash readiness bars, floor progress, and the weapon line.
 
 const FALLBACK_PRESET := &"medieval_dark"
 const PLAYER_GROUP := &"player"
+const DUNGEON_GROUP := &"dungeon"
 const POLL_SECONDS := 0.25
 const FALLBACK_MAX_HP := 100.0
+const DEFAULT_FLOOR := 1
+const WEAPON_SLOTS := 2
+const DEFAULT_WEAPON := "长剑"
 
 var _hp_bar: GoBar
 var _dash_bar: GoBar
+var _floor_label: Label
+var _objective_label: Label
+var _weapon_label: Label
 var _player: Node
+var _dungeon: Node
 var _poll: Timer
 
 
 func _ready() -> void:
 	_apply_preset()
 	_build()
-	_start_player_poll()
-	_find_player.call_deferred()
+	_start_target_poll()
+	_find_targets.call_deferred()
 
 
 func _apply_preset() -> void:
@@ -71,6 +79,12 @@ func _build() -> void:
 	_dash_bar.set_ratio(1.0, false)
 	column.add_child(_dash_bar)
 
+	_weapon_label = GoStyle.label(_weapon_text(0, DEFAULT_WEAPON),
+		GoTheme.ROLE_MICRO, GoUi.color(GoTheme.MUTED))
+	_weapon_label.name = "WeaponLabel"
+	_weapon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(_weapon_label)
+
 	var top := GoHudAnchor.new()
 	top.name = "FloorAnchor"
 	top.spot = GoHudAnchor.Spot.TOP_CENTER
@@ -78,37 +92,54 @@ func _build() -> void:
 	top.reserve_space = false
 	add_child(top)
 
-	var floor_label := GoStyle.label("第 1 层 · 灰盒测试", GoTheme.ROLE_COMPACT, GoUi.color(GoTheme.MUTED))
-	floor_label.name = "FloorLabel"
-	floor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	top.add_child(floor_label)
+	var stack := GoStyle.column(GoUi.metric(GoTheme.GAP_TINY))
+	stack.name = "FloorStack"
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top.add_child(stack)
+
+	_floor_label = GoStyle.label("第 %d 层" % DEFAULT_FLOOR,
+		GoTheme.ROLE_COMPACT, GoUi.color(GoTheme.MUTED))
+	_floor_label.name = "FloorLabel"
+	_floor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_floor_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(_floor_label)
+
+	_objective_label = GoStyle.label("", GoTheme.ROLE_MICRO, GoUi.color(GoTheme.MUTED))
+	_objective_label.name = "ObjectiveLabel"
+	_objective_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_objective_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(_objective_label)
 
 
-func _start_player_poll() -> void:
+func _start_target_poll() -> void:
 	_poll = Timer.new()
-	_poll.name = "PlayerPoll"
+	_poll.name = "TargetPoll"
 	_poll.wait_time = POLL_SECONDS
 	_poll.autostart = true
-	_poll.timeout.connect(_find_player)
+	_poll.timeout.connect(_find_targets)
 	add_child(_poll)
 
 
-func _find_player() -> void:
-	if is_instance_valid(_player):
-		return
-	_player = null
+func _find_targets() -> void:
 	var tree := get_tree()
 	if tree == null:
 		return
-	_player = tree.get_first_node_in_group(PLAYER_GROUP)
-	if _player != null:
-		_bind_player()
+	if not is_instance_valid(_player):
+		_player = tree.get_first_node_in_group(PLAYER_GROUP)
+		if _player != null:
+			_bind_player()
+	if not is_instance_valid(_dungeon):
+		_dungeon = tree.get_first_node_in_group(DUNGEON_GROUP)
+		if _dungeon != null:
+			_bind_dungeon()
 
 
 func _bind_player() -> void:
 	_seed_bars()
+	_seed_weapon()
 	_connect_player_signal(&"hp_changed", _on_hp_changed)
 	_connect_player_signal(&"dash_state_changed", _on_dash_state_changed)
+	_connect_player_signal(&"weapon_changed", _on_weapon_changed)
 
 
 func _connect_player_signal(signal_name: StringName, handler: Callable) -> void:
@@ -117,11 +148,31 @@ func _connect_player_signal(signal_name: StringName, handler: Callable) -> void:
 	_player.connect(signal_name, handler)
 
 
+func _bind_dungeon() -> void:
+	if _dungeon.has_signal(&"status_changed") \
+			and not _dungeon.is_connected(&"status_changed", _on_dungeon_status):
+		_dungeon.connect(&"status_changed", _on_dungeon_status)
+	_apply_dungeon_status(
+		_node_int(_dungeon, &"get_floor_number", DEFAULT_FLOOR),
+		_node_int(_dungeon, &"get_cleared_count", 0),
+		_node_int(_dungeon, &"get_room_total", 0),
+		_node_int(_dungeon, &"get_active_enemies_left", 0))
+
+
 func _seed_bars() -> void:
 	_hp_bar.set_values(_player_value(&"get_current_hp", FALLBACK_MAX_HP),
 		_player_value(&"get_max_hp", FALLBACK_MAX_HP), false)
 	_apply_dash(_player_value(&"get_dash_remaining", 0.0),
 		_player_value(&"get_dash_total", 0.0), false)
+
+
+func _seed_weapon() -> void:
+	var label := DEFAULT_WEAPON
+	if is_instance_valid(_player) and _player.has_method(&"get_weapon_label"):
+		var value: Variant = _player.call(&"get_weapon_label")
+		if value is String or value is StringName:
+			label = String(value)
+	_apply_weapon(_node_int(_player, &"get_weapon_index", 0), label)
 
 
 func _player_value(method: StringName, fallback: float) -> float:
@@ -133,12 +184,48 @@ func _player_value(method: StringName, fallback: float) -> float:
 	return fallback
 
 
+func _node_int(node: Node, method: StringName, fallback: int) -> int:
+	if not is_instance_valid(node) or not node.has_method(method):
+		return fallback
+	var value: Variant = node.call(method)
+	if value is float or value is int:
+		return int(value)
+	return fallback
+
+
 func _on_hp_changed(current: float, maximum: float) -> void:
 	_hp_bar.set_values(current, maximum)
 
 
 func _on_dash_state_changed(remaining: float, total: float) -> void:
 	_apply_dash(remaining, total)
+
+
+func _on_weapon_changed(index: int, label: String) -> void:
+	_apply_weapon(index, label)
+
+
+func _on_dungeon_status(floor_number: int, cleared: int, total: int,
+		_enemies_left: int, active_left: int) -> void:
+	_apply_dungeon_status(floor_number, cleared, total, active_left)
+
+
+func _apply_weapon(index: int, label: String) -> void:
+	_weapon_label.text = _weapon_text(index, label)
+
+
+func _weapon_text(index: int, label: String) -> String:
+	return "武器　%s　·　%d / %d 切换" % [label, index + 1, WEAPON_SLOTS]
+
+
+func _apply_dungeon_status(floor_number: int, cleared: int, total: int, active_left: int) -> void:
+	_floor_label.text = "第 %d 层 · 清剿 %d/%d" % [floor_number, cleared, total]
+	if active_left > 0:
+		_objective_label.text = "剩余敌人 %d" % active_left
+	elif total > 0 and cleared >= total:
+		_objective_label.text = "本层已肃清 · 进入传送门"
+	else:
+		_objective_label.text = "探索房间 · 清剿敌人"
 
 
 func _apply_dash(remaining: float, total: float, animate := true) -> void:

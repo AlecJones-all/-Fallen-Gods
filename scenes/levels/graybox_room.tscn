@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://scripts/levels/graybox_room.gd" id="1_room"]
-
-[node name="GrayboxRoom" type="Node3D" groups=["level"]]
-script = ExtResource("1_room")
-
-[node name="PlayerSpawn" type="Marker3D" parent="."]

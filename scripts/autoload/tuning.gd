@@ -2,7 +2,7 @@ extends Node
 
 const TUNING_PATH := "res://data/tuning.json"
 
-const BINDINGS := {
+const KEY_BINDINGS := {
 	"move_forward": KEY_W,
 	"move_back": KEY_S,
 	"move_left": KEY_A,
@@ -10,6 +10,14 @@ const BINDINGS := {
 	"sprint": KEY_SHIFT,
 	"dash": KEY_SPACE,
 	"pause": KEY_ESCAPE,
+	"weapon_1": KEY_1,
+	"weapon_2": KEY_2,
+}
+
+const MOUSE_BINDINGS := {
+	"attack": MOUSE_BUTTON_LEFT,
+	"weapon_next": MOUSE_BUTTON_WHEEL_DOWN,
+	"weapon_prev": MOUSE_BUTTON_WHEEL_UP,
 }
 
 var data: Dictionary = {}
@@ -39,10 +47,18 @@ func _load_tuning() -> void:
 
 
 func _register_inputs() -> void:
-	for action: String in BINDINGS:
+	for action: String in KEY_BINDINGS:
 		if InputMap.has_action(action):
 			continue
 		InputMap.add_action(action)
 		var event := InputEventKey.new()
-		event.physical_keycode = BINDINGS[action]
+		event.physical_keycode = KEY_BINDINGS[action]
+		InputMap.action_add_event(action, event)
+
+	for action: String in MOUSE_BINDINGS:
+		if InputMap.has_action(action):
+			continue
+		InputMap.add_action(action)
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BINDINGS[action]
 		InputMap.action_add_event(action, event)

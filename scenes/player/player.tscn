@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 
@@ -35,7 +35,19 @@ rings = 1
 shading_mode = 0
 albedo_color = Color(1, 0.45, 0.06, 1)
 
+[sub_resource type="BoxMesh" id="BoxMesh_blade"]
+size = Vector3(0.14, 0.06, 1.7)
+
+[sub_resource type="StandardMaterial3D" id="Material_blade"]
+shading_mode = 0
+albedo_color = Color(0.75, 0.95, 1, 1)
+emission_enabled = true
+emission = Color(0.4, 0.85, 1, 1)
+emission_energy_multiplier = 1.5
+
 [node name="Player" type="CharacterBody3D" groups=["player"]]
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -54,6 +66,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.08, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.35)
 mesh = SubResource("BoxMesh_wedge")
 surface_material_override/0 = SubResource("Material_wedge")
+
+[node name="SwingPivot" type="Node3D" parent="FacingWedge"]
+visible = false
+
+[node name="Blade" type="MeshInstance3D" parent="FacingWedge/SwingPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.2)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_blade")
+surface_material_override/0 = SubResource("Material_blade")
 
 [node name="AimMarker" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)

@@ -32,6 +32,14 @@ window/stretch/aspect="expand"
 
 theme/custom_font="res://assets/fonts/NotoSansSC-Regular.ttf"
 
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="player"
+3d_physics/layer_3="enemies"
+3d_physics/layer_4="player_shots"
+3d_physics/layer_5="enemy_shots"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

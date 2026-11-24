@@ -28,6 +28,15 @@ func _ready() -> void:
 	global_position = Vector3(0.0, _target_height, 0.0)
 
 
+## Jumps the rig to the player, e.g. after a floor transition repositions them.
+func snap_to_target() -> void:
+	_target = get_tree().get_first_node_in_group(PLAYER_GROUP) as Node3D
+	if _target == null:
+		return
+	global_position = _target.global_position + Vector3(0.0, _target_height, 0.0)
+	_snapped = true
+
+
 func _physics_process(delta: float) -> void:
 	# The player may be instanced after this rig; keep polling instead of failing.
 	if not is_instance_valid(_target):
