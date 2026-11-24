@@ -14,6 +14,7 @@ func _ready() -> void:
 	_apply_preset()
 	_build()
 	_restart_button.grab_focus.call_deferred()
+	Audio.play(&"game_over")
 
 
 func _apply_preset() -> void:

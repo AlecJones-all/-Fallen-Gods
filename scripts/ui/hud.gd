@@ -10,12 +10,17 @@ const FALLBACK_MAX_HP := 100.0
 const DEFAULT_FLOOR := 1
 const WEAPON_SLOTS := 2
 const DEFAULT_WEAPON := "长剑"
+const HIT_FLASH_COLOR: Color = Color(0.78, 0.05, 0.05, 0.32)
+const HIT_FLASH_SEC: float = 0.24
 
 var _hp_bar: GoBar
 var _dash_bar: GoBar
 var _floor_label: Label
 var _objective_label: Label
 var _weapon_label: Label
+var _flash: ColorRect
+var _flash_tween: Tween
+var _last_hp: float = -1.0
 var _player: Node
 var _dungeon: Node
 var _poll: Timer
@@ -110,6 +115,18 @@ func _build() -> void:
 	_objective_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(_objective_label)
 
+	_build_hit_flash()
+
+
+func _build_hit_flash() -> void:
+	# Full-viewport overlay, drawn above every panel and inert to the mouse.
+	_flash = ColorRect.new()
+	_flash.name = "HitFlash"
+	_flash.color = Color(HIT_FLASH_COLOR, 0.0)
+	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_flash)
+
 
 func _start_target_poll() -> void:
 	_poll = Timer.new()
@@ -160,8 +177,9 @@ func _bind_dungeon() -> void:
 
 
 func _seed_bars() -> void:
-	_hp_bar.set_values(_player_value(&"get_current_hp", FALLBACK_MAX_HP),
-		_player_value(&"get_max_hp", FALLBACK_MAX_HP), false)
+	var current := _player_value(&"get_current_hp", FALLBACK_MAX_HP)
+	_last_hp = current
+	_hp_bar.set_values(current, _player_value(&"get_max_hp", FALLBACK_MAX_HP), false)
 	_apply_dash(_player_value(&"get_dash_remaining", 0.0),
 		_player_value(&"get_dash_total", 0.0), false)
 
@@ -195,6 +213,19 @@ func _node_int(node: Node, method: StringName, fallback: int) -> int:
 
 func _on_hp_changed(current: float, maximum: float) -> void:
 	_hp_bar.set_values(current, maximum)
+	if _last_hp >= 0.0 and current < _last_hp - 0.01:
+		_trigger_hit_flash()
+	_last_hp = current
+
+
+func _trigger_hit_flash() -> void:
+	if _flash == null:
+		return
+	if _flash_tween != null and _flash_tween.is_valid():
+		_flash_tween.kill()
+	_flash.color.a = HIT_FLASH_COLOR.a
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(_flash, "color:a", 0.0, HIT_FLASH_SEC)
 
 
 func _on_dash_state_changed(remaining: float, total: float) -> void:

@@ -20,6 +20,8 @@ config/icon="res://icon.svg"
 Tuning="*res://scripts/autoload/tuning.gd"
 Settings="*res://scripts/autoload/settings.gd"
 Router="*res://scripts/autoload/router.gd"
+Juice="*res://scripts/autoload/juice.gd"
+Audio="*res://scripts/autoload/audio.gd"
 
 [display]
 

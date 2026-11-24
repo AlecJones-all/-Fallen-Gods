@@ -26,6 +26,8 @@ const MELEE_REACH_SLACK: float = 0.9
 const MUZZLE_FORWARD: float = 0.9
 const MUZZLE_HEIGHT: float = 0.9
 const HIT_FLASH_TINT: Color = Color(1.0, 0.25, 0.2)
+const GHOST_INTERVAL: float = 0.045
+const HURT_NUMBER_COLOR: Color = Color(1.0, 0.42, 0.35)
 
 @onready var _collision: CollisionShape3D = $CollisionShape3D
 @onready var _body_mesh: MeshInstance3D = $Body
@@ -59,6 +61,7 @@ var _dash_left: float = 0.0
 var _dash_dir: Vector3 = Vector3.FORWARD
 var _cooldown_left: float = 0.0
 var _reported_cooldown: float = 0.0
+var _ghost_left: float = 0.0
 
 var _weapon_index: int = WEAPON_BLADE
 var _attack_left: float = 0.0
@@ -132,19 +135,28 @@ func take_damage(amount: float) -> void:
 	_invuln_left = _invuln_sec
 	_begin_hit_flash()
 	hp_changed.emit(_current_hp, _max_hp)
+	Juice.damage_number(global_position + Vector3.UP * _height, amount, HURT_NUMBER_COLOR)
+	Juice.hit_shake()
+	Juice.hitstop_hit()
+	Audio.play(&"player_hurt")
 	if _current_hp > 0.0:
 		return
 	_dead = true
 	_swing_left = 0.0
 	_hide_combat_visuals()
 	set_physics_process(false)
+	Audio.play(&"player_death")
 	died.emit()
 
 
 func heal(amount: float) -> void:
 	if _dead or amount <= 0.0:
 		return
+	var before := _current_hp
 	_current_hp = clampf(_current_hp + amount, 0.0, _max_hp)
+	if _current_hp <= before:
+		return
+	Audio.play(&"heal")
 	hp_changed.emit(_current_hp, _max_hp)
 
 
@@ -393,6 +405,7 @@ func _do_ranged(direction: Vector3) -> void:
 	shot.configure(dir, _bolt_speed, _bolt_damage, false, _bolt_lifetime)
 	parent.add_child(shot)
 	shot.global_position = global_position + dir * MUZZLE_FORWARD + Vector3.UP * MUZZLE_HEIGHT
+	Audio.play(&"crossbow_fire")
 
 
 func _projectile_parent() -> Node3D:
@@ -408,6 +421,7 @@ func _begin_swing() -> void:
 	_swing_left = SWING_SEC
 	_swing_pivot.visible = true
 	_swing_pivot.rotation.y = -deg_to_rad(_blade_arc_deg * 0.5)
+	Audio.play(&"sword_swing")
 
 
 func _update_swing(delta: float) -> void:
@@ -439,6 +453,16 @@ func _update_dash(delta: float) -> void:
 		_dash_dir = _pick_dash_direction()
 		_dash_left = _dash_time
 		_cooldown_left = _dash_cooldown
+		_ghost_left = 0.0
+		Audio.play(&"dash")
+
+	if _dash_left > 0.0:
+		_ghost_left -= delta
+		if _ghost_left <= 0.0:
+			_ghost_left = GHOST_INTERVAL
+			Juice.dash_ghost(global_position + Vector3.UP * _height * 0.5, _radius, _height)
+	else:
+		_ghost_left = 0.0
 
 	if _cooldown_left > 0.0:
 		_reported_cooldown = _cooldown_left

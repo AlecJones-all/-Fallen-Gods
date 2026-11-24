@@ -9,6 +9,11 @@ var _target_height: float = 1.0
 var _target: Node3D = null
 var _snapped: bool = false
 
+var _base_camera_position: Vector3 = Vector3.ZERO
+var _shake_strength: float = 0.0
+var _shake_duration: float = 0.0
+var _shake_left: float = 0.0
+
 
 func _ready() -> void:
 	var yaw := deg_to_rad(float(Tuning.value("camera", "yaw_deg", 45.0)))
@@ -18,7 +23,8 @@ func _ready() -> void:
 	_target_height = float(Tuning.value("camera", "target_height", 1.0))
 
 	rotation = Vector3(pitch, yaw, 0.0)
-	_camera.position = Vector3(0.0, 0.0, distance)
+	_base_camera_position = Vector3(0.0, 0.0, distance)
+	_camera.position = _base_camera_position
 	_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	_camera.size = float(Tuning.value("camera", "ortho_size", 12.0))
 	_camera.near = 0.1
@@ -35,6 +41,34 @@ func snap_to_target() -> void:
 		return
 	global_position = _target.global_position + Vector3(0.0, _target_height, 0.0)
 	_snapped = true
+	_shake_left = 0.0
+	_camera.position = _base_camera_position
+
+
+func add_shake(strength: float, duration: float) -> void:
+	if strength <= 0.0 or duration <= 0.0:
+		return
+	_shake_strength = maxf(_shake_strength, strength)
+	_shake_duration = maxf(_shake_duration, duration)
+	_shake_left = maxf(_shake_left, duration)
+
+
+func _process(delta: float) -> void:
+	_update_shake(delta)
+
+
+func _update_shake(delta: float) -> void:
+	if _shake_left <= 0.0:
+		_shake_strength = 0.0
+		if _camera.position != _base_camera_position:
+			_camera.position = _base_camera_position
+		return
+
+	_shake_left = maxf(_shake_left - delta, 0.0)
+	var decay := _shake_left / _shake_duration if _shake_duration > 0.0 else 0.0
+	var amplitude := _shake_strength * decay
+	_camera.position = _base_camera_position + Vector3(
+		randf_range(-amplitude, amplitude), randf_range(-amplitude, amplitude), 0.0)
 
 
 func _physics_process(delta: float) -> void:

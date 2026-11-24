@@ -30,6 +30,13 @@ const FLASH_ENERGY: float = 2.6
 const WINDUP_COLOR: Color = Color(1.0, 0.95, 0.25)
 const WINDUP_ENERGY: float = 1.6
 
+const TELEGRAPH_COLOR: Color = Color(1.0, 0.82, 0.2, 0.18)
+const TELEGRAPH_Y: float = 0.03
+const TELEGRAPH_START_SCALE: float = 0.55
+const TELEGRAPH_HEIGHT: float = 0.02
+
+const DAMAGE_NUMBER_COLOR: Color = Color(1.0, 0.86, 0.45)
+
 const ATTACK_REACH_SLACK: float = 1.25
 const STRAFE_FACTOR: float = 0.4
 const STRAFE_FLIP_SEC: float = 2.0
@@ -88,6 +95,8 @@ var _eye: MeshInstance3D
 var _eye_material: StandardMaterial3D
 var _body_material: StandardMaterial3D
 var _body_color: Color = Color(0.70, 0.22, 0.20)
+var _telegraph: MeshInstance3D
+var _telegraph_tween: Tween
 
 
 func configure(kind: StringName, floor_number: int, spawn_position: Vector3) -> void:
@@ -126,6 +135,11 @@ func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO, knockback
 
 	_current_hp = maxf(_current_hp - amount, 0.0)
 	_flash_left = FLASH_SEC
+	Juice.damage_number(global_position + Vector3.UP * _height * 0.9, amount,
+		DAMAGE_NUMBER_COLOR)
+	Juice.hitstop_hit()
+	Juice.hit_shake()
+	Audio.play_at(&"enemy_hit", global_position + Vector3.UP * _height * 0.6)
 
 	var flat := Vector3(knockback_dir.x, 0.0, knockback_dir.z)
 	if flat.length_squared() > FLAT_EPSILON:
@@ -232,6 +246,31 @@ func _build_visuals() -> void:
 	_eye.material_override = _eye_material
 	_eye.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_facing.add_child(_eye)
+
+	_build_telegraph()
+
+
+func _build_telegraph() -> void:
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = TELEGRAPH_COLOR
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+
+	var disc := CylinderMesh.new()
+	disc.top_radius = 1.0
+	disc.bottom_radius = 1.0
+	disc.height = TELEGRAPH_HEIGHT
+	disc.radial_segments = 24
+	disc.rings = 1
+
+	_telegraph = MeshInstance3D.new()
+	_telegraph.name = "WindupTelegraph"
+	_telegraph.mesh = disc
+	_telegraph.material_override = material
+	_telegraph.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_telegraph.visible = false
+	add_child(_telegraph)
 
 
 func _apply_geometry() -> void:
@@ -346,14 +385,40 @@ func _decide_melee(delta: float, target: Node3D, direction: Vector3, distance: f
 	if distance <= _attack_range and _cooldown_left <= 0.0:
 		_state = State.WINDUP
 		_windup_left = _windup_sec
+		_start_telegraph()
 		return Vector3.ZERO
 
 	return direction if distance > _attack_range * 0.9 else Vector3.ZERO
 
 
+func _start_telegraph() -> void:
+	if _telegraph == null:
+		return
+	if _telegraph_tween != null and _telegraph_tween.is_valid():
+		_telegraph_tween.kill()
+
+	var reach := _attack_range * ATTACK_REACH_SLACK
+	_telegraph.visible = true
+	_telegraph.position = Vector3(0.0, TELEGRAPH_Y, 0.0)
+	_telegraph.scale = Vector3(reach * TELEGRAPH_START_SCALE, 1.0, reach * TELEGRAPH_START_SCALE)
+	_telegraph_tween = create_tween()
+	_telegraph_tween.tween_property(_telegraph, "scale", Vector3(reach, 1.0, reach),
+		maxf(_windup_sec, 0.05))
+
+
+func _stop_telegraph() -> void:
+	if _telegraph_tween != null and _telegraph_tween.is_valid():
+		_telegraph_tween.kill()
+	_telegraph_tween = null
+	if _telegraph != null:
+		_telegraph.visible = false
+
+
 func _resolve_attack(target: Node3D, distance: float) -> void:
 	_state = State.RECOVER
 	_cooldown_left = _attack_cooldown
+	_stop_telegraph()
+	Audio.play_at(&"enemy_swing", global_position)
 	if distance > _attack_range * ATTACK_REACH_SLACK:
 		return
 	if not _is_usable_player(target) or not target.has_method(&"take_damage"):
@@ -414,6 +479,7 @@ func _spawn_projectile(direction: Vector3) -> void:
 		var muzzle := global_position + Vector3.UP * _height * EYE_HEIGHT_FACTOR
 		muzzle += direction * PROJECTILE_MUZZLE_OFFSET
 		shot_node.global_position = muzzle
+		Audio.play_at(&"enemy_shot", muzzle)
 
 
 func _separation() -> Vector3:
@@ -471,9 +537,14 @@ func _die() -> void:
 	_state = State.MOVE
 	velocity = Vector3.ZERO
 	set_physics_process(false)
+	_stop_telegraph()
 	if _collision != null:
 		_collision.set_deferred("disabled", true)
 	set_deferred("collision_layer", 0)
+	Juice.death_burst(global_position + Vector3.UP * _height * 0.5, _body_color)
+	Juice.hitstop_kill()
+	Juice.kill_shake()
+	Audio.play_at(&"enemy_die", global_position + Vector3.UP * _height * 0.5)
 	died.emit(self)
 
 	if _model == null:

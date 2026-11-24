@@ -9,6 +9,8 @@ const ENEMY_SCENE := "res://scenes/enemies/enemy.tscn"
 const DUNGEON_GROUP := &"dungeon"
 const PLAYER_GROUP := &"player"
 const ENEMY_GROUP := &"enemies"
+const DAMAGE_NUMBER_GROUP := &"damage_numbers"
+const FX_TRANSIENT_GROUP := &"fx_transient"
 const FLOOR_STEP := Vector3(0.0, 0.05, 0.0)
 
 var _tree: SceneTree
@@ -48,6 +50,8 @@ func _run() -> void:
 	if int(_dungeon.call(&"get_floor_number")) != 1:
 		_fail("dungeon did not start on floor 1")
 		return
+	if not _audio_manifest_test():
+		return
 	var ok: bool = await _room_test()
 	if ok:
 		ok = await _weapon_test()
@@ -58,8 +62,21 @@ func _run() -> void:
 	if not ok:
 		return
 
+	if not is_equal_approx(Engine.time_scale, 1.0):
+		_fail("hit-stop left engine time scale at %.3f" % Engine.time_scale)
+		return
+
 	print("COMBAT OK")
 	_tree.quit(0)
+
+
+func _audio_manifest_test() -> bool:
+	if AudioServer.get_bus_index(&"SFX") == -1:
+		return _fail_bool("SFX audio bus missing")
+	var missing: PackedStringArray = Audio.verify_events()
+	if not missing.is_empty():
+		return _fail_bool("audio files failed to load: %s" % ", ".join(missing))
+	return true
 
 
 func _room_test() -> bool:
@@ -112,6 +129,7 @@ func _weapon_test() -> bool:
 	await _tree.process_frame
 
 	var hp_before := float(dummy.call(&"get_current_hp"))
+	var hit_audio_before := Audio.play_count(&"enemy_hit")
 	_player.call(&"_do_melee", Vector3(1.0, 0.0, 0.0))
 	await _tree.process_frame
 	await _tree.process_frame
@@ -119,6 +137,10 @@ func _weapon_test() -> bool:
 		return _fail_bool("melee destroyed the dummy before the hp check")
 	if float(dummy.call(&"get_current_hp")) >= hp_before:
 		return _fail_bool("melee attack did not damage the dummy")
+	if _tree.get_nodes_in_group(DAMAGE_NUMBER_GROUP).is_empty():
+		return _fail_bool("melee hit spawned no damage number")
+	if Audio.play_count(&"enemy_hit") <= hit_audio_before:
+		return _fail_bool("melee hit played no audio")
 
 	dummy.global_position = origin + Vector3(4.0, 0.0, 0.0)
 	await _tree.process_frame
@@ -128,14 +150,22 @@ func _weapon_test() -> bool:
 		return _fail_bool("select_weapon(1) did not switch to the crossbow")
 
 	var ranged_before := float(dummy.call(&"get_current_hp"))
+	var shot_audio_before := Audio.play_count(&"crossbow_fire")
 	_player.call(&"_do_ranged", Vector3(1.0, 0.0, 0.0))
 	await _tree.create_timer(0.5).timeout
+	if Audio.play_count(&"crossbow_fire") <= shot_audio_before:
+		return _fail_bool("crossbow shot played no audio")
 	if is_instance_valid(dummy):
 		var ranged_after := float(dummy.call(&"get_current_hp"))
 		if ranged_after >= ranged_before:
 			return _fail_bool("ranged attack did not damage the dummy")
 
+	var die_audio_before := Audio.play_count(&"enemy_die")
 	_kill([dummy])
+	if Audio.play_count(&"enemy_die") <= die_audio_before:
+		return _fail_bool("enemy death played no audio")
+	if _tree.get_nodes_in_group(FX_TRANSIENT_GROUP).is_empty():
+		return _fail_bool("enemy death spawned no fx shards")
 	await _tree.create_timer(0.4).timeout
 	return true
 

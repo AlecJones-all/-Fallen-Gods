@@ -128,6 +128,7 @@ func activate_room(index: int) -> void:
 	room["activated"] = true
 	_active_index = index
 	_close_doors(room)
+	Audio.play_at(&"door_close", room["center"])
 	_spawn_enemies(index, player)
 	_emit_status()
 
@@ -666,6 +667,8 @@ func _clear_room(index: int) -> void:
 	var room: Dictionary = _rooms[index]
 	room["cleared"] = true
 	_open_doors(room, false)
+	Audio.play_at(&"door_open", room["center"])
+	Audio.play_at(&"room_clear", room["center"])
 	if index == _active_index:
 		_active_index = -1
 	if index == _exit_index:
@@ -676,6 +679,7 @@ func _clear_room(index: int) -> void:
 
 
 func _unlock_portal() -> void:
+	Audio.play(&"portal_unlock")
 	if _portal_material == null:
 		return
 	_portal_material.albedo_color = Color(1.0, 0.55, 0.15)
@@ -751,6 +755,7 @@ func _on_portal_timeout() -> void:
 	if _descending:
 		return
 	_descending = true
+	Audio.play(&"portal_enter")
 	floor_completed.emit(floor_number + 1)
 
 
