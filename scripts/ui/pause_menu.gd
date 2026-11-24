@@ -2,9 +2,10 @@ extends CanvasLayer
 
 ## Pause menu: Esc toggles it and pauses the tree. Works while the tree is paused.
 
-const FALLBACK_PRESET := &"medieval_dark"
 const MAIN_MENU_SCENE := "res://scenes/ui/main_menu.tscn"
 const SETTINGS_SCENE: PackedScene = preload("res://scenes/ui/settings_panel.tscn")
+const SCRIM_COLOR := Color(0.02, 0.02, 0.03, 0.72)
+const PANEL_WIDTH := 320.0
 
 var _resume_button: Button
 var _settings_button: Button
@@ -14,7 +15,7 @@ var _is_open := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_apply_preset()
+	MenuShell.apply_preset()
 	_build()
 	visible = false
 
@@ -28,56 +29,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	toggle()
 
 
-func _apply_preset() -> void:
-	if GoUi.preset() != null:
-		return
-	var id := FALLBACK_PRESET
-	var tuning := get_node_or_null(^"/root/Tuning")
-	if tuning != null and tuning.has_method(&"value"):
-		var chosen: Variant = tuning.call(&"value", "ui", "theme_preset", String(FALLBACK_PRESET))
-		if chosen is String or chosen is StringName:
-			var text := String(chosen)
-			if not text.is_empty():
-				id = StringName(text)
-	GoUi.use_preset(id)
-
-
 func _build() -> void:
-	var root := Control.new()
-	root.name = "Root"
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(root)
+	var column := MenuShell.modal_frame(self, SCRIM_COLOR, PANEL_WIDTH)
 
-	var scrim := GoStyle.scrim()
-	scrim.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.add_child(scrim)
-
-	var center := CenterContainer.new()
-	center.name = "Center"
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(center)
-
-	var panel := GoStyle.hud_panel(Color.TRANSPARENT, 32, 24, GoTheme.BOX_PANEL)
-	panel.name = "Panel"
-	center.add_child(panel)
-
-	var column := GoStyle.column(GoUi.metric(GoTheme.GAP))
-	column.name = "Menu"
-	column.custom_minimum_size.x = 300.0
-	panel.add_child(column)
-
-	var title := GoStyle.label("已暂停", GoTheme.ROLE_BODY, GoUi.color(GoTheme.TEXT))
-	title.name = "Title"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override(&"font_size", GoUi.font_size(GoTheme.ROLE_TITLE))
-	column.add_child(title)
-
-	var spacer := Control.new()
-	spacer.name = "Spacer"
-	spacer.custom_minimum_size.y = GoUi.metric(GoTheme.GAP_SMALL)
-	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(spacer)
+	MenuShell.title(column, "已暂停")
+	MenuShell.gap(column)
 
 	_resume_button = GoStyle.button("继续游戏", _on_resume_pressed, GoStyle.Tone.PRIMARY)
 	_resume_button.name = "Resume"
@@ -94,6 +50,8 @@ func _build() -> void:
 	var quit_button := GoStyle.button("退出游戏", _on_quit_pressed, GoStyle.Tone.NORMAL)
 	quit_button.name = "Quit"
 	column.add_child(quit_button)
+
+	MenuShell.hint(column, "Esc 继续游戏")
 
 
 func toggle() -> void:

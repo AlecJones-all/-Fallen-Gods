@@ -464,7 +464,7 @@ func _resolve_attack(target: Node3D, distance: float) -> void:
 		return
 	if not _is_usable_player(target) or not target.has_method(&"take_damage"):
 		return
-	target.call(&"take_damage", _damage)
+	target.call(&"take_damage", _damage, global_position)
 
 
 func _decide_shooter(_delta: float, target: Node3D, direction: Vector3, distance: float) -> Vector3:

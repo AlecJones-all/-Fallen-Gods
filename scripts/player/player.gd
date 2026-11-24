@@ -4,6 +4,7 @@ signal hp_changed(current: float, maximum: float)
 signal dash_state_changed(remaining: float, total: float)
 signal aim_point_changed(point: Vector3)
 signal weapon_changed(index: int, label: String)
+signal damaged_from(source_position: Vector3)
 signal died
 
 const PROJECTILE_SCENE: PackedScene = preload("res://scenes/combat/projectile.tscn")
@@ -125,7 +126,7 @@ func is_dead() -> bool:
 	return _dead
 
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, source_position: Vector3 = Vector3.INF) -> void:
 	if amount <= 0.0 or _dead:
 		return
 	# Dash i-frames and the post-hit grace window keep the player from being stunlocked.
@@ -135,6 +136,7 @@ func take_damage(amount: float) -> void:
 	_invuln_left = _invuln_sec
 	_begin_hit_flash()
 	hp_changed.emit(_current_hp, _max_hp)
+	damaged_from.emit(source_position)
 	Juice.damage_number(global_position + Vector3.UP * _height, amount, HURT_NUMBER_COLOR)
 	Juice.hit_shake()
 	Juice.hitstop_hit()

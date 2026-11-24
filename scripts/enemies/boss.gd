@@ -426,7 +426,7 @@ func _resolve_slam(target: Node3D) -> void:
 	var flat := target.global_position - global_position
 	flat.y = 0.0
 	if flat.length() <= _slam_radius + SLAM_HIT_SLACK:
-		target.call(&"take_damage", _damage)
+		target.call(&"take_damage", _damage, global_position)
 
 
 func _show_telegraph() -> void:

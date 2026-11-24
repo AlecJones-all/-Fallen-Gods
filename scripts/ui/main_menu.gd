@@ -2,7 +2,6 @@ extends CanvasLayer
 
 ## Main menu: title, start/settings/quit buttons and the build version.
 
-const FALLBACK_PRESET := &"medieval_dark"
 const GAME_SCENE := "res://scenes/main.tscn"
 const SETTINGS_SCENE: PackedScene = preload("res://scenes/ui/settings_panel.tscn")
 
@@ -13,24 +12,10 @@ var _settings_panel: Control
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_apply_preset()
+	MenuShell.apply_preset()
 	_build()
 	if _start_button != null:
 		_start_button.grab_focus.call_deferred()
-
-
-func _apply_preset() -> void:
-	if GoUi.preset() != null:
-		return
-	var id := FALLBACK_PRESET
-	var tuning := get_node_or_null(^"/root/Tuning")
-	if tuning != null and tuning.has_method(&"value"):
-		var chosen: Variant = tuning.call(&"value", "ui", "theme_preset", String(FALLBACK_PRESET))
-		if chosen is String or chosen is StringName:
-			var text := String(chosen)
-			if not text.is_empty():
-				id = StringName(text)
-	GoUi.use_preset(id)
 
 
 func _build() -> void:
@@ -45,28 +30,11 @@ func _build() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
 
-	var column := GoStyle.column(GoUi.metric(GoTheme.GAP))
-	column.name = "Menu"
-	column.custom_minimum_size.x = 340.0
-	center.add_child(column)
+	var column := MenuShell.menu_column(center, 340.0)
 
-	var title := GoStyle.label("Fallen Gods", GoTheme.ROLE_TITLE, GoUi.color(GoTheme.TEXT))
-	title.name = "Title"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override(&"font_size", roundi(GoUi.font_size(GoTheme.ROLE_TITLE) * 1.8))
-	column.add_child(title)
-
-	var subtitle := GoStyle.label("帷外 · 灰盒原型", GoTheme.ROLE_BODY, GoUi.color(GoTheme.MUTED))
-	subtitle.name = "Subtitle"
-	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override(&"font_size", GoUi.font_size(GoTheme.ROLE_CAPTION))
-	column.add_child(subtitle)
-
-	var spacer := Control.new()
-	spacer.name = "Spacer"
-	spacer.custom_minimum_size.y = GoUi.metric(GoTheme.GAP_LARGE)
-	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(spacer)
+	MenuShell.title(column, "Fallen Gods", GoTheme.TEXT, 1.8)
+	MenuShell.subtitle(column, "帷外 · 灰盒原型", GoTheme.MUTED)
+	MenuShell.gap(column, GoTheme.GAP_LARGE)
 
 	_start_button = GoStyle.button("开始游戏", _on_start_pressed, GoStyle.Tone.PRIMARY)
 	_start_button.name = "Start"

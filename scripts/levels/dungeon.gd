@@ -194,6 +194,19 @@ func get_active_enemies_left() -> int:
 	return enemies.size()
 
 
+func get_active_elite_count() -> int:
+	if _active_index < 0 or _active_index >= _rooms.size():
+		return 0
+	var count := 0
+	for enemy: Variant in _rooms[_active_index]["enemies"]:
+		if not (enemy is Node) or not is_instance_valid(enemy):
+			continue
+		var node := enemy as Node
+		if node.has_method(&"get_affix") and not String(node.call(&"get_affix")).is_empty():
+			count += 1
+	return count
+
+
 func get_start_room_index() -> int:
 	return _start_index
 
