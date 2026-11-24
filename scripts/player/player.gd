@@ -271,8 +271,9 @@ func _apply_geometry() -> void:
 	_body_mesh.position = Vector3(0.0, _height * 0.5, 0.0)
 
 	_facing.position = Vector3(0.0, _height * 0.6, 0.0)
-	var blade := _blade_mesh.mesh.duplicate() as BoxMesh
-	blade.size.z = _blade_range
+	var blade := _blade_mesh.mesh.duplicate() as BoxMesh if _blade_mesh.mesh != null \
+		else BoxMesh.new()
+	blade.size = Vector3(0.14, 0.06, _blade_range)
 	_blade_mesh.mesh = blade
 	_blade_mesh.position.z = -_blade_range * 0.5
 

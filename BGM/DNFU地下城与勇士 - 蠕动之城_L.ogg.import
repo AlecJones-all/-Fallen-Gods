@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cj6xbpsswhwpr"
+path="res://.godot/imported/DNFU地下城与勇士 - 蠕动之城_L.ogg-2d75cd1f2d37c5722a553147b851152e.oggvorbisstr"
+
+[deps]
+
+source_file="res://BGM/DNFU地下城与勇士 - 蠕动之城_L.ogg"
+dest_files=["res://.godot/imported/DNFU地下城与勇士 - 蠕动之城_L.ogg-2d75cd1f2d37c5722a553147b851152e.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

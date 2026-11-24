@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dyrwm1qcxhlp2"
+path="res://.godot/imported/DNFU地下城与勇士 - 夺回西部线_L.ogg-afb453b6c650bb8bf8823b38120511de.oggvorbisstr"
+
+[deps]
+
+source_file="res://BGM/DNFU地下城与勇士 - 夺回西部线_L.ogg"
+dest_files=["res://.godot/imported/DNFU地下城与勇士 - 夺回西部线_L.ogg-afb453b6c650bb8bf8823b38120511de.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

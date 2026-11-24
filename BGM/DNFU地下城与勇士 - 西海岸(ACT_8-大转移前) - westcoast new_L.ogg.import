@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://b3xb4f2ht1yep"
+path="res://.godot/imported/DNFU地下城与勇士 - 西海岸(ACT_8-大转移前) - westcoast new_L.ogg-622d7cff93a57f02d7ba8436db76d7eb.oggvorbisstr"
+
+[deps]
+
+source_file="res://BGM/DNFU地下城与勇士 - 西海岸(ACT_8-大转移前) - westcoast new_L.ogg"
+dest_files=["res://.godot/imported/DNFU地下城与勇士 - 西海岸(ACT_8-大转移前) - westcoast new_L.ogg-622d7cff93a57f02d7ba8436db76d7eb.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

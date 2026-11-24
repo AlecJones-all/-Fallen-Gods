@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://b0k0rhxkimc31"
+path="res://.godot/imported/DNFU地下城与勇士 - 天界_L.ogg-2790d8e31135b165b12797a789d69fcd.oggvorbisstr"
+
+[deps]
+
+source_file="res://BGM/DNFU地下城与勇士 - 天界_L.ogg"
+dest_files=["res://.godot/imported/DNFU地下城与勇士 - 天界_L.ogg-2790d8e31135b165b12797a789d69fcd.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

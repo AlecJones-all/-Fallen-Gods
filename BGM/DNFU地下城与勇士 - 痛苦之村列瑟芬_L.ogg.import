@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://s845qr61cpf6"
+path="res://.godot/imported/DNFU地下城与勇士 - 痛苦之村列瑟芬_L.ogg-7a068785ffe5b1c4ea0a49a611f96620.oggvorbisstr"
+
+[deps]
+
+source_file="res://BGM/DNFU地下城与勇士 - 痛苦之村列瑟芬_L.ogg"
+dest_files=["res://.godot/imported/DNFU地下城与勇士 - 痛苦之村列瑟芬_L.ogg-7a068785ffe5b1c4ea0a49a611f96620.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

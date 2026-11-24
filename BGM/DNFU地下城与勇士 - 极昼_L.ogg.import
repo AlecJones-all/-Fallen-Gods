@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dvq2iepfcrv77"
+path="res://.godot/imported/DNFU地下城与勇士 - 极昼_L.ogg-264cefdc4709435ea4888a927bbf0f13.oggvorbisstr"
+
+[deps]
+
+source_file="res://BGM/DNFU地下城与勇士 - 极昼_L.ogg"
+dest_files=["res://.godot/imported/DNFU地下城与勇士 - 极昼_L.ogg-264cefdc4709435ea4888a927bbf0f13.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
