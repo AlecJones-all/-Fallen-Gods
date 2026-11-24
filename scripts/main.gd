@@ -1,6 +1,8 @@
 extends Node3D
 
 const HEAL_ON_DESCEND_FALLBACK: float = 0.15
+const VICTORY_SCENE := "res://scenes/ui/victory.tscn"
+const FINAL_BOSS_FLOOR_FALLBACK: int = 9
 
 @onready var _player: CharacterBody3D = $Player
 @onready var _dungeon: Node = $Dungeon
@@ -36,7 +38,25 @@ func _on_player_died() -> void:
 
 ## The portal is freed inside its own timer callback, so touch the dungeon on the next idle.
 func _on_floor_completed(next_floor: int) -> void:
+	if next_floor > _final_boss_floor():
+		_win()
+		return
 	_advance_floor.call_deferred(next_floor)
+
+
+func _win() -> void:
+	if not _alive:
+		return
+	_alive = false
+	set_process(false)
+	Router.goto(VICTORY_SCENE, {
+		"elapsed_sec": _elapsed_sec,
+		"floor": _current_floor(),
+	})
+
+
+func _final_boss_floor() -> int:
+	return int(Tuning.value("dungeon", "final_boss_floor", FINAL_BOSS_FLOOR_FALLBACK))
 
 
 func _advance_floor(next_floor: int) -> void:

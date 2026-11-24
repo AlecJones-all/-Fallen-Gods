@@ -165,6 +165,50 @@
 				"db": -5.0,
 				"pitch": 1.0,
 				"min_interval": 1.0
+			},
+			"boss_roar": {
+				"files": ["res://addons/soundza_game_sfx_starter/explosions/dark_boom_impact.wav"],
+				"db": -5.0,
+				"pitch": 0.7,
+				"min_interval": 1.0
+			},
+			"boss_slam": {
+				"files": ["res://addons/soundza_game_sfx_starter/explosions/deep_boom_hit.wav"],
+				"db": -4.0,
+				"pitch": 0.8,
+				"vary": 0.06,
+				"min_interval": 0.1
+			},
+			"boss_volley": {
+				"files": ["res://addons/soundza_game_sfx_starter/magic/fire_magic_fireball.wav"],
+				"db": -9.0,
+				"pitch": 0.9,
+				"vary": 0.06,
+				"min_interval": 0.2
+			},
+			"boss_phase": {
+				"files": ["res://addons/soundza_game_sfx_starter/magic/dark_sci_fi_charge_up.wav"],
+				"db": -6.0,
+				"pitch": 0.9,
+				"min_interval": 0.5
+			},
+			"boss_die": {
+				"files": ["res://addons/soundza_game_sfx_starter/explosions/large_explosion.wav"],
+				"db": -3.0,
+				"pitch": 0.75,
+				"min_interval": 1.0
+			},
+			"elite_spawn": {
+				"files": ["res://addons/soundza_game_sfx_starter/magic/big_sparkle_23.wav"],
+				"db": -12.0,
+				"pitch": 0.85,
+				"min_interval": 0.4
+			},
+			"victory": {
+				"files": ["res://addons/soundza_game_sfx_starter/jingles_stingers/level_clear.wav"],
+				"db": -4.0,
+				"pitch": 1.0,
+				"min_interval": 1.0
 			}
 		}
 	},
@@ -204,6 +248,47 @@
 		"scaling": {
 			"hp_per_floor": 0.16,
 			"damage_per_floor": 0.10
+		},
+		"boss": {
+			"name": "深渊守望者",
+			"hp": 900.0,
+			"speed": 2.5,
+			"damage": 16.0,
+			"radius": 1.0,
+			"height": 2.8,
+			"knockback_resist": 0.95,
+			"slam_range": 3.6,
+			"slam_radius": 3.6,
+			"slam_windup": 0.65,
+			"slam_cooldown": 2.4,
+			"volley_interval": 4.4,
+			"volley_count": 10,
+			"projectile_speed": 11.0,
+			"phase_two": 0.66,
+			"phase_three": 0.33
+		},
+		"affixes": {
+			"enraged": {
+				"hp_mult": 1.0,
+				"damage_mult": 1.5,
+				"speed_mult": 1.15,
+				"damage_taken_mult": 1.0,
+				"tint": [1.0, 0.32, 0.12]
+			},
+			"shielded": {
+				"hp_mult": 1.4,
+				"damage_mult": 1.0,
+				"speed_mult": 1.0,
+				"damage_taken_mult": 0.55,
+				"tint": [0.32, 0.6, 1.0]
+			},
+			"swift": {
+				"hp_mult": 1.0,
+				"damage_mult": 1.0,
+				"speed_mult": 1.55,
+				"damage_taken_mult": 1.0,
+				"tint": [1.0, 0.9, 0.25]
+			}
 		}
 	},
 	"dungeon": {
@@ -219,7 +304,12 @@
 		"shooter_chance": 0.3,
 		"shooter_chance_per_floor": 0.04,
 		"heal_on_descend": 0.15,
-		"portal_dwell": 0.6
+		"portal_dwell": 0.6,
+		"boss_every_floors": 3,
+		"final_boss_floor": 9,
+		"elite_chance": 0.15,
+		"elite_chance_per_floor": 0.03,
+		"elite_max_chance": 0.5
 	},
 	"world": {
 		"tile_size": 2.0,

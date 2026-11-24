@@ -5,6 +5,8 @@ extends CanvasLayer
 const FALLBACK_PRESET := &"medieval_dark"
 const PLAYER_GROUP := &"player"
 const DUNGEON_GROUP := &"dungeon"
+const BOSS_GROUP := &"boss"
+const BOSS_FALLBACK_NAME := "BOSS"
 const POLL_SECONDS := 0.25
 const FALLBACK_MAX_HP := 100.0
 const DEFAULT_FLOOR := 1
@@ -15,6 +17,7 @@ const HIT_FLASH_SEC: float = 0.24
 
 var _hp_bar: GoBar
 var _dash_bar: GoBar
+var _boss_bar: GoBar
 var _floor_label: Label
 var _objective_label: Label
 var _weapon_label: Label
@@ -23,6 +26,7 @@ var _flash_tween: Tween
 var _last_hp: float = -1.0
 var _player: Node
 var _dungeon: Node
+var _boss: Node
 var _poll: Timer
 
 
@@ -115,6 +119,15 @@ func _build() -> void:
 	_objective_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(_objective_label)
 
+	_boss_bar = GoBar.new()
+	_boss_bar.name = "BossBar"
+	_boss_bar.label_text = BOSS_FALLBACK_NAME
+	_boss_bar.ink = GoUi.color(GoTheme.DANGER_FILL)
+	_boss_bar.custom_minimum_size.x = 420.0
+	_boss_bar.visible = false
+	_boss_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(_boss_bar)
+
 	_build_hit_flash()
 
 
@@ -149,6 +162,12 @@ func _find_targets() -> void:
 		_dungeon = tree.get_first_node_in_group(DUNGEON_GROUP)
 		if _dungeon != null:
 			_bind_dungeon()
+	if not is_instance_valid(_boss):
+		_boss = tree.get_first_node_in_group(BOSS_GROUP)
+		if _boss != null:
+			_bind_boss()
+		elif _boss_bar != null:
+			_boss_bar.visible = false
 
 
 func _bind_player() -> void:
@@ -157,6 +176,47 @@ func _bind_player() -> void:
 	_connect_player_signal(&"hp_changed", _on_hp_changed)
 	_connect_player_signal(&"dash_state_changed", _on_dash_state_changed)
 	_connect_player_signal(&"weapon_changed", _on_weapon_changed)
+
+
+func _bind_boss() -> void:
+	if not is_instance_valid(_boss) or _boss_bar == null:
+		return
+	if _boss.has_signal(&"health_changed") \
+			and not _boss.is_connected(&"health_changed", _on_boss_health_changed):
+		_boss.connect(&"health_changed", _on_boss_health_changed)
+	if _boss.has_signal(&"died") and not _boss.is_connected(&"died", _on_boss_died):
+		_boss.connect(&"died", _on_boss_died)
+
+	var display := BOSS_FALLBACK_NAME
+	if _boss.has_method(&"get_display_name"):
+		display = String(_boss.call(&"get_display_name"))
+	_boss_bar.label_text = display
+
+	var current := 1.0
+	var maximum := 1.0
+	if _boss.has_method(&"get_current_hp"):
+		current = float(_boss.call(&"get_current_hp"))
+	if _boss.has_method(&"get_max_hp"):
+		maximum = maxf(float(_boss.call(&"get_max_hp")), 1.0)
+	_boss_bar.set_values(current, maximum, false)
+	_boss_bar.visible = true
+
+	if _objective_label != null:
+		_objective_label.text = "击败 BOSS · %s" % display
+
+
+func _on_boss_health_changed(current: float, maximum: float) -> void:
+	if _boss_bar != null:
+		_boss_bar.set_values(current, maxf(maximum, 1.0))
+
+
+func _on_boss_died(_boss_node: Node) -> void:
+	_boss = null
+	if _boss_bar != null:
+		_boss_bar.visible = false
+	if _objective_label != null:
+		# The boss only guards the exit room, so its death always unlocks the portal.
+		_objective_label.text = "本层已肃清 · 进入传送门"
 
 
 func _connect_player_signal(signal_name: StringName, handler: Callable) -> void:
@@ -257,6 +317,9 @@ func _apply_dungeon_status(floor_number: int, cleared: int, total: int, active_l
 		_objective_label.text = "本层已肃清 · 进入传送门"
 	else:
 		_objective_label.text = "探索房间 · 清剿敌人"
+
+	if is_instance_valid(_boss) and _boss_bar != null and _boss_bar.visible:
+		_objective_label.text = "击败 BOSS · %s" % _boss_bar.label_text
 
 
 func _apply_dash(remaining: float, total: float, animate := true) -> void:

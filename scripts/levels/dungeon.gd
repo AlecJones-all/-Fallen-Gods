@@ -8,6 +8,7 @@ signal status_changed(floor_number: int, cleared: int, total: int, enemies_left:
 signal floor_completed(next_floor: int)
 
 const ENEMY_SCENE := preload("res://scenes/enemies/enemy.tscn")
+const BOSS_SCENE := preload("res://scenes/enemies/boss.tscn")
 const GROUP_DUNGEON: StringName = &"dungeon"
 const GROUP_PLAYER: StringName = &"player"
 const GROUP_PROJECTILES: StringName = &"projectile_root"
@@ -50,6 +51,11 @@ var _enemies_per_floor: float = 0.5
 var _shooter_chance: float = 0.3
 var _shooter_chance_per_floor: float = 0.04
 var _portal_dwell: float = 0.6
+var _boss_every: int = 3
+var _final_boss_floor: int = 9
+var _elite_chance: float = 0.15
+var _elite_chance_per_floor: float = 0.03
+var _elite_max_chance: float = 0.5
 
 var _material_floor: StandardMaterial3D
 var _material_wall: StandardMaterial3D
@@ -137,6 +143,24 @@ func get_floor_number() -> int:
 	return floor_number
 
 
+func is_boss_floor(number: int = -1) -> bool:
+	var target := floor_number if number < 0 else number
+	if target < 1:
+		return false
+	if target == _final_boss_floor:
+		return true
+	return _boss_every > 0 and target % _boss_every == 0
+
+
+func is_final_boss_floor(number: int = -1) -> bool:
+	var target := floor_number if number < 0 else number
+	return target == _final_boss_floor
+
+
+func get_final_boss_floor() -> int:
+	return _final_boss_floor
+
+
 func get_room_count() -> int:
 	return _rooms.size()
 
@@ -216,6 +240,11 @@ func _read_tuning() -> void:
 	_shooter_chance = float(Tuning.value("dungeon", "shooter_chance", 0.3))
 	_shooter_chance_per_floor = float(Tuning.value("dungeon", "shooter_chance_per_floor", 0.04))
 	_portal_dwell = float(Tuning.value("dungeon", "portal_dwell", 0.6))
+	_boss_every = maxi(int(Tuning.value("dungeon", "boss_every_floors", 3)), 1)
+	_final_boss_floor = maxi(int(Tuning.value("dungeon", "final_boss_floor", 9)), 1)
+	_elite_chance = float(Tuning.value("dungeon", "elite_chance", 0.15))
+	_elite_chance_per_floor = float(Tuning.value("dungeon", "elite_chance_per_floor", 0.03))
+	_elite_max_chance = float(Tuning.value("dungeon", "elite_max_chance", 0.5))
 
 
 func _build_materials() -> void:
@@ -557,6 +586,10 @@ func _build_portal() -> void:
 
 
 func _spawn_enemies(index: int, player: Node3D) -> void:
+	if is_boss_floor() and index == _exit_index:
+		_spawn_boss(index, player)
+		return
+
 	var room: Dictionary = _rooms[index]
 	var count := clampi(
 		roundi(_enemies_base + float(floor_number - 1) * _enemies_per_floor) + randi_range(-1, 1),
@@ -592,6 +625,47 @@ func _spawn_enemies(index: int, player: Node3D) -> void:
 			# Enemy emits died(self); adapt to the room bookkeeping signature.
 			enemy.connect(&"died", func(_reported: Node) -> void: _on_enemy_died(index, enemy))
 		enemies.append(enemy)
+
+	if index != _exit_index:
+		_maybe_apply_elite(enemies)
+
+
+func _spawn_boss(index: int, player: Node3D) -> void:
+	var room: Dictionary = _rooms[index]
+	var center: Vector3 = room["center"]
+	var points := _pick_spawn_points(1, player.global_position, center)
+	var boss := BOSS_SCENE.instantiate() as Node3D
+	if boss == null:
+		return
+	boss.call(&"configure", floor_number, points[0])
+	_get_enemy_root(index).add_child(boss)
+	if boss.has_signal(&"died"):
+		boss.connect(&"died", func(_reported: Node) -> void: _on_enemy_died(index, boss))
+	(room["enemies"] as Array).append(boss)
+
+
+func _maybe_apply_elite(enemies: Array) -> void:
+	if enemies.is_empty():
+		return
+	var chance := clampf(
+		_elite_chance + float(floor_number - 1) * _elite_chance_per_floor,
+		0.0,
+		_elite_max_chance
+	)
+	if randf() >= chance:
+		return
+
+	var affixes: Dictionary = Tuning.section("enemies").get("affixes", {})
+	if affixes.is_empty():
+		return
+	var keys := affixes.keys()
+	var target := enemies[randi() % enemies.size()] as Node
+	if target == null or not is_instance_valid(target) or not target.has_method(&"apply_affix"):
+		return
+
+	var affix := StringName(String(keys[randi() % keys.size()]))
+	target.call(&"apply_affix", affix)
+	Audio.play_at(&"elite_spawn", target.global_position)
 
 
 func _pick_spawn_points(count: int, player_position: Vector3, center: Vector3) -> Array[Vector3]:

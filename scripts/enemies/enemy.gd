@@ -29,6 +29,7 @@ const FLASH_COLOR: Color = Color.WHITE
 const FLASH_ENERGY: float = 2.6
 const WINDUP_COLOR: Color = Color(1.0, 0.95, 0.25)
 const WINDUP_ENERGY: float = 1.6
+const AFFIX_AURA_ENERGY: float = 0.4
 
 const TELEGRAPH_COLOR: Color = Color(1.0, 0.82, 0.2, 0.18)
 const TELEGRAPH_Y: float = 0.03
@@ -66,6 +67,10 @@ var _damage: float = 10.0
 var _radius: float = 0.45
 var _height: float = 1.7
 var _knockback_resist: float = 0.0
+
+var _affix: StringName = &""
+var _affix_data: Dictionary = {}
+var _damage_taken_mult: float = 1.0
 
 var _attack_range: float = 1.8
 var _windup_sec: float = 0.45
@@ -113,6 +118,26 @@ func configure(kind: StringName, floor_number: int, spawn_position: Vector3) -> 
 		_apply_geometry()
 
 
+func apply_affix(affix: StringName) -> void:
+	if String(affix).is_empty():
+		return
+	_affix = affix
+	var affixes: Dictionary = Tuning.section("enemies").get("affixes", {})
+	_affix_data = affixes.get(String(affix), {})
+	if _affix_data.is_empty():
+		return
+
+	if is_node_ready():
+		_read_tuning()
+		_current_hp = _max_hp
+		_apply_geometry()
+		_update_appearance()
+
+
+func get_affix() -> StringName:
+	return _affix
+
+
 func get_kind() -> StringName:
 	return _kind
 
@@ -133,9 +158,10 @@ func take_damage(amount: float, knockback_dir: Vector3 = Vector3.ZERO, knockback
 	if _dead or amount <= 0.0:
 		return
 
-	_current_hp = maxf(_current_hp - amount, 0.0)
+	var applied := amount * _damage_taken_mult
+	_current_hp = maxf(_current_hp - applied, 0.0)
 	_flash_left = FLASH_SEC
-	Juice.damage_number(global_position + Vector3.UP * _height * 0.9, amount,
+	Juice.damage_number(global_position + Vector3.UP * _height * 0.9, applied,
 		DAMAGE_NUMBER_COLOR)
 	Juice.hitstop_hit()
 	Juice.hit_shake()
@@ -209,6 +235,11 @@ func _read_tuning() -> void:
 	_min_range = float(block.get("min_range", 4.5))
 	_fire_interval = float(block.get("fire_interval", 1.7))
 	_projectile_speed = float(block.get("projectile_speed", 13.0))
+
+	_max_hp *= float(_affix_data.get("hp_mult", 1.0))
+	_damage *= float(_affix_data.get("damage_mult", 1.0))
+	_speed *= float(_affix_data.get("speed_mult", 1.0))
+	_damage_taken_mult = float(_affix_data.get("damage_taken_mult", 1.0))
 
 
 func _build_visuals() -> void:
@@ -295,6 +326,8 @@ func _apply_geometry() -> void:
 	_eye.position = Vector3(0.0, 0.0, -_radius * 0.82)
 
 	_body_color = _body_color_for(_kind)
+	if not _affix_data.is_empty():
+		_body_color = _tint_from(_affix_data.get("tint"), _body_color)
 	var eye_color := _eye_color_for(_kind)
 	_body_material.albedo_color = _body_color
 	_eye_material.albedo_color = eye_color
@@ -309,6 +342,14 @@ func _body_color_for(kind: StringName) -> Color:
 			return Color(0.50, 0.16, 0.14)
 		_:
 			return Color(0.70, 0.22, 0.20)
+
+
+func _tint_from(value: Variant, fallback: Color) -> Color:
+	if value is Array:
+		var parts := value as Array
+		if parts.size() >= 3:
+			return Color(float(parts[0]), float(parts[1]), float(parts[2]))
+	return fallback
 
 
 func _eye_color_for(kind: StringName) -> Color:
@@ -522,6 +563,8 @@ func _update_appearance() -> void:
 		_set_tint(FLASH_COLOR, FLASH_ENERGY)
 	elif _state == State.WINDUP:
 		_set_tint(WINDUP_COLOR, WINDUP_ENERGY)
+	elif not _affix_data.is_empty():
+		_set_tint(_body_color.lightened(0.15), AFFIX_AURA_ENERGY)
 	else:
 		_body_material.emission_enabled = false
 
