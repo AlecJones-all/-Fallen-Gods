@@ -4,6 +4,8 @@
 		"pitch_deg": -55.0,
 		"distance": 24.0,
 		"ortho_size": 12.0,
+		"fit_aspect": 1.7777778,
+		"fit_max": 1.5,
 		"follow_speed": 10.0,
 		"target_height": 1.0
 	},

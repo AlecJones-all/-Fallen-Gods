@@ -1,11 +1,18 @@
+class_name CameraRig
 extends Node3D
 
 const PLAYER_GROUP: StringName = &"player"
+const FALLBACK_ORTHO_SIZE := 12.0
+const FALLBACK_FIT_ASPECT := 16.0 / 9.0
+const FALLBACK_FIT_MAX := 1.5
 
 @onready var _camera: Camera3D = $Camera3D
 
 var _follow_speed: float = 10.0
 var _target_height: float = 1.0
+var _base_ortho_size: float = FALLBACK_ORTHO_SIZE
+var _fit_aspect: float = FALLBACK_FIT_ASPECT
+var _fit_max: float = FALLBACK_FIT_MAX
 var _target: Node3D = null
 var _snapped: bool = false
 
@@ -26,12 +33,37 @@ func _ready() -> void:
 	_base_camera_position = Vector3(0.0, 0.0, distance)
 	_camera.position = _base_camera_position
 	_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	_camera.size = float(Tuning.value("camera", "ortho_size", 12.0))
+	_base_ortho_size = maxf(float(Tuning.value("camera", "ortho_size", FALLBACK_ORTHO_SIZE)), 0.1)
+	_fit_aspect = maxf(float(Tuning.value("camera", "fit_aspect", FALLBACK_FIT_ASPECT)), 0.1)
+	_fit_max = maxf(float(Tuning.value("camera", "fit_max", FALLBACK_FIT_MAX)), 1.0)
+	_update_projection()
+	get_viewport().size_changed.connect(_update_projection)
 	_camera.near = 0.1
 	_camera.far = 200.0
 	_camera.current = true
 
 	global_position = Vector3(0.0, _target_height, 0.0)
+
+
+## Ortho size is the vertical extent. Narrower-than-design windows zoom out so
+## the horizontal view never drops below the 16:9 design width; wider ones keep
+## the same vertical extent and simply show more of the room sideways.
+static func fitted_ortho_size(base_size: float, aspect: float, design_aspect: float,
+		max_fit := FALLBACK_FIT_MAX) -> float:
+	if base_size <= 0.0 or aspect <= 0.0 or design_aspect <= 0.0:
+		return base_size
+	var fit := clampf(design_aspect / aspect, 1.0, maxf(max_fit, 1.0))
+	return base_size * fit
+
+
+func _update_projection() -> void:
+	if _camera == null:
+		return
+	var view := get_viewport().get_visible_rect().size
+	if view.y <= 0.0:
+		_camera.size = _base_ortho_size
+		return
+	_camera.size = fitted_ortho_size(_base_ortho_size, view.x / view.y, _fit_aspect, _fit_max)
 
 
 ## Jumps the rig to the player, e.g. after a floor transition repositions them.

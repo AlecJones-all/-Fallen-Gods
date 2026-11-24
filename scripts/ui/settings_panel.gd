@@ -1,15 +1,18 @@
 extends Control
 
-## Settings panel: volume sliders and a fullscreen toggle, usable while the tree runs or is paused.
+## Settings panel: volume sliders, fullscreen toggle and window size, usable while the tree runs or is paused.
 
 signal closed
 
 const SLIDER_STEP := 0.01
-const LABEL_WIDTH := 64.0
+const LABEL_WIDTH := 76.0
 const PERCENT_WIDTH := 52.0
+const FALLBACK_WINDOW_SIZE := Vector2i(1280, 720)
 
 var _settings: Node
 var _first_slider: HSlider
+var _resolution_picker: OptionButton
+var _resolution_hint: Label
 var _closing := false
 
 
@@ -64,6 +67,13 @@ func _build() -> void:
 	fullscreen.toggled.connect(_on_fullscreen_toggled)
 	column.add_child(fullscreen)
 
+	_resolution_picker = _add_resolution_row(column, fullscreen.button_pressed)
+	_resolution_hint = GoStyle.label("全屏时跟随桌面分辨率", GoTheme.ROLE_MICRO,
+		GoUi.color(GoTheme.MUTED))
+	_resolution_hint.name = "ResolutionHint"
+	_resolution_hint.visible = fullscreen.button_pressed
+	column.add_child(_resolution_hint)
+
 	var spacer := Control.new()
 	spacer.name = "Spacer"
 	spacer.custom_minimum_size.y = GoUi.metric(GoTheme.GAP_SMALL)
@@ -104,6 +114,67 @@ func _add_slider_row(column: VBoxContainer, title: String, key: StringName, fall
 	return slider
 
 
+func _add_resolution_row(column: VBoxContainer, fullscreen: bool) -> OptionButton:
+	var sizes := _available_resolutions()
+	var row := GoStyle.row(GoUi.metric(GoTheme.GAP_SMALL))
+	row.name = "ResolutionRow"
+	column.add_child(row)
+
+	var row_label := GoStyle.label("窗口尺寸", GoTheme.ROLE_BODY, GoUi.color(GoTheme.TEXT))
+	row_label.name = "Label"
+	row_label.custom_minimum_size.x = LABEL_WIDTH
+	row_label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	row.add_child(row_label)
+
+	var picker := GoStyle.select(_resolution_labels(sizes))
+	picker.name = "Resolution"
+	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker.disabled = fullscreen
+	var current := _read_window_size()
+	for index in sizes.size():
+		if sizes[index] == current:
+			picker.select(index)
+			break
+	picker.item_selected.connect(_on_resolution_selected.bind(sizes))
+	row.add_child(picker)
+	return picker
+
+
+func _available_resolutions() -> Array[Vector2i]:
+	if _settings != null and _settings.has_method(&"available_resolutions"):
+		var value: Variant = _settings.call(&"available_resolutions")
+		if value is Array:
+			var options: Array[Vector2i] = []
+			for item: Variant in value:
+				if item is Vector2i:
+					options.append(item)
+			if not options.is_empty():
+				return options
+	var fallback: Array[Vector2i] = [_read_window_size()]
+	return fallback
+
+
+func _resolution_labels(sizes: Array[Vector2i]) -> Array:
+	var labels: Array = []
+	for size in sizes:
+		labels.append("%d × %d" % [size.x, size.y])
+	return labels
+
+
+func _read_window_size() -> Vector2i:
+	if _settings != null and _settings.has_method(&"get_window_size"):
+		var value: Variant = _settings.call(&"get_window_size")
+		if value is Vector2i:
+			return value
+	return FALLBACK_WINDOW_SIZE
+
+
+func _on_resolution_selected(index: int, sizes: Array[Vector2i]) -> void:
+	if _settings == null or index < 0 or index >= sizes.size():
+		return
+	_settings.call(&"set_window_size", sizes[index])
+
+
 func _on_slider_changed(value: float, percent: Label, key: StringName) -> void:
 	percent.text = _format_percent(value)
 	if _settings == null:
@@ -115,6 +186,10 @@ func _on_slider_changed(value: float, percent: Label, key: StringName) -> void:
 
 
 func _on_fullscreen_toggled(on: bool) -> void:
+	if _resolution_picker != null:
+		_resolution_picker.disabled = on
+	if _resolution_hint != null:
+		_resolution_hint.visible = on
 	if _settings != null:
 		_settings.call(&"set_fullscreen", on)
 
