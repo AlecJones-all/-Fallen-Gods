@@ -1,0 +1,3076 @@
+{
+	"kit": "tithe_gate",
+	"grid": 2.0,
+	"origin": "底部中心（-Y 为地，+X 为正面朝向，+Z 为右手侧）",
+	"notes": "parts 的 offset 相对模块原点；collision: parts=逐件碰撞 / hull_85=整体包络缩到 85% / none=无碰撞",
+	"modules": [
+		{
+			"id": "ground_tile",
+			"name": "地面瓦片",
+			"size": [
+				2.0,
+				0.1,
+				2.0
+			],
+			"collision": "none",
+			"parts": [
+				{
+					"size": [
+						2.0,
+						0.1,
+						2.0
+					],
+					"offset": [
+						0.0,
+						-0.05,
+						0.0
+					],
+					"material": "plaster",
+					"collide": false
+				}
+			],
+			"snap": "tile"
+		},
+		{
+			"id": "wall_panel",
+			"name": "墙体",
+			"size": [
+				2.0,
+				3.0,
+				0.4
+			],
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						2.0,
+						0.46,
+						0.4
+					],
+					"offset": [
+						0.0,
+						0.23,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": false
+				},
+				{
+					"size": [
+						2.0,
+						2.4,
+						0.4
+					],
+					"offset": [
+						0.0,
+						1.66,
+						0.0
+					],
+					"material": "plaster",
+					"collide": true
+				},
+				{
+					"size": [
+						2.0,
+						0.14,
+						0.46
+					],
+					"offset": [
+						0.0,
+						2.93,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			],
+			"snap": "tile"
+		},
+		{
+			"id": "gate_arch",
+			"name": "骨拱",
+			"size": [
+				5.2,
+				3.4,
+				1.2
+			],
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						1.2,
+						0.6,
+						1.2
+					],
+					"offset": [
+						-2.0,
+						0.3,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": true
+				},
+				{
+					"size": [
+						1.2,
+						0.6,
+						1.2
+					],
+					"offset": [
+						2.0,
+						0.3,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": true
+				},
+				{
+					"size": [
+						0.5,
+						1.6,
+						0.5
+					],
+					"offset": [
+						-2.0,
+						0.8,
+						0.0
+					],
+					"material": "plaster",
+					"collide": true
+				},
+				{
+					"size": [
+						0.5,
+						1.6,
+						0.5
+					],
+					"offset": [
+						2.0,
+						0.8,
+						0.0
+					],
+					"material": "plaster",
+					"collide": true
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						1.539,
+						1.787,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						96.9
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						1.449,
+						2.15,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						110.8
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						1.276,
+						2.481,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						124.6
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						1.028,
+						2.76,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						138.5
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						0.72,
+						2.972,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						152.3
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						0.371,
+						3.105,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						166.2
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						0.0,
+						3.15,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						180.0
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						-0.371,
+						3.105,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						193.8
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						-0.72,
+						2.972,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						207.7
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						-1.028,
+						2.76,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						221.5
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						-1.276,
+						2.481,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						235.4
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						-1.449,
+						2.15,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						249.2
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.46,
+						0.6
+					],
+					"offset": [
+						-1.539,
+						1.787,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						263.1
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.34,
+						0.1
+					],
+					"offset": [
+						-0.42,
+						3.17,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						18.0
+					],
+					"material": "bone",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.34,
+						0.1
+					],
+					"offset": [
+						0.0,
+						3.25,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"material": "bone",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.34,
+						0.1
+					],
+					"offset": [
+						0.42,
+						3.17,
+						0.0
+					],
+					"rot": [
+						0.0,
+						0.0,
+						-18.0
+					],
+					"material": "bone",
+					"collide": false
+				},
+				{
+					"size": [
+						0.9,
+						1.2,
+						0.08
+					],
+					"offset": [
+						0.0,
+						2.35,
+						0.0
+					],
+					"material": "cloth_rot",
+					"collide": false
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "fence_stake",
+			"name": "铁箍木桩",
+			"size": [
+				2.0,
+				1.3,
+				0.3
+			],
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						0.18,
+						1.1,
+						0.18
+					],
+					"offset": [
+						-0.85,
+						0.55,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						0.18,
+						1.2,
+						0.18
+					],
+					"offset": [
+						0.0,
+						0.6,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						0.18,
+						1.05,
+						0.18
+					],
+					"offset": [
+						0.85,
+						0.52,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						2.0,
+						0.12,
+						0.1
+					],
+					"offset": [
+						0.0,
+						0.9,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						2.0,
+						0.1,
+						0.1
+					],
+					"offset": [
+						0.0,
+						0.45,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.26,
+						0.1,
+						0.24
+					],
+					"offset": [
+						0.0,
+						0.68,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.42,
+						0.5,
+						0.03
+					],
+					"offset": [
+						0.38,
+						0.72,
+						0.02
+					],
+					"material": "cloth_rot",
+					"collide": false
+				}
+			],
+			"snap": "tile"
+		},
+		{
+			"id": "booth_half",
+			"name": "半开税亭",
+			"size": [
+				4.0,
+				2.6,
+				4.0
+			],
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						0.3,
+						2.6,
+						4.0
+					],
+					"offset": [
+						-1.85,
+						1.3,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						0.3,
+						2.6,
+						4.0
+					],
+					"offset": [
+						1.85,
+						1.3,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						4.0,
+						2.6,
+						0.3
+					],
+					"offset": [
+						0.0,
+						1.3,
+						-1.85
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						1.2,
+						0.9,
+						0.3
+					],
+					"offset": [
+						-1.4,
+						0.45,
+						1.85
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						1.2,
+						0.9,
+						0.3
+					],
+					"offset": [
+						1.4,
+						0.45,
+						1.85
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						1.8,
+						0.8,
+						0.9
+					],
+					"offset": [
+						0.0,
+						0.4,
+						-0.8
+					],
+					"material": "wood_dry",
+					"collide": true
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "cart_hand",
+			"name": "板车",
+			"size": [
+				3.0,
+				1.4,
+				2.2
+			],
+			"collision": "hull_85",
+			"parts": [
+				{
+					"size": [
+						2.0,
+						0.1,
+						1.5
+					],
+					"offset": [
+						0.0,
+						0.78,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						2.0,
+						0.22,
+						0.07
+					],
+					"offset": [
+						0.0,
+						0.94,
+						0.72
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						2.0,
+						0.22,
+						0.07
+					],
+					"offset": [
+						0.0,
+						0.94,
+						-0.72
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						0.22,
+						1.5
+					],
+					"offset": [
+						0.97,
+						0.94,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						0.22,
+						1.5
+					],
+					"offset": [
+						-0.97,
+						0.94,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.7,
+						0.7
+					],
+					"offset": [
+						-0.55,
+						0.35,
+						0.72
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.7,
+						0.7
+					],
+					"offset": [
+						-0.55,
+						0.35,
+						-0.72
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						1.3,
+						0.08,
+						0.08
+					],
+					"offset": [
+						-0.8,
+						0.8,
+						0.45
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						1.3,
+						0.08,
+						0.08
+					],
+					"offset": [
+						-0.8,
+						0.8,
+						-0.45
+					],
+					"material": "wood_dry",
+					"collide": false
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "barrel_oil",
+			"name": "圣油桶",
+			"size": [
+				0.9,
+				1.2,
+				0.9
+			],
+			"collision": "hull_85",
+			"parts": [
+				{
+					"size": [
+						0.86,
+						1.1,
+						0.86
+					],
+					"offset": [
+						0.0,
+						0.57,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.9,
+						0.07,
+						0.9
+					],
+					"offset": [
+						0.0,
+						0.26,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.9,
+						0.07,
+						0.9
+					],
+					"offset": [
+						0.0,
+						0.88,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.8,
+						0.06,
+						0.8
+					],
+					"offset": [
+						0.0,
+						1.15,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "sack_grain",
+			"name": "粮袋",
+			"size": [
+				0.8,
+				0.6,
+				0.6
+			],
+			"collision": "hull_85",
+			"parts": [
+				{
+					"size": [
+						0.8,
+						0.6,
+						0.6
+					],
+					"offset": [
+						0.0,
+						0.3,
+						0.0
+					],
+					"material": "cloth_rot",
+					"collide": false
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "scale_toll",
+			"name": "秤",
+			"size": [
+				1.2,
+				1.7,
+				0.8
+			],
+			"collision": "hull_85",
+			"parts": [
+				{
+					"size": [
+						1.2,
+						0.2,
+						0.8
+					],
+					"offset": [
+						0.0,
+						0.1,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.12,
+						1.6,
+						0.12
+					],
+					"offset": [
+						0.0,
+						0.8,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						1.0,
+						0.1,
+						0.1
+					],
+					"offset": [
+						0.0,
+						1.65,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "lantern_hook",
+			"name": "挂灯",
+			"size": [
+				0.4,
+				1.65,
+				0.4
+			],
+			"collision": "none",
+			"parts": [
+				{
+					"size": [
+						0.15,
+						1.4,
+						0.15
+					],
+					"offset": [
+						0.0,
+						0.7,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.14,
+						0.16,
+						0.14
+					],
+					"offset": [
+						0.0,
+						1.5,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "stretcher",
+			"name": "担架",
+			"size": [
+				2.0,
+				0.3,
+				0.8
+			],
+			"collision": "none",
+			"parts": [
+				{
+					"size": [
+						2.0,
+						0.3,
+						0.8
+					],
+					"offset": [
+						0.0,
+						0.15,
+						0.0
+					],
+					"material": "cloth_rot",
+					"collide": false
+				}
+			],
+			"snap": "object"
+		},
+		{
+			"id": "chain_hang",
+			"name": "垂下铁链",
+			"size": [
+				0.32,
+				2.55,
+				0.32
+			],
+			"snap": "object",
+			"collision": "none",
+			"parts": [
+				{
+					"size": [
+						0.24,
+						0.11,
+						0.14
+					],
+					"offset": [
+						0,
+						0.44,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.14,
+						0.11,
+						0.24
+					],
+					"offset": [
+						0,
+						0.71,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						90.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.24,
+						0.11,
+						0.14
+					],
+					"offset": [
+						0,
+						0.98,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.14,
+						0.11,
+						0.24
+					],
+					"offset": [
+						0,
+						1.25,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						90.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.24,
+						0.11,
+						0.14
+					],
+					"offset": [
+						0,
+						1.52,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.14,
+						0.11,
+						0.24
+					],
+					"offset": [
+						0,
+						1.79,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						90.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.24,
+						0.11,
+						0.14
+					],
+					"offset": [
+						0,
+						2.06,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.14,
+						0.11,
+						0.24
+					],
+					"offset": [
+						0,
+						2.33,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false,
+					"rot": [
+						0.0,
+						90.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.2,
+						0.09,
+						0.09
+					],
+					"offset": [
+						0,
+						0.36,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.19,
+						0.17,
+						0.16
+					],
+					"offset": [
+						0,
+						0.2,
+						0
+					],
+					"material": "bone",
+					"collide": false
+				},
+				{
+					"size": [
+						0.08,
+						0.1,
+						0.08
+					],
+					"offset": [
+						0,
+						0.08,
+						0
+					],
+					"material": "bone",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "cage_hanging",
+			"name": "悬挂铁笼",
+			"size": [
+				2.8,
+				3.4,
+				1.5
+			],
+			"snap": "object",
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						0.5,
+						0.2,
+						0.5
+					],
+					"offset": [
+						-1.1,
+						0.1,
+						0
+					],
+					"material": "stone_crack",
+					"collide": true
+				},
+				{
+					"size": [
+						0.22,
+						3.0,
+						0.22
+					],
+					"offset": [
+						-1.1,
+						1.5,
+						0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						0.9,
+						0.12,
+						0.12
+					],
+					"offset": [
+						-0.7,
+						2.5,
+						0
+					],
+					"material": "wood_dry",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						45.0
+					]
+				},
+				{
+					"size": [
+						1.9,
+						0.18,
+						0.18
+					],
+					"offset": [
+						-0.15,
+						2.95,
+						0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.14,
+						0.07,
+						0.2
+					],
+					"offset": [
+						0.65,
+						2.36,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.2,
+						0.07,
+						0.14
+					],
+					"offset": [
+						0.65,
+						2.52,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.14,
+						0.07,
+						0.2
+					],
+					"offset": [
+						0.65,
+						2.68,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.2,
+						0.07,
+						0.14
+					],
+					"offset": [
+						0.65,
+						2.84,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.92,
+						0.08,
+						0.92
+					],
+					"offset": [
+						0.65,
+						2.3,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						1.07,
+						1.77,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						0.947,
+						1.77,
+						0.297
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						0.65,
+						1.77,
+						0.42
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						0.353,
+						1.77,
+						0.297
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						0.23,
+						1.77,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						0.353,
+						1.77,
+						-0.297
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						0.65,
+						1.77,
+						-0.42
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						1.05,
+						0.07
+					],
+					"offset": [
+						0.947,
+						1.77,
+						-0.297
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.92,
+						0.07,
+						0.07
+					],
+					"offset": [
+						0.65,
+						1.5,
+						-0.42
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.92,
+						0.07,
+						0.07
+					],
+					"offset": [
+						0.65,
+						1.5,
+						0.42
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						0.07,
+						0.92
+					],
+					"offset": [
+						0.23,
+						1.5,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						0.07,
+						0.92
+					],
+					"offset": [
+						1.07,
+						1.5,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.92,
+						0.07,
+						0.07
+					],
+					"offset": [
+						0.65,
+						1.95,
+						-0.42
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.92,
+						0.07,
+						0.07
+					],
+					"offset": [
+						0.65,
+						1.95,
+						0.42
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						0.07,
+						0.92
+					],
+					"offset": [
+						0.23,
+						1.95,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.07,
+						0.07,
+						0.92
+					],
+					"offset": [
+						1.07,
+						1.95,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.9,
+						0.06,
+						0.9
+					],
+					"offset": [
+						0.65,
+						1.22,
+						0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.3,
+						0.1,
+						0.1
+					],
+					"offset": [
+						0.6,
+						1.3,
+						0.12
+					],
+					"material": "bone",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						14.0
+					]
+				},
+				{
+					"size": [
+						0.1,
+						0.1,
+						0.34
+					],
+					"offset": [
+						0.72,
+						1.3,
+						-0.1
+					],
+					"material": "bone",
+					"collide": false,
+					"rot": [
+						0.0,
+						30.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.22,
+						0.2,
+						0.2
+					],
+					"offset": [
+						0.65,
+						1.39,
+						0
+					],
+					"material": "bone",
+					"collide": false
+				},
+				{
+					"size": [
+						1.0,
+						1.15,
+						1.0
+					],
+					"offset": [
+						0.65,
+						1.8,
+						0
+					],
+					"material": "iron_rust",
+					"collide": true,
+					"visible": false
+				}
+			]
+		},
+		{
+			"id": "cross_stake",
+			"name": "十字木桩",
+			"size": [
+				1.2,
+				2.6,
+				0.8
+			],
+			"snap": "object",
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						0.18,
+						2.4,
+						0.18
+					],
+					"offset": [
+						0,
+						1.2,
+						0
+					],
+					"material": "wood_dry",
+					"collide": true,
+					"rot": [
+						0.0,
+						0.0,
+						3.5
+					]
+				},
+				{
+					"size": [
+						1.1,
+						0.15,
+						0.15
+					],
+					"offset": [
+						0,
+						1.85,
+						0
+					],
+					"material": "wood_dry",
+					"collide": true,
+					"rot": [
+						0.0,
+						0.0,
+						-4.0
+					]
+				},
+				{
+					"size": [
+						0.36,
+						0.7,
+						0.03
+					],
+					"offset": [
+						0.23,
+						1.5,
+						0.1
+					],
+					"material": "cloth_rot",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						5.0
+					]
+				},
+				{
+					"size": [
+						0.2,
+						0.18,
+						0.18
+					],
+					"offset": [
+						0,
+						2.5,
+						0
+					],
+					"material": "bone",
+					"collide": false,
+					"rot": [
+						0.0,
+						20.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.06,
+						0.06,
+						0.14
+					],
+					"offset": [
+						0,
+						1.85,
+						0.1
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "ledger_board",
+			"name": "账册板",
+			"size": [
+				1.2,
+				1.7,
+				0.3
+			],
+			"snap": "object",
+			"collision": "none",
+			"parts": [
+				{
+					"size": [
+						0.09,
+						0.66,
+						0.09
+					],
+					"offset": [
+						-0.45,
+						0.33,
+						0.02
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.09,
+						0.66,
+						0.09
+					],
+					"offset": [
+						0.45,
+						0.33,
+						0.02
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						1.1,
+						0.06,
+						0.16
+					],
+					"offset": [
+						0,
+						0.66,
+						0.06
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						1.1,
+						0.95,
+						0.06
+					],
+					"offset": [
+						0,
+						1.12,
+						0.02
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.44,
+						0.56,
+						0.02
+					],
+					"offset": [
+						-0.28,
+						1.22,
+						0.06
+					],
+					"material": "bone",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						-2.0
+					]
+				},
+				{
+					"size": [
+						0.4,
+						0.5,
+						0.02
+					],
+					"offset": [
+						0.16,
+						1.15,
+						0.07
+					],
+					"material": "cloth_rot",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						3.0
+					]
+				},
+				{
+					"size": [
+						0.3,
+						0.42,
+						0.02
+					],
+					"offset": [
+						0.36,
+						1.35,
+						0.06
+					],
+					"material": "bone",
+					"collide": false,
+					"rot": [
+						0.0,
+						0.0,
+						7.0
+					]
+				},
+				{
+					"size": [
+						0.13,
+						0.13,
+						0.05
+					],
+					"offset": [
+						0.3,
+						1.02,
+						0.09
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.05,
+						0.05,
+						0.1
+					],
+					"offset": [
+						-0.44,
+						1.52,
+						0.06
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.05,
+						0.05,
+						0.1
+					],
+					"offset": [
+						0.44,
+						1.52,
+						0.06
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "rubble_pile",
+			"name": "碎石骨堆",
+			"size": [
+				2.0,
+				0.9,
+				2.0
+			],
+			"snap": "object",
+			"collision": "hull_85",
+			"parts": [
+				{
+					"size": [
+						1.1,
+						0.5,
+						0.9
+					],
+					"offset": [
+						0,
+						0.25,
+						0
+					],
+					"material": "stone_crack",
+					"collide": false,
+					"rot": [
+						0.0,
+						12.0,
+						4.0
+					]
+				},
+				{
+					"size": [
+						0.8,
+						0.42,
+						0.72
+					],
+					"offset": [
+						-0.36,
+						0.55,
+						0.2
+					],
+					"material": "stone_crack",
+					"collide": false,
+					"rot": [
+						0.0,
+						-25.0,
+						3.0
+					]
+				},
+				{
+					"size": [
+						0.7,
+						0.36,
+						0.8
+					],
+					"offset": [
+						0.4,
+						0.5,
+						-0.26
+					],
+					"material": "stone_crack",
+					"collide": false,
+					"rot": [
+						0.0,
+						40.0,
+						-2.0
+					]
+				},
+				{
+					"size": [
+						0.55,
+						0.28,
+						0.55
+					],
+					"offset": [
+						0.1,
+						0.68,
+						0.34
+					],
+					"material": "stone_crack",
+					"collide": false,
+					"rot": [
+						0.0,
+						18.0,
+						6.0
+					]
+				},
+				{
+					"size": [
+						0.5,
+						0.07,
+						0.07
+					],
+					"offset": [
+						0.2,
+						0.62,
+						0.3
+					],
+					"material": "bone",
+					"collide": false,
+					"rot": [
+						0.0,
+						24.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.07,
+						0.07,
+						0.46
+					],
+					"offset": [
+						-0.42,
+						0.6,
+						-0.3
+					],
+					"material": "bone",
+					"collide": false,
+					"rot": [
+						0.0,
+						-40.0,
+						0.0
+					]
+				},
+				{
+					"size": [
+						0.22,
+						0.2,
+						0.2
+					],
+					"offset": [
+						0.46,
+						0.62,
+						0.36
+					],
+					"material": "bone",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "blood_decal",
+			"name": "干血渍",
+			"size": [
+				1.6,
+				0.09,
+				1.6
+			],
+			"snap": "object",
+			"collision": "none",
+			"parts": [
+				{
+					"size": [
+						0.39,
+						0.008,
+						0.192
+					],
+					"offset": [
+						0.136,
+						0.06,
+						-0.008
+					],
+					"rot": [
+						0.0,
+						96.5,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.361,
+						0.008,
+						0.186
+					],
+					"offset": [
+						0.091,
+						0.0615,
+						0.055
+					],
+					"rot": [
+						0.0,
+						78.1,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.345,
+						0.008,
+						0.312
+					],
+					"offset": [
+						0.042,
+						0.063,
+						0.091
+					],
+					"rot": [
+						0.0,
+						22.3,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.45,
+						0.008,
+						0.272
+					],
+					"offset": [
+						-0.099,
+						0.0645,
+						0.184
+					],
+					"rot": [
+						0.0,
+						71.4,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.432,
+						0.008,
+						0.226
+					],
+					"offset": [
+						-0.11,
+						0.066,
+						0.013
+					],
+					"rot": [
+						0.0,
+						26.0,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.423,
+						0.008,
+						0.209
+					],
+					"offset": [
+						-0.171,
+						0.0675,
+						-0.026
+					],
+					"rot": [
+						0.0,
+						104.7,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.37,
+						0.008,
+						0.19
+					],
+					"offset": [
+						-0.085,
+						0.069,
+						-0.135
+					],
+					"rot": [
+						0.0,
+						10.7,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.346,
+						0.008,
+						0.23
+					],
+					"offset": [
+						0.014,
+						0.0705,
+						-0.21
+					],
+					"rot": [
+						0.0,
+						105.4,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.419,
+						0.008,
+						0.292
+					],
+					"offset": [
+						0.13,
+						0.072,
+						-0.09
+					],
+					"rot": [
+						0.0,
+						43.9,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.4,
+						0.008,
+						0.055
+					],
+					"offset": [
+						0.52,
+						0.078,
+						0.1
+					],
+					"rot": [
+						0.0,
+						12.0,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.34,
+						0.008,
+						0.055
+					],
+					"offset": [
+						0.3,
+						0.079,
+						-0.46
+					],
+					"rot": [
+						0.0,
+						-34.0,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.36,
+						0.008,
+						0.055
+					],
+					"offset": [
+						-0.5,
+						0.08,
+						0.34
+					],
+					"rot": [
+						0.0,
+						26.0,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.28,
+						0.008,
+						0.055
+					],
+					"offset": [
+						-0.36,
+						0.081,
+						-0.42
+					],
+					"rot": [
+						0.0,
+						-52.0,
+						0.0
+					],
+					"material": "blood_dry",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "torch_post",
+			"name": "火把柱",
+			"size": [
+				0.64,
+				2.74,
+				0.96
+			],
+			"snap": "object",
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						0.52,
+						0.18,
+						0.52
+					],
+					"offset": [
+						0.0,
+						0.09,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": true
+				},
+				{
+					"size": [
+						0.16,
+						2.3,
+						0.16
+					],
+					"offset": [
+						0.0,
+						1.29,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						0.12,
+						0.12,
+						0.34
+					],
+					"offset": [
+						0.0,
+						2.34,
+						0.16
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.34,
+						0.2,
+						0.34
+					],
+					"offset": [
+						0.0,
+						2.44,
+						0.3
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.22,
+						0.18,
+						0.22
+					],
+					"offset": [
+						0.0,
+						2.6,
+						0.3
+					],
+					"material": "glow",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "milestone",
+			"name": "界碑",
+			"size": [
+				0.72,
+				1.18,
+				0.34
+			],
+			"snap": "object",
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						0.72,
+						0.14,
+						0.34
+					],
+					"offset": [
+						0.0,
+						0.07,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": true
+				},
+				{
+					"size": [
+						0.58,
+						0.92,
+						0.24
+					],
+					"offset": [
+						0.0,
+						0.6,
+						0.0
+					],
+					"material": "plaster",
+					"collide": true
+				},
+				{
+					"size": [
+						0.66,
+						0.12,
+						0.3
+					],
+					"offset": [
+						0.0,
+						1.09,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "desk_clerk",
+			"name": "书记官书桌",
+			"size": [
+				2.0,
+				0.8,
+				1.0
+			],
+			"snap": "object",
+			"collision": "hull_85",
+			"parts": [
+				{
+					"size": [
+						0.1,
+						0.6,
+						0.1
+					],
+					"offset": [
+						-0.9,
+						0.3,
+						-0.42
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.6,
+						0.1
+					],
+					"offset": [
+						0.9,
+						0.3,
+						-0.42
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.6,
+						0.1
+					],
+					"offset": [
+						-0.9,
+						0.3,
+						0.42
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.6,
+						0.1
+					],
+					"offset": [
+						0.9,
+						0.3,
+						0.42
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						2.0,
+						0.08,
+						1.0
+					],
+					"offset": [
+						0.0,
+						0.64,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						1.9,
+						0.26,
+						0.06
+					],
+					"offset": [
+						0.0,
+						0.48,
+						-0.46
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.55,
+						0.05,
+						0.36
+					],
+					"offset": [
+						0.42,
+						0.705,
+						0.0
+					],
+					"material": "cloth_rot",
+					"collide": false
+				},
+				{
+					"size": [
+						0.34,
+						0.05,
+						0.3
+					],
+					"offset": [
+						-0.24,
+						0.705,
+						-0.04
+					],
+					"material": "bone",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.06,
+						0.1
+					],
+					"offset": [
+						-0.62,
+						0.71,
+						0.1
+					],
+					"material": "blood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.1,
+						0.1
+					],
+					"offset": [
+						-0.62,
+						0.75,
+						0.1
+					],
+					"material": "glow",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "stool",
+			"name": "木凳",
+			"size": [
+				0.46,
+				0.48,
+				0.46
+			],
+			"snap": "object",
+			"collision": "hull_85",
+			"parts": [
+				{
+					"size": [
+						0.06,
+						0.41,
+						0.06
+					],
+					"offset": [
+						-0.18,
+						0.205,
+						-0.18
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.06,
+						0.41,
+						0.06
+					],
+					"offset": [
+						0.18,
+						0.205,
+						-0.18
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.06,
+						0.41,
+						0.06
+					],
+					"offset": [
+						-0.18,
+						0.205,
+						0.18
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.06,
+						0.41,
+						0.06
+					],
+					"offset": [
+						0.18,
+						0.205,
+						0.18
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.46,
+						0.07,
+						0.46
+					],
+					"offset": [
+						0.0,
+						0.445,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "banner_seat",
+			"name": "教会挂旗",
+			"size": [
+				1.0,
+				3.0,
+				0.1
+			],
+			"snap": "object",
+			"collision": "parts",
+			"parts": [
+				{
+					"size": [
+						0.07,
+						3.0,
+						0.07
+					],
+					"offset": [
+						0.0,
+						1.5,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": true
+				},
+				{
+					"size": [
+						1.0,
+						0.06,
+						0.06
+					],
+					"offset": [
+						0.0,
+						2.86,
+						0.0
+					],
+					"material": "wood_dry",
+					"collide": false
+				},
+				{
+					"size": [
+						0.92,
+						1.5,
+						0.04
+					],
+					"offset": [
+						0.02,
+						2.05,
+						0.02
+					],
+					"material": "cloth_rot",
+					"collide": false
+				},
+				{
+					"size": [
+						0.1,
+						0.1,
+						0.1
+					],
+					"offset": [
+						0.0,
+						2.92,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "wall_pillar",
+			"name": "壁柱",
+			"size": [
+				0.6,
+				3.2,
+				0.55
+			],
+			"collision": "none",
+			"snap": "object",
+			"parts": [
+				{
+					"size": [
+						0.6,
+						0.36,
+						0.55
+					],
+					"offset": [
+						0.0,
+						0.18,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": false
+				},
+				{
+					"size": [
+						0.42,
+						2.5,
+						0.44
+					],
+					"offset": [
+						0.0,
+						1.61,
+						0.0
+					],
+					"material": "plaster",
+					"collide": false
+				},
+				{
+					"size": [
+						0.56,
+						0.14,
+						0.5
+					],
+					"offset": [
+						0.0,
+						2.93,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "wall_window",
+			"name": "开洞墙板",
+			"size": [
+				2.0,
+				3.0,
+				0.4
+			],
+			"collision": "none",
+			"snap": "tile",
+			"parts": [
+				{
+					"size": [
+						2.0,
+						0.46,
+						0.4
+					],
+					"offset": [
+						0.0,
+						0.23,
+						0.0
+					],
+					"material": "stone_crack",
+					"collide": false
+				},
+				{
+					"size": [
+						2.0,
+						0.66,
+						0.4
+					],
+					"offset": [
+						0.0,
+						0.79,
+						0.0
+					],
+					"material": "plaster",
+					"collide": false
+				}
+			],
+			"notes": "窗台以上整块断掉：相机与路平行时，只有断口能在画面上读出来"
+		},
+		{
+			"id": "wall_ring",
+			"name": "墙铁环",
+			"size": [
+				0.34,
+				0.36,
+				0.12
+			],
+			"collision": "none",
+			"snap": "object",
+			"parts": [
+				{
+					"size": [
+						0.3,
+						0.06,
+						0.08
+					],
+					"offset": [
+						0.0,
+						0.33,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.3,
+						0.06,
+						0.08
+					],
+					"offset": [
+						0.0,
+						0.09,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.06,
+						0.18,
+						0.08
+					],
+					"offset": [
+						-0.12,
+						0.21,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.06,
+						0.18,
+						0.08
+					],
+					"offset": [
+						0.12,
+						0.21,
+						0.0
+					],
+					"material": "iron_rust",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "wall_torch",
+			"name": "墙火把",
+			"size": [
+				0.3,
+				2.34,
+				0.6
+			],
+			"collision": "none",
+			"snap": "object",
+			"parts": [
+				{
+					"size": [
+						0.1,
+						0.1,
+						0.16
+					],
+					"offset": [
+						0.0,
+						1.98,
+						0.08
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.24,
+						0.2,
+						0.24
+					],
+					"offset": [
+						0.0,
+						2.04,
+						0.2
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						0.16,
+						0.16,
+						0.16
+					],
+					"offset": [
+						0.0,
+						2.2,
+						0.2
+					],
+					"material": "glow",
+					"collide": false
+				}
+			]
+		},
+		{
+			"id": "wall_banner",
+			"name": "贴墙旗",
+			"size": [
+				1.4,
+				2.6,
+				0.16
+			],
+			"collision": "none",
+			"snap": "object",
+			"parts": [
+				{
+					"size": [
+						1.4,
+						0.07,
+						0.07
+					],
+					"offset": [
+						0.0,
+						2.5,
+						0.05
+					],
+					"material": "iron_rust",
+					"collide": false
+				},
+				{
+					"size": [
+						1.2,
+						1.7,
+						0.05
+					],
+					"offset": [
+						0.0,
+						1.55,
+						0.06
+					],
+					"material": "cloth_rot",
+					"collide": false
+				}
+			]
+		}
+	]
+}

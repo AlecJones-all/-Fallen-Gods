@@ -52,7 +52,11 @@ func _floor_text(value: Variant) -> String:
 
 
 func _on_restart_pressed() -> void:
-	Router.goto("res://scenes/main.tscn")
+	var scene := "res://scenes/main.tscn"
+	var payload: Dictionary = Router.last_payload
+	if payload.has("restart_scene"):
+		scene = String(payload["restart_scene"])
+	Router.goto(scene)
 
 
 func _on_main_menu_pressed() -> void:

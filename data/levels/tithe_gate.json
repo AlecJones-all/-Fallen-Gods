@@ -1,0 +1,1225 @@
+{
+	"scene": {
+		"id": "tithe_gate",
+		"name": "什一税道·税卡",
+		"story_node": "02",
+		"identity": "ashborn",
+		"grid": 2.0,
+		"road_width": 8.0,
+		"axes": "x 沿路前进方向，z 横向，y 向上；原点在村口道西南角地面。相机位于 +x+z 侧，因此 z 越大越靠近相机",
+		"camera": {
+			"yaw_deg": 45.0,
+			"pitch_deg": -40.0,
+			"ortho_size": 12.0,
+			"free_rotation": false
+		},
+		"limits": {
+			"wall_height_max": 3.0,
+			"open_frame_height_max": 4.5,
+			"near_side_solid_max": 1.2,
+			"corridor_min": 4.0,
+			"material_slots_max": 7,
+			"scene_length_max": 60.0,
+			"p0_module_max": 16,
+			"p0_mesh_max": 11
+		},
+		"composition": {
+			"screen_width_m": 21.33,
+			"screen_depth_m": 20.7,
+			"occlusion_shadow_m": 3.58,
+			"note": "侧墙沿视线方向铺，不遮挡路面；该值只用于横跨视线的构筑物（门梁/吊笼）"
+		}
+	},
+	"materials": [
+		{
+			"slot": "plaster",
+			"use": "白灰墙、石墩"
+		},
+		{
+			"slot": "stone_crack",
+			"use": "地面、门槛"
+		},
+		{
+			"slot": "bone",
+			"use": "骨饰、骸骨"
+		},
+		{
+			"slot": "wood_dry",
+			"use": "木构、栅栏、板车"
+		},
+		{
+			"slot": "iron_rust",
+			"use": "铁件、锁链、笼"
+		},
+		{
+			"slot": "cloth_rot",
+			"use": "封条、尸布、粮袋"
+		},
+		{
+			"slot": "blood_dry",
+			"use": "裂缝渗痕、血渍"
+		}
+	],
+	"zones": [
+		{
+			"id": "approach",
+			"name": "村口道",
+			"origin": [
+				0.0,
+				0.0,
+				-7.0
+			],
+			"size": [
+				12.0,
+				0.0,
+				14.0
+			],
+			"role": "教学区：走、冲刺，第一眼看见卡口与尸堆",
+			"dressing": [
+				"ground_road",
+				"ground_mud",
+				"wall_wood",
+				"fence_stake",
+				"lantern_hook",
+				"shrine_small",
+				"stretcher",
+				"decal_rut"
+			]
+		},
+		{
+			"id": "gate",
+			"name": "卡口",
+			"origin": [
+				12.0,
+				0.0,
+				-7.0
+			],
+			"size": [
+				12.0,
+				0.0,
+				14.0
+			],
+			"role": "收窄区：8m 路被挤到 4m，第一场战斗",
+			"dressing": [
+				"ground_road",
+				"ground_stone",
+				"gate_arch",
+				"gate_bar",
+				"fence_stake",
+				"booth_toll",
+				"scale_toll",
+				"desk_clerk",
+				"lantern_hook",
+				"banner_seat"
+			]
+		},
+		{
+			"id": "yard",
+			"name": "收储院",
+			"origin": [
+				24.0,
+				0.0,
+				-9.0
+			],
+			"size": [
+				24.0,
+				0.0,
+				18.0
+			],
+			"role": "沙盒区：开阔战斗 + 收割暗示 + 出口",
+			"dressing": [
+				"ground_mud",
+				"ground_stone",
+				"wall_stone",
+				"cart_hand",
+				"barrel_oil",
+				"sack_grain",
+				"cage_iron",
+				"stretcher",
+				"decal_blood",
+				"decal_rut",
+				"lantern_hook"
+			]
+		}
+	],
+	"landmarks": [
+		{
+			"id": "spawn",
+			"pos": [
+				7.0,
+				0.0,
+				0.0
+			],
+			"note": "玩家进场点；距卡口 5m，3.4m 门梁正好完整入画"
+		},
+		{
+			"id": "gate_arch",
+			"pos": [
+				12.0,
+				0.0,
+				0.0
+			],
+			"opening": [
+				4.0,
+				3.4
+			],
+			"note": "唯一卡口，净宽 4m、高 3.4m（比墙高 0.4m 作地标，再高就顶出画面）"
+		},
+		{
+			"id": "toll_booth",
+			"pos": [
+				16.0,
+				0.0,
+				-5.0
+			],
+			"size": [
+				4.0,
+				2.6,
+				4.0
+			],
+			"open_side": "+z",
+			"note": "远侧、无顶、朝路开窗；内部 3.6x3.6，书记桌靠窗"
+		},
+		{
+			"id": "exit",
+			"pos": [
+				46.0,
+				0.0,
+				0.0
+			],
+			"note": "通往下一节点的传送门"
+		}
+	],
+	"encounters": [
+		{
+			"id": "gate_fight",
+			"zone": "gate",
+			"trigger": {
+				"type": "area",
+				"once": true,
+				"at": [
+					14.0,
+					0.0,
+					0.0
+				],
+				"span": [
+					2.0,
+					0.0,
+					12.0
+				]
+			},
+			"enemies": [
+				"grunt",
+				"grunt",
+				"shooter"
+			],
+			"spawns": [
+				[
+					16.0,
+					-1.5
+				],
+				[
+					18.5,
+					1.5
+				],
+				[
+					20.0,
+					0.0
+				]
+			]
+		},
+		{
+			"id": "yard_fight",
+			"zone": "yard",
+			"trigger": {
+				"type": "area",
+				"once": true,
+				"at": [
+					26.0,
+					0.0,
+					0.0
+				],
+				"span": [
+					2.0,
+					0.0,
+					16.0
+				]
+			},
+			"enemies": [
+				"grunt",
+				"shooter",
+				"grunt"
+			],
+			"spawns": [
+				[
+					30.0,
+					0.5
+				],
+				[
+					33.0,
+					2.5
+				],
+				[
+					36.0,
+					-2.0
+				]
+			]
+		}
+	],
+	"interactables": [
+		{
+			"id": "ledger",
+			"at": [
+				13.4,
+				0.0,
+				-2.1
+			],
+			"on_required_path": true,
+			"identity": "ashborn",
+			"prompt": "翻看税册（第一次看见自己的名字被写成税基）",
+			"label_height": 2.2,
+			"label": "翻看税册"
+		},
+		{
+			"id": "scale",
+			"at": [
+				8.0,
+				0.0,
+				-3.0
+			],
+			"on_required_path": true,
+			"identity": "ashborn",
+			"prompt": "站上秤（称的不是重量）",
+			"label_height": 2.3,
+			"label": "站上秤"
+		},
+		{
+			"id": "cage",
+			"at": [
+				29.5,
+				0.0,
+				-2.5
+			],
+			"on_required_path": true,
+			"identity": "ashborn",
+			"prompt": "空笼（里面的人刚被拉走）",
+			"label_height": 2.9,
+			"label": "查看空笼"
+		}
+	],
+	"items": [
+		{
+			"id": "ground_road",
+			"name": "土路",
+			"category": "ground",
+			"mesh": "ground_tile",
+			"size": [
+				2.0,
+				0.0,
+				2.0
+			],
+			"side": "center",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p0",
+			"reuse": [
+				"burned_village",
+				"market",
+				"north",
+				"cathedral"
+			]
+		},
+		{
+			"id": "ground_mud",
+			"name": "泥地",
+			"category": "ground",
+			"mesh": "ground_tile",
+			"size": [
+				2.0,
+				0.0,
+				2.0
+			],
+			"side": "center",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p1",
+			"reuse": [
+				"burned_village",
+				"market"
+			]
+		},
+		{
+			"id": "ground_stone",
+			"name": "石板",
+			"category": "ground",
+			"mesh": "ground_tile",
+			"size": [
+				2.0,
+				0.0,
+				2.0
+			],
+			"side": "center",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p0",
+			"reuse": [
+				"chapel",
+				"cathedral",
+				"court"
+			]
+		},
+		{
+			"id": "ground_grass",
+			"name": "荒地",
+			"category": "ground",
+			"mesh": "ground_tile",
+			"size": [
+				2.0,
+				0.0,
+				2.0
+			],
+			"side": "center",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p1",
+			"reuse": [
+				"burned_village",
+				"north"
+			]
+		},
+		{
+			"id": "wall_stone",
+			"name": "石墙",
+			"category": "structure",
+			"mesh": "wall_panel",
+			"size": [
+				2.0,
+				3.0,
+				0.4
+			],
+			"side": "both",
+			"collision": "full",
+			"occlusion": "solid",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p0",
+			"reuse": [
+				"chapel",
+				"cathedral",
+				"court",
+				"north"
+			]
+		},
+		{
+			"id": "wall_wood",
+			"name": "木墙",
+			"category": "structure",
+			"mesh": "wall_panel",
+			"size": [
+				2.0,
+				3.0,
+				0.4
+			],
+			"side": "both",
+			"collision": "full",
+			"occlusion": "solid",
+			"materials": [
+				"wood_dry",
+				"plaster"
+			],
+			"priority": "p0",
+			"reuse": [
+				"burned_village",
+				"market",
+				"hearth"
+			]
+		},
+		{
+			"id": "gate_arch",
+			"name": "门梁",
+			"category": "structure",
+			"mesh": "gate_arch",
+			"size": [
+				5.2,
+				3.4,
+				1.2
+			],
+			"side": "center",
+			"collision": "posts_only",
+			"occlusion": "open_frame",
+			"materials": [
+				"wood_dry",
+				"iron_rust",
+				"cloth_rot"
+			],
+			"priority": "p0",
+			"reuse": [
+				"cathedral",
+				"court",
+				"north"
+			]
+		},
+		{
+			"id": "fence_stake",
+			"name": "木栅栏",
+			"category": "structure",
+			"mesh": "fence_stake",
+			"size": [
+				2.0,
+				1.3,
+				0.3
+			],
+			"side": "both",
+			"collision": "full",
+			"occlusion": "low",
+			"materials": [
+				"wood_dry"
+			],
+			"priority": "p0",
+			"reuse": [
+				"market",
+				"north",
+				"burned_village"
+			]
+		},
+		{
+			"id": "gate_bar",
+			"name": "栅门",
+			"category": "structure",
+			"mesh": "gate_bar",
+			"size": [
+				4.0,
+				2.4,
+				0.2
+			],
+			"side": "center",
+			"collision": "full",
+			"occlusion": "open_frame",
+			"materials": [
+				"wood_dry",
+				"iron_rust"
+			],
+			"priority": "p1",
+			"reuse": [
+				"cathedral",
+				"court",
+				"core"
+			]
+		},
+		{
+			"id": "booth_toll",
+			"name": "税亭（半开式）",
+			"category": "structure",
+			"mesh": "booth_half",
+			"size": [
+				4.0,
+				2.6,
+				4.0
+			],
+			"side": "far",
+			"open_sides": [
+				"+z"
+			],
+			"collision": "shell",
+			"occlusion": "solid",
+			"materials": [
+				"wood_dry",
+				"plaster"
+			],
+			"priority": "p0",
+			"reuse": [
+				"chapel",
+				"market",
+				"hearth"
+			]
+		},
+		{
+			"id": "roof_tile",
+			"name": "屋顶",
+			"category": "structure",
+			"mesh": "roof_tile",
+			"size": [
+				2.0,
+				1.2,
+				2.0
+			],
+			"side": "far",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"wood_dry"
+			],
+			"priority": "p1",
+			"note": "税亭不用屋顶；留给室内场景",
+			"reuse": [
+				"burned_village",
+				"market",
+				"hearth"
+			]
+		},
+		{
+			"id": "step_stone",
+			"name": "石阶",
+			"category": "structure",
+			"mesh": "step_stone",
+			"size": [
+				2.0,
+				0.5,
+				1.0
+			],
+			"side": "both",
+			"collision": "full",
+			"occlusion": "low",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p1",
+			"reuse": [
+				"chapel",
+				"cathedral"
+			]
+		},
+		{
+			"id": "cart_hand",
+			"name": "板车",
+			"category": "prop",
+			"mesh": "cart_hand",
+			"size": [
+				3.0,
+				1.4,
+				2.2
+			],
+			"side": "far",
+			"collision": "smaller",
+			"occlusion": "solid",
+			"materials": [
+				"wood_dry"
+			],
+			"priority": "p0",
+			"reuse": [
+				"market",
+				"burned_village",
+				"north"
+			]
+		},
+		{
+			"id": "barrel_oil",
+			"name": "圣油桶",
+			"category": "prop",
+			"mesh": "barrel_oil",
+			"size": [
+				0.9,
+				1.2,
+				0.9
+			],
+			"side": "far",
+			"collision": "smaller",
+			"occlusion": "solid",
+			"materials": [
+				"wood_dry",
+				"iron_rust"
+			],
+			"priority": "p0",
+			"reuse": [
+				"chapel",
+				"cathedral",
+				"core",
+				"hearth"
+			]
+		},
+		{
+			"id": "sack_grain",
+			"name": "粮袋",
+			"category": "prop",
+			"mesh": "sack_grain",
+			"size": [
+				0.8,
+				0.6,
+				0.6
+			],
+			"side": "both",
+			"collision": "smaller",
+			"occlusion": "low",
+			"materials": [
+				"cloth_rot"
+			],
+			"priority": "p0",
+			"reuse": [
+				"market",
+				"north",
+				"hearth"
+			]
+		},
+		{
+			"id": "scale_toll",
+			"name": "秤",
+			"category": "prop",
+			"mesh": "scale_toll",
+			"size": [
+				1.2,
+				1.6,
+				0.8
+			],
+			"side": "center",
+			"collision": "smaller",
+			"occlusion": "low",
+			"materials": [
+				"iron_rust",
+				"wood_dry"
+			],
+			"priority": "p0",
+			"note": "细杆件，可从上方与侧面穿过视野",
+			"reuse": [
+				"court",
+				"chapel",
+				"core"
+			]
+		},
+		{
+			"id": "desk_clerk",
+			"name": "书记桌",
+			"category": "prop",
+			"mesh": "desk_clerk",
+			"size": [
+				2.0,
+				0.8,
+				1.0
+			],
+			"side": "far",
+			"collision": "smaller",
+			"occlusion": "low",
+			"materials": [
+				"wood_dry",
+				"cloth_rot",
+				"bone",
+				"blood_dry"
+			],
+			"priority": "p1",
+			"reuse": [
+				"court",
+				"hearth",
+				"market"
+			]
+		},
+		{
+			"id": "lantern_hook",
+			"name": "挂灯",
+			"category": "prop",
+			"mesh": "lantern_hook",
+			"size": [
+				0.4,
+				1.65,
+				0.4
+			],
+			"side": "both",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"iron_rust"
+			],
+			"priority": "p0",
+			"note": "细杆件，不参与遮挡判定",
+			"reuse": [
+				"burned_village",
+				"market",
+				"chapel",
+				"cathedral",
+				"north",
+				"court",
+				"core",
+				"hearth"
+			]
+		},
+		{
+			"id": "banner_seat",
+			"name": "势力旗",
+			"category": "prop",
+			"mesh": "banner_seat",
+			"size": [
+				1.0,
+				3.0,
+				0.1
+			],
+			"side": "far",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"cloth_rot",
+				"wood_dry",
+				"iron_rust"
+			],
+			"priority": "p1",
+			"note": "薄片，7 席换色即可复用",
+			"reuse": [
+				"north",
+				"cathedral",
+				"court"
+			]
+		},
+		{
+			"id": "decal_rut",
+			"name": "车辙贴花",
+			"category": "prop",
+			"mesh": "decal_rut",
+			"size": [
+				2.0,
+				0.0,
+				2.0
+			],
+			"side": "center",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p1",
+			"reuse": [
+				"market",
+				"north",
+				"burned_village"
+			]
+		},
+		{
+			"id": "decal_blood",
+			"name": "血迹贴花",
+			"category": "prop",
+			"mesh": "blood_decal",
+			"size": [
+				1.6,
+				0.09,
+				1.6
+			],
+			"side": "center",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"plaster"
+			],
+			"priority": "p1",
+			"reuse": [
+				"market",
+				"core",
+				"cathedral"
+			]
+		},
+		{
+			"id": "stretcher",
+			"name": "担架与尸布",
+			"category": "prop",
+			"mesh": "stretcher",
+			"size": [
+				2.0,
+				0.3,
+				0.8
+			],
+			"side": "near",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"wood_dry",
+				"cloth_rot"
+			],
+			"priority": "p1",
+			"reuse": [
+				"market",
+				"cathedral"
+			]
+		},
+		{
+			"id": "fog_volume",
+			"name": "体积雾",
+			"category": "atmosphere",
+			"mesh": null,
+			"size": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"side": "center",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [],
+			"priority": "p1",
+			"reuse": [
+				"burned_village",
+				"north",
+				"core"
+			]
+		},
+		{
+			"id": "smoke_column",
+			"name": "烟柱",
+			"category": "atmosphere",
+			"mesh": null,
+			"size": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"side": "far",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [],
+			"priority": "p1",
+			"reuse": [
+				"burned_village",
+				"market"
+			]
+		},
+		{
+			"id": "cage_hanging",
+			"name": "悬挂铁笼",
+			"mesh": "cage_hanging",
+			"size": [
+				2.8,
+				3.4,
+				1.5
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "open_frame",
+			"side": "far",
+			"materials": [
+				"iron_rust",
+				"bone",
+				"wood_dry"
+			],
+			"reuse": [
+				"chapel",
+				"court",
+				"core"
+			]
+		},
+		{
+			"id": "chain_hang",
+			"name": "垂下铁链",
+			"mesh": "chain_hang",
+			"size": [
+				0.32,
+				2.55,
+				0.32
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "none",
+			"side": "center",
+			"materials": [
+				"iron_rust",
+				"bone"
+			],
+			"reuse": [
+				"cathedral",
+				"court",
+				"core"
+			]
+		},
+		{
+			"id": "cross_stake",
+			"name": "十字木桩",
+			"mesh": "cross_stake",
+			"size": [
+				1.2,
+				2.6,
+				0.8
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "open_frame",
+			"side": "far",
+			"materials": [
+				"wood_dry",
+				"bone",
+				"cloth_rot"
+			],
+			"reuse": [
+				"burned_village",
+				"court",
+				"north"
+			]
+		},
+		{
+			"id": "ledger_board",
+			"name": "账册板",
+			"mesh": "ledger_board",
+			"size": [
+				1.2,
+				1.7,
+				0.3
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "none",
+			"side": "far",
+			"materials": [
+				"wood_dry",
+				"bone",
+				"cloth_rot",
+				"blood_dry"
+			],
+			"reuse": [
+				"market",
+				"court",
+				"chapel"
+			]
+		},
+		{
+			"id": "rubble_pile",
+			"name": "碎石骨堆",
+			"mesh": "rubble_pile",
+			"size": [
+				2.0,
+				0.9,
+				2.0
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "low",
+			"side": "both",
+			"materials": [
+				"stone_crack",
+				"bone"
+			],
+			"reuse": [
+				"burned_village",
+				"cathedral",
+				"north"
+			]
+		},
+		{
+			"id": "torch_post",
+			"name": "火把柱",
+			"mesh": "torch_post",
+			"size": [
+				0.64,
+				2.74,
+				0.96
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "open_frame",
+			"side": "both",
+			"materials": [
+				"wood_dry",
+				"iron_rust",
+				"stone_crack"
+			],
+			"reuse": [
+				"market",
+				"chapel",
+				"north"
+			]
+		},
+		{
+			"id": "milestone",
+			"name": "界碑",
+			"mesh": "milestone",
+			"size": [
+				0.72,
+				1.18,
+				0.34
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "low",
+			"side": "both",
+			"materials": [
+				"plaster",
+				"stone_crack"
+			],
+			"reuse": [
+				"market",
+				"north",
+				"court"
+			]
+		},
+		{
+			"id": "stool",
+			"name": "木凳",
+			"mesh": "stool",
+			"size": [
+				0.46,
+				0.48,
+				0.46
+			],
+			"category": "prop",
+			"priority": "p1",
+			"occlusion": "low",
+			"side": "both",
+			"materials": [
+				"wood_dry"
+			],
+			"reuse": [
+				"market",
+				"hearth",
+				"chapel"
+			]
+		},
+		{
+			"id": "wall_pillar",
+			"name": "壁柱",
+			"category": "structure",
+			"mesh": "wall_pillar",
+			"size": [
+				0.6,
+				3.2,
+				0.55
+			],
+			"side": "both",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"stone_crack",
+				"plaster",
+				"iron_rust"
+			],
+			"priority": "p1",
+			"note": "每 6m 一根，贴墙内侧；高度 2.6~3.2 随机，比墙高出一截破掉直线",
+			"reuse": [
+				"chapel",
+				"cathedral",
+				"court",
+				"north"
+			]
+		},
+		{
+			"id": "wall_window",
+			"name": "开洞墙板",
+			"category": "structure",
+			"mesh": "wall_window",
+			"size": [
+				2.0,
+				3.0,
+				0.4
+			],
+			"side": "both",
+			"collision": "none",
+			"occlusion": "open_frame",
+			"materials": [
+				"plaster",
+				"stone_crack"
+			],
+			"priority": "p1",
+			"note": "窗台 1.12m，窗台以上整块断掉（隐形碰撞保留）；断口是这台相机唯一能看见的墙上开口",
+			"reuse": [
+				"north",
+				"cathedral",
+				"court"
+			]
+		},
+		{
+			"id": "wall_ring",
+			"name": "墙铁环",
+			"category": "prop",
+			"mesh": "wall_ring",
+			"size": [
+				0.34,
+				0.36,
+				0.12
+			],
+			"side": "both",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"iron_rust"
+			],
+			"priority": "p1",
+			"note": "每 4m 一个，绑牲畜/挂人的铁环",
+			"reuse": [
+				"court",
+				"core",
+				"cathedral"
+			]
+		},
+		{
+			"id": "wall_torch",
+			"name": "墙火把",
+			"category": "prop",
+			"mesh": "wall_torch",
+			"size": [
+				0.3,
+				2.34,
+				0.6
+			],
+			"side": "both",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"iron_rust"
+			],
+			"priority": "p1",
+			"note": "每 6m 一支，交错换边；发光件，挂在墙面上不是立在地上",
+			"reuse": [
+				"chapel",
+				"north",
+				"market"
+			]
+		},
+		{
+			"id": "wall_banner",
+			"name": "贴墙旗",
+			"category": "prop",
+			"mesh": "wall_banner",
+			"size": [
+				1.4,
+				2.6,
+				0.16
+			],
+			"side": "both",
+			"collision": "none",
+			"occlusion": "none",
+			"materials": [
+				"cloth_rot",
+				"iron_rust"
+			],
+			"priority": "p1",
+			"note": "铁杆挂在墙面上，布垂到 0.7m；只放两面，多了像集市",
+			"reuse": [
+				"north",
+				"cathedral",
+				"court"
+			]
+		}
+	],
+	"dressing_variants": [
+		{
+			"id": "day",
+			"name": "税道白日",
+			"light": "sun_high_soft",
+			"tint": "neutral",
+			"swap": []
+		},
+		{
+			"id": "dusk",
+			"name": "黄昏征缴",
+			"light": "sun_low_warm",
+			"tint": "amber",
+			"swap": [
+				"lantern_hook:on"
+			]
+		},
+		{
+			"id": "ash",
+			"name": "焦土",
+			"light": "overcast_dim",
+			"tint": "gray",
+			"swap": [
+				"ground_road:charred",
+				"wall_wood:charred",
+				"smoke_column:on"
+			]
+		}
+	]
+}

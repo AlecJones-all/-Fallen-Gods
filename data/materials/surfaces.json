@@ -1,0 +1,147 @@
+{
+	"version": 1,
+	"note": "7 种基础表面。base/accent/contrast/pattern 给烘焙工具用，albedo/normal/rough/metal/triplanar 给运行时用。",
+	"surfaces": {
+		"plaster": {
+			"name": "白灰墙",
+			"albedo": "res://assets/materials/plaster_albedo.png",
+			"normal": "res://assets/materials/plaster_normal.png",
+			"base": [
+				0.66,
+				0.63,
+				0.57
+			],
+			"accent": [
+				0.26,
+				0.09,
+				0.08
+			],
+			"contrast": 0.3,
+			"rough": 0.94,
+			"metal": 0.0,
+			"triplanar": 0.85,
+			"pattern": "plaster"
+		},
+		"stone_crack": {
+			"name": "龟裂石",
+			"albedo": "res://assets/materials/stone_crack_albedo.png",
+			"normal": "res://assets/materials/stone_crack_normal.png",
+			"base": [
+				0.44,
+				0.42,
+				0.38
+			],
+			"accent": [
+				0.1,
+				0.09,
+				0.08
+			],
+			"contrast": 0.38,
+			"rough": 0.92,
+			"metal": 0.0,
+			"triplanar": 0.6,
+			"normal_scale": 0.35,
+			"pattern": "stone_crack"
+		},
+		"bone": {
+			"name": "骨",
+			"albedo": "res://assets/materials/bone_albedo.png",
+			"normal": "res://assets/materials/bone_normal.png",
+			"base": [
+				0.62,
+				0.58,
+				0.48
+			],
+			"accent": [
+				0.38,
+				0.33,
+				0.24
+			],
+			"contrast": 0.26,
+			"rough": 0.72,
+			"metal": 0.0,
+			"triplanar": 1.4,
+			"pattern": "bone"
+		},
+		"wood_dry": {
+			"name": "干木",
+			"albedo": "res://assets/materials/wood_dry_albedo.png",
+			"normal": "res://assets/materials/wood_dry_normal.png",
+			"base": [
+				0.35,
+				0.26,
+				0.18
+			],
+			"accent": [
+				0.16,
+				0.11,
+				0.08
+			],
+			"contrast": 0.34,
+			"rough": 0.8,
+			"metal": 0.0,
+			"triplanar": 0.9,
+			"pattern": "wood_dry"
+		},
+		"iron_rust": {
+			"name": "锈铁",
+			"albedo": "res://assets/materials/iron_rust_albedo.png",
+			"normal": "res://assets/materials/iron_rust_normal.png",
+			"base": [
+				0.27,
+				0.29,
+				0.27
+			],
+			"accent": [
+				0.16,
+				0.26,
+				0.22
+			],
+			"contrast": 0.36,
+			"rough": 0.62,
+			"metal": 0.55,
+			"triplanar": 1.1,
+			"pattern": "iron_rust"
+		},
+		"cloth_rot": {
+			"name": "腐布",
+			"albedo": "res://assets/materials/cloth_rot_albedo.png",
+			"normal": "res://assets/materials/cloth_rot_normal.png",
+			"base": [
+				0.38,
+				0.34,
+				0.27
+			],
+			"accent": [
+				0.22,
+				0.19,
+				0.14
+			],
+			"contrast": 0.24,
+			"rough": 0.96,
+			"metal": 0.0,
+			"triplanar": 1.2,
+			"pattern": "cloth_rot"
+		},
+		"blood_dry": {
+			"name": "干血",
+			"albedo": "res://assets/materials/blood_dry_albedo.png",
+			"normal": "res://assets/materials/blood_dry_normal.png",
+			"base": [
+				0.26,
+				0.07,
+				0.06
+			],
+			"accent": [
+				0.08,
+				0.02,
+				0.02
+			],
+			"contrast": 0.3,
+			"rough": 0.88,
+			"metal": 0.0,
+			"triplanar": 0.7,
+			"pattern": "blood_dry"
+		}
+	}
+}

@@ -8,3 +8,10 @@
 # Mixamo source FBX files are not redistributed
 assets/anim_src/*.fbx
 assets/anim_src/*.fbx.import
+
+# Third-party source asset packs are kept local only
+assets/anim_src/*/
+
+# Development screenshots and reference renders are kept local only
+docs/**/*.png
+docs/**/*.png.import

@@ -2,7 +2,7 @@ extends CanvasLayer
 
 ## Main menu: title, start/settings/quit buttons and the build version.
 
-const GAME_SCENE := "res://scenes/main.tscn"
+const GAME_SCENE := "res://scenes/levels/tithe_gate_graybox.tscn"
 const SETTINGS_SCENE: PackedScene = preload("res://scenes/ui/settings_panel.tscn")
 
 var _start_button: Button
@@ -67,7 +67,7 @@ func _build_version_label() -> void:
 
 
 func _on_start_pressed() -> void:
-	_goto(GAME_SCENE)
+	_goto(GAME_SCENE, {"restart_scene": GAME_SCENE})
 
 
 func _on_settings_pressed() -> void:
@@ -89,9 +89,9 @@ func _on_quit_pressed() -> void:
 	get_tree().quit()
 
 
-func _goto(path: String) -> void:
+func _goto(path: String, payload: Dictionary = {}) -> void:
 	var router := get_node_or_null(^"/root/Router")
 	if router != null and router.has_method(&"goto"):
-		router.call(&"goto", path)
+		router.call(&"goto", path, payload)
 		return
 	get_tree().change_scene_to_file(path)

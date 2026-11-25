@@ -26,9 +26,9 @@ const SEPARATION_WEIGHT: float = 0.4
 const FLAT_EPSILON: float = 0.0001
 const FLASH_SEC: float = 0.1
 const FLASH_COLOR: Color = Color.WHITE
-const FLASH_ENERGY: float = 2.6
-const WINDUP_COLOR: Color = Color(1.0, 0.95, 0.25)
-const WINDUP_ENERGY: float = 1.6
+const FLASH_ENERGY: float = 1.35
+const WINDUP_COLOR: Color = Color(0.92, 0.46, 0.16)
+const WINDUP_ENERGY: float = 0.55
 const AFFIX_AURA_ENERGY: float = 0.4
 
 const TELEGRAPH_COLOR: Color = Color(1.0, 0.82, 0.2, 0.28)
