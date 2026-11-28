@@ -2,6 +2,14 @@
 
 [ext_resource type="Texture2D" path="res://assets/characters/rogue_knight/textures/Rogue Knight texture.png" id="1_d2ge7"]
 [ext_resource type="Texture2D" path="res://assets/characters/rogue_knight/textures/Dagger Hand paint.png" id="2_qc1g2"]
+[ext_resource type="Texture2D" path="res://assets/materials/iron_rust_albedo.png" id="3_e80pv"]
+[ext_resource type="Texture2D" path="res://assets/materials/iron_rust_normal.png" id="4_xuvn2"]
+[ext_resource type="Texture2D" path="res://assets/materials/wood_dry_albedo.png" id="5_vhypd"]
+[ext_resource type="Texture2D" path="res://assets/materials/wood_dry_normal.png" id="6_2n0bv"]
+[ext_resource type="Texture2D" path="res://assets/materials/bone_albedo.png" id="7_n8d1j"]
+[ext_resource type="Texture2D" path="res://assets/materials/bone_normal.png" id="8_ljbeo"]
+[ext_resource type="Texture2D" path="res://assets/materials/cloth_rot_albedo.png" id="9_pr54d"]
+[ext_resource type="Texture2D" path="res://assets/materials/cloth_rot_normal.png" id="10_1ecln"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ig23o"]
 resource_name = "Rogue Knight texture"
@@ -204,39 +212,512 @@ _surfaces = [{
 "vertex_data": PackedByteArray("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")
 }]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2n0bv"]
-albedo_color = Color(0.16, 0.17, 0.2, 1)
-metallic = 0.5
-roughness = 0.45
-
-[sub_resource type="BoxMesh" id="BoxMesh_n8d1j"]
-size = Vector3(0.055, 0.06, 0.42)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ljbeo"]
-size = Vector3(0.05, 0.15, 0.055)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pr54d"]
-albedo_color = Color(0.32, 0.36, 0.42, 1)
-metallic = 0.85
-roughness = 0.3
-
-[sub_resource type="BoxMesh" id="BoxMesh_1ecln"]
-size = Vector3(0.27, 0.022, 0.05)
-
-[sub_resource type="BoxMesh" id="BoxMesh_rp7os"]
-size = Vector3(0.27, 0.022, 0.05)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rp7os"]
+albedo_texture = ExtResource("3_e80pv")
+metallic = 0.55
+roughness = 0.62
+normal_enabled = true
+normal_scale = 1.2
+normal_texture = ExtResource("4_xuvn2")
+uv1_scale = Vector3(7, 7, 7)
+uv1_triplanar = true
+texture_filter = 5
 
 [sub_resource type="BoxMesh" id="BoxMesh_tgfd7"]
-size = Vector3(0.5, 0.008, 0.008)
+size = Vector3(0.048, 0.072, 0.38)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8rf7n"]
-shading_mode = 0
-albedo_color = Color(0.55, 0.9, 1, 1)
+albedo_color = Color(0.58, 0.56, 0.55, 1)
+albedo_texture = ExtResource("3_e80pv")
+metallic = 0.55
+roughness = 0.62
+normal_enabled = true
+normal_scale = 1.2
+normal_texture = ExtResource("4_xuvn2")
+uv1_scale = Vector3(7, 7, 7)
+uv1_triplanar = true
+texture_filter = 5
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_yq8u8"]
-top_radius = 0.0
-bottom_radius = 0.009
-height = 0.34
+[sub_resource type="BoxMesh" id="BoxMesh_yq8u8"]
+size = Vector3(0.01, 0.018, 0.22)
+
+[sub_resource type="BoxMesh" id="BoxMesh_oc057"]
+size = Vector3(0.01, 0.018, 0.22)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tavii"]
+size = Vector3(0.05, 0.055, 0.075)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qu70a"]
+size = Vector3(0.012, 0.045, 0.014)
+
+[sub_resource type="TorusMesh" id="TorusMesh_ng8y6"]
+inner_radius = 0.02
+outer_radius = 0.028
+rings = 10
+ring_segments = 5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v886r"]
+albedo_color = Color(1, 0.96, 0.9, 1)
+albedo_texture = ExtResource("5_vhypd")
+roughness = 0.8
+normal_enabled = true
+normal_scale = 1.2
+normal_texture = ExtResource("6_2n0bv")
+uv1_scale = Vector3(5, 5, 5)
+uv1_triplanar = true
+texture_filter = 5
+
+[sub_resource type="BoxMesh" id="BoxMesh_n2w8h"]
+size = Vector3(0.042, 0.13, 0.048)
+
+[sub_resource type="BoxMesh" id="BoxMesh_7vh0m"]
+size = Vector3(0.062, 0.05, 0.052)
+
+[sub_resource type="BoxMesh" id="BoxMesh_8b8fk"]
+size = Vector3(0.006, 0.032, 0.012)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vd2ws"]
+size = Vector3(0.09, 0.02, 0.03)
+
+[sub_resource type="BoxMesh" id="BoxMesh_mc3l1"]
+size = Vector3(0.088, 0.019, 0.028)
+
+[sub_resource type="BoxMesh" id="BoxMesh_otm3w"]
+size = Vector3(0.082, 0.018, 0.026)
+
+[sub_resource type="BoxMesh" id="BoxMesh_x1ywa"]
+size = Vector3(0.022, 0.016, 0.024)
+
+[sub_resource type="BoxMesh" id="BoxMesh_etvyh"]
+size = Vector3(0.09, 0.02, 0.03)
+
+[sub_resource type="BoxMesh" id="BoxMesh_llud8"]
+size = Vector3(0.088, 0.019, 0.028)
+
+[sub_resource type="BoxMesh" id="BoxMesh_inkoc"]
+size = Vector3(0.082, 0.018, 0.026)
+
+[sub_resource type="BoxMesh" id="BoxMesh_t7ca2"]
+size = Vector3(0.022, 0.016, 0.024)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_soghf"]
+albedo_texture = ExtResource("7_n8d1j")
+roughness = 0.72
+normal_enabled = true
+normal_scale = 1.2
+normal_texture = ExtResource("8_ljbeo")
+uv1_scale = Vector3(10, 10, 10)
+uv1_triplanar = true
+texture_filter = 5
+
+[sub_resource type="BoxMesh" id="BoxMesh_g5ak5"]
+size = Vector3(0.007, 0.007, 0.39640003)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vdgc3"]
+size = Vector3(0.007, 0.007, 0.39640003)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l01lg"]
+albedo_color = Color(0.85, 0.8, 0.72, 1)
+albedo_texture = ExtResource("9_pr54d")
+roughness = 0.96
+normal_enabled = true
+normal_scale = 1.2
+normal_texture = ExtResource("10_1ecln")
+uv1_scale = Vector3(14, 14, 14)
+uv1_triplanar = true
+texture_filter = 5
+
+[sub_resource type="TorusMesh" id="TorusMesh_3vrrf"]
+inner_radius = 0.03
+outer_radius = 0.04
+rings = 10
+ring_segments = 5
+
+[sub_resource type="TorusMesh" id="TorusMesh_t53k4"]
+inner_radius = 0.03
+outer_radius = 0.04
+rings = 10
+ring_segments = 5
+
+[sub_resource type="TorusMesh" id="TorusMesh_igu0a"]
+inner_radius = 0.03
+outer_radius = 0.04
+rings = 10
+ring_segments = 5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_n0pov"]
+top_radius = 0.0055
+bottom_radius = 0.0055
+height = 0.3
+radial_segments = 6
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k6tm3"]
+albedo_color = Color(1.35, 1.32, 1.28, 1)
+albedo_texture = ExtResource("3_e80pv")
+metallic = 0.55
+roughness = 0.55
+normal_enabled = true
+normal_scale = 1.2
+normal_texture = ExtResource("4_xuvn2")
+uv1_scale = Vector3(11, 11, 11)
+uv1_triplanar = true
+texture_filter = 5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_x4b6b"]
+top_radius = 0.0005
+bottom_radius = 0.011
+height = 0.045
+radial_segments = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hj0w6"]
+albedo_color = Color(0.55, 0.1, 0.08, 1)
+emission_enabled = true
+emission = Color(0.55, 0.1, 0.08, 1)
+emission_energy_multiplier = 1.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_g2jjt"]
+size = Vector3(0.003, 0.014, 0.048)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_0b3t8"]
+top_radius = 0.019
+bottom_radius = 0.023
+height = 0.8
+radial_segments = 10
+rings = 2
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_i4cpn"]
+top_radius = 0.026
+bottom_radius = 0.03
+height = 0.07
+radial_segments = 8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_g6tk1"]
+top_radius = 0.022
+bottom_radius = 0.026
+height = 0.05
+radial_segments = 8
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_tmxij"]
+_surfaces = [{
+"aabb": AABB(0.02, 0.542, -0.007, 0.41799998, 0.356, 0.014),
+"format": 34359738375,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 96,
+"vertex_data": PackedByteArray("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")
+}]
+
+[sub_resource type="BoxMesh" id="BoxMesh_b1k1k"]
+size = Vector3(0.03, 0.075, 0.004)
+
+[sub_resource type="BoxMesh" id="BoxMesh_eyxk8"]
+size = Vector3(0.02, 0.026, 0.09394147)
+
+[sub_resource type="BoxMesh" id="BoxMesh_kolmr"]
+size = Vector3(0.016, 0.02, 0.061846588)
+
+[sub_resource type="TorusMesh" id="TorusMesh_1xn3a"]
+inner_radius = 0.021
+outer_radius = 0.028
+rings = 10
+ring_segments = 5
+
+[sub_resource type="TorusMesh" id="TorusMesh_wfnw3"]
+inner_radius = 0.021
+outer_radius = 0.028
+rings = 10
+ring_segments = 5
+
+[sub_resource type="TorusMesh" id="TorusMesh_66cut"]
+inner_radius = 0.021
+outer_radius = 0.028
+rings = 10
+ring_segments = 5
+
+[sub_resource type="TorusMesh" id="TorusMesh_re5vh"]
+inner_radius = 0.021
+outer_radius = 0.028
+rings = 10
+ring_segments = 5
+
+[sub_resource type="BoxMesh" id="BoxMesh_cvsap"]
+size = Vector3(0.04, 0.016, 0.006)
+
+[sub_resource type="BoxMesh" id="BoxMesh_j6blk"]
+size = Vector3(0.006, 0.016, 0.036)
+
+[sub_resource type="TorusMesh" id="TorusMesh_snsks"]
+inner_radius = 0.02
+outer_radius = 0.03
+rings = 10
+ring_segments = 5
+
+[sub_resource type="BoxMesh" id="BoxMesh_tohxd"]
+size = Vector3(0.006, 0.11, 0.012)
+
+[sub_resource type="Animation" id="Animation_xuvn2"]
+length = 1.1
+loop_mode = 1
+tracks/0/type = "rotation_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Skeleton3D:root")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/1/type = "rotation_3d"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Skeleton3D:Hips")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = PackedFloat32Array(0, 1, -0.010101771, 0.0007318492, 0.013029248, 0.9998638, 0.033333335, 1, -0.008978282, -0.00793102, 0.016093163, 0.9997987, 0.06666667, 1, -0.007694314, -0.016618105, 0.018752912, 0.99965644, 0.1, 1, -0.0065081217, -0.026936209, 0.02118131, 0.99939156, 0.13333334, 1, -0.004826474, -0.040124338, 0.021930495, 0.9989424, 0.16666667, 1, -0.0033035018, -0.055305477, 0.019777289, 0.9982681, 0.2, 1, -0.0009785466, -0.06955344, 0.017321901, 0.99742734, 0.23333333, 1, 0.00013216412, -0.07775448, 0.016039273, 0.99684346, 0.26666668, 1, -0.00042616, -0.08070892, 0.01614109, 0.9966069, 0.3, 1, -0.00256052, -0.08273221, 0.016242042, 0.9964361, 0.33333334, 1, -0.005790091, -0.083475076, 0.014642027, 0.99638546, 0.36666667, 1, -0.008892347, -0.0824524, 0.010673704, 0.99649817, 0.4, 1, -0.011544788, -0.08020063, 0.006380046, 0.99669147, 0.43333334, 1, -0.012200073, -0.07614561, 0.0038970637, 0.99701446, 0.46666667, 1, -0.010210784, -0.0698941, 0.00326073, 0.99749684, 0.5, 1, -0.0065246937, -0.062061913, 0.002967315, 0.9980466, 0.53333336, 1, -0.0017546178, -0.053305443, 0.0024483285, 0.9985737, 0.56666666, 1, 0.0037124883, -0.04331788, 0.0022730432, 0.99905187, 0.6, 1, 0.00854513, -0.032571893, 0.002445728, 0.9994299, 0.6333333, 1, 0.011870023, -0.02261994, 0.0036284802, 0.9996671, 0.6666667, 1, 0.013108863, -0.013259138, 0.006073759, 0.9998077, 0.7, 1, 0.012300201, -0.003211163, 0.009031161, 0.9998784, 0.73333335, 1, 0.010255947, 0.0081945555, 0.01223968, 0.99983895, 0.76666665, 1, 0.009011459, 0.019929217, 0.019778825, 0.9995651, 0.8, 1, 0.009037148, 0.02871304, 0.022740206, 0.99928814, 0.8333333, 1, 0.00975269, 0.03607503, 0.020909173, 0.9990827, 0.8666667, 1, 0.00901061, 0.041941863, 0.013794087, 0.99898416, 0.9, 1, 0.006415563, 0.047899894, 0.009896487, 0.9987825, 0.93333334, 1, -0.0001994847, 0.04978141, 0.008127867, 0.9987271, 0.96666664, 1, -0.008375368, 0.045566313, 0.007746453, 0.9988962, 1, 1, -0.011808108, 0.03432784, 0.007384108, 0.9993136, 1.0333333, 1, -0.011543858, 0.023528459, 0.009379274, 0.9996125, 1.0666667, 1, -0.010578647, 0.012749484, 0.0117790485, 0.9997934, 1.1, 1, -0.010101771, 0.0007318492, 0.013029248, 0.9998638)
+tracks/2/type = "rotation_3d"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Skeleton3D:Spine")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = PackedFloat32Array(0, 1, -0.040304437, -0.34186727, -0.020558564, 0.9386584, 0.033333335, 1, -0.042445444, -0.33358023, -0.022657294, 0.9414931, 0.06666667, 1, -0.044595517, -0.32526317, -0.024320323, 0.9442583, 0.1, 1, -0.046577074, -0.3153832, -0.02572507, 0.9474715, 0.13333334, 1, -0.04845516, -0.30282488, -0.025253244, 0.95147854, 0.16666667, 1, -0.04919152, -0.2884497, -0.022019885, 0.955977, 0.2, 1, -0.050565287, -0.27491117, -0.018270241, 0.9599652, 0.23333333, 1, -0.051182605, -0.2670773, -0.016311917, 0.9621767, 0.26666668, 1, -0.050696928, -0.26421592, -0.01646326, 0.96298945, 0.3, 1, -0.048730094, -0.26224348, -0.01719511, 0.9636172, 0.33333334, 1, -0.045152992, -0.2615858, -0.016763423, 0.9639777, 0.36666667, 1, -0.040884607, -0.26274914, -0.014146067, 0.9638938, 0.4, 1, -0.036924917, -0.26511064, -0.0111256745, 0.96344644, 0.43333334, 1, -0.03545599, -0.2691367, -0.009204493, 0.96240515, 0.46666667, 1, -0.037097275, -0.27520803, -0.008212923, 0.9606336, 0.5, 1, -0.040443886, -0.28277874, -0.0070351497, 0.9583063, 0.53333336, 1, -0.04472535, -0.2912248, -0.005316864, 0.95559376, 0.56666666, 1, -0.049770392, -0.3007974, -0.0037384806, 0.95238113, 0.6, 1, -0.054330643, -0.3110288, -0.0027375284, 0.94884235, 0.6333333, 1, -0.057818428, -0.32041374, -0.0031634239, 0.9455063, 0.6666667, 1, -0.059778262, -0.32914332, -0.0054602623, 0.9423701, 0.7, 1, -0.0599848, -0.3384609, -0.008968592, 0.93902373, 0.73333335, 1, -0.05910583, -0.34899792, -0.013196069, 0.9351646, 0.76666665, 1, -0.06044584, -0.3595711, -0.02122882, 0.93091583, 0.8, 1, -0.061427258, -0.3675872, -0.024396643, 0.9276374, 0.8333333, 1, -0.061427962, -0.37451363, -0.022766154, 0.9249043, 0.8666667, 1, -0.05826612, -0.38030583, -0.016606865, 0.92287415, 0.9, 1, -0.054459844, -0.38599354, -0.01410475, 0.9207846, 0.93333334, 1, -0.047634438, -0.3877888, -0.014791158, 0.92039776, 0.96666664, 1, -0.039857898, -0.38386786, -0.017037902, 0.9223701, 1, 1, -0.036585268, -0.37346146, -0.01736378, 0.9267613, 1.0333333, 1, -0.037581228, -0.3633377, -0.01865797, 0.9307122, 1.0666667, 1, -0.03936802, -0.35317782, -0.020092662, 0.93451154, 1.1, 1, -0.040304437, -0.34186727, -0.020558564, 0.9386584)
+tracks/3/type = "rotation_3d"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Skeleton3D:Spine1")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = PackedFloat32Array(0, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.033333335, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.06666667, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.1, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.13333334, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.16666667, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.2, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.23333333, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.26666668, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.3, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.33333334, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.36666667, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.4, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.43333334, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.46666667, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.5, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.53333336, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.56666666, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.6, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.6333333, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.6666667, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.7, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.73333335, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.76666665, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.8, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.8333333, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.8666667, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.9, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.93333334, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 0.96666664, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 1, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 1.0333333, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 1.0666667, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369, 1.1, 1, 0.14274913, -0.00013514096, -0.006597374, 0.9897369)
+tracks/4/type = "rotation_3d"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Skeleton3D:Spine2")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = PackedFloat32Array(0, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.033333335, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.06666667, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.1, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.13333334, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.16666667, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.2, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.23333333, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.26666668, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.3, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.33333334, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.36666667, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.4, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.43333334, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.46666667, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.5, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.53333336, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.56666666, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.6, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.6333333, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.6666667, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.7, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.73333335, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.76666665, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.8, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.8333333, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.8666667, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.9, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.93333334, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 0.96666664, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 1, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 1.0333333, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 1.0666667, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703, 1.1, 1, 0.1427531, -0.00075086794, -0.0064515416, 0.98973703)
+tracks/5/type = "rotation_3d"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Skeleton3D:Neck")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = PackedFloat32Array(0, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.033333335, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.06666667, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.1, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.13333334, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.16666667, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.2, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.23333333, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.26666668, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.3, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.33333334, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.36666667, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.4, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.43333334, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.46666667, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.5, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.53333336, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.56666666, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.6, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.6333333, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.6666667, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.7, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.73333335, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.76666665, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.8, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.8333333, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.8666667, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.9, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.93333334, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 0.96666664, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 1, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 1.0333333, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 1.0666667, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365, 1.1, 1, 0.0036761116, 0.06521182, 0.0075024823, 0.9978365)
+tracks/6/type = "rotation_3d"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Skeleton3D:Head")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = PackedFloat32Array(0, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.033333335, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.06666667, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.1, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.13333334, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.16666667, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.2, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.23333333, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.26666668, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.3, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.33333334, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.36666667, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.4, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.43333334, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.46666667, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.5, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.53333336, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.56666666, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.6, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.6333333, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.6666667, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.7, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.73333335, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.76666665, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.8, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.8333333, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.8666667, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.9, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.93333334, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 0.96666664, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 1, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 1.0333333, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 1.0666667, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327, 1.1, 1, -0.04012524, 0.19219643, 0.09014559, 0.97638327)
+tracks/7/type = "rotation_3d"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Skeleton3D:LeftShoulder")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = PackedFloat32Array(0, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.033333335, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.06666667, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.1, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.13333334, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.16666667, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.2, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.23333333, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.26666668, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.3, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.33333334, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.36666667, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.4, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.43333334, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.46666667, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.5, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.53333336, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.56666666, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.6, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.6333333, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.6666667, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.7, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.73333335, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.76666665, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.8, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.8333333, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.8666667, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.9, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.93333334, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 0.96666664, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 1, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 1.0333333, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 1.0666667, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005, 1.1, 1, -0.32228902, -0.035487328, 0.026307603, 0.94561005)
+tracks/8/type = "rotation_3d"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Skeleton3D:LeftArm")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = PackedFloat32Array(0, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.033333335, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.06666667, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.1, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.13333334, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.16666667, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.2, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.23333333, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.26666668, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.3, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.33333334, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.36666667, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.4, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.43333334, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.46666667, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.5, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.53333336, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.56666666, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.6, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.6333333, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.6666667, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.7, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.73333335, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.76666665, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.8, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.8333333, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.8666667, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.9, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.93333334, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 0.96666664, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 1, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 1.0333333, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 1.0666667, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937, 1.1, 1, -0.27526757, -0.2309566, -0.45959574, 0.8121937)
+tracks/9/type = "rotation_3d"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Skeleton3D:LeftForeArm")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = PackedFloat32Array(0, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.033333335, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.06666667, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.1, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.13333334, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.16666667, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.2, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.23333333, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.26666668, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.3, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.33333334, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.36666667, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.4, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.43333334, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.46666667, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.5, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.53333336, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.56666666, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.6, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.6333333, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.6666667, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.7, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.73333335, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.76666665, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.8, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.8333333, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.8666667, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.9, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.93333334, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 0.96666664, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 1, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 1.0333333, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 1.0666667, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714, 1.1, 1, -1.13985855e-07, -0.5352919, -1.0751932e-07, 0.84466714)
+tracks/10/type = "rotation_3d"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Skeleton3D:LeftHand")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = PackedFloat32Array(0, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.033333335, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.06666667, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.1, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.13333334, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.16666667, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.2, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.23333333, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.26666668, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.3, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.33333334, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.36666667, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.4, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.43333334, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.46666667, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.5, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.53333336, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.56666666, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.6, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.6333333, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.6666667, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.7, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.73333335, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.76666665, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.8, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.8333333, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.8666667, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.9, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.93333334, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 0.96666664, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 1, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 1.0333333, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 1.0666667, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663, 1.1, 1, -0.78720164, 0.27758095, 0.09636001, 0.54219663)
+tracks/11/type = "rotation_3d"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Skeleton3D:RightShoulder")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = PackedFloat32Array(0, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.033333335, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.06666667, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.1, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.13333334, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.16666667, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.2, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.23333333, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.26666668, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.3, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.33333334, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.36666667, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.4, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.43333334, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.46666667, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.5, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.53333336, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.56666666, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.6, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.6333333, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.6666667, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.7, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.73333335, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.76666665, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.8, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.8333333, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.8666667, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.9, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.93333334, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 0.96666664, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 1, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 1.0333333, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 1.0666667, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611, 1.1, 1, -0.34327358, -0.10035416, -0.054603033, 0.9322611)
+tracks/12/type = "rotation_3d"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Skeleton3D:RightArm")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = PackedFloat32Array(0, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.033333335, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.06666667, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.1, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.13333334, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.16666667, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.2, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.23333333, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.26666668, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.3, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.33333334, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.36666667, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.4, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.43333334, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.46666667, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.5, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.53333336, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.56666666, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.6, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.6333333, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.6666667, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.7, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.73333335, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.76666665, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.8, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.8333333, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.8666667, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.9, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.93333334, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 0.96666664, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 1, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 1.0333333, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 1.0666667, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034, 1.1, 1, 0.123591684, 0.55194753, 0.49531418, 0.65935034)
+tracks/13/type = "rotation_3d"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Skeleton3D:RightForeArm")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = PackedFloat32Array(0, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.033333335, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.06666667, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.1, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.13333334, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.16666667, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.2, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.23333333, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.26666668, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.3, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.33333334, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.36666667, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.4, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.43333334, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.46666667, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.5, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.53333336, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.56666666, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.6, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.6333333, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.6666667, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.7, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.73333335, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.76666665, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.8, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.8333333, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.8666667, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.9, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.93333334, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 0.96666664, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 1, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 1.0333333, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 1.0666667, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697, 1.1, 1, -2.69844e-07, 0.7572398, 4.554463e-07, 0.65313697)
+tracks/14/type = "rotation_3d"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Skeleton3D:RightHand")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = PackedFloat32Array(0, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.033333335, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.06666667, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.1, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.13333334, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.16666667, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.2, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.23333333, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.26666668, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.3, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.33333334, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.36666667, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.4, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.43333334, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.46666667, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.5, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.53333336, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.56666666, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.6, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.6333333, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.6666667, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.7, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.73333335, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.76666665, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.8, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.8333333, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.8666667, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.9, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.93333334, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 0.96666664, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 1, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 1.0333333, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 1.0666667, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454, 1.1, 1, -0.3889113, -0.24033655, -0.16009967, 0.8748454)
+tracks/15/type = "rotation_3d"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("Skeleton3D:LeftUpLeg")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = PackedFloat32Array(0, 1, -0.20330155, 0.11874317, 0.03712569, 0.9711798, 0.033333335, 1, -0.23627156, 0.13455941, 0.02477846, 0.96200603, 0.06666667, 1, -0.25731447, 0.1452061, 0.009283873, 0.9553106, 0.1, 1, -0.26929438, 0.15397173, -0.005657554, 0.9506531, 0.13333334, 1, -0.27711982, 0.16367084, -0.014897672, 0.9466755, 0.16666667, 1, -0.2803209, 0.17628695, -0.0142228445, 0.94347274, 0.2, 1, -0.28537297, 0.18590559, -0.011053483, 0.9401485, 0.23333333, 1, -0.2880855, 0.17728157, -0.0071552326, 0.94102436, 0.26666668, 1, -0.29865023, 0.15973449, -0.0031035272, 0.94089496, 0.3, 1, -0.30597708, 0.15763623, -0.00148961, 0.9388965, 0.33333334, 1, -0.2982246, 0.16640328, 0.0045063775, 0.9398679, 0.36666667, 1, -0.2888751, 0.17026621, 0.011099923, 0.94203895, 0.4, 1, -0.2703091, 0.172144, 0.015365915, 0.9471343, 0.43333334, 1, -0.24485846, 0.17199397, 0.015377517, 0.95405763, 0.46666667, 1, -0.21435545, 0.16887201, 0.012133541, 0.96197027, 0.5, 1, -0.17967375, 0.16112873, 0.007798344, 0.9704092, 0.53333336, 1, -0.14246033, 0.14940846, 0.0041604815, 0.97845024, 0.56666666, 1, -0.108054936, 0.13636693, 0.0010478791, 0.98474723, 0.6, 1, -0.072799675, 0.12230306, -0.0017764404, 0.9898177, 0.6333333, 1, -0.038776714, 0.10772571, -0.0040698186, 0.99341583, 0.6666667, 1, -0.0077542043, 0.09319396, -0.005637319, 0.99560183, 0.7, 1, 0.018969622, 0.07909987, -0.0054814303, 0.99667114, 0.73333335, 1, 0.039643694, 0.06603883, -0.002688988, 0.9970256, 0.76666665, 1, 0.056624103, 0.055179887, -0.001339334, 0.99686867, 0.8, 1, 0.076975815, 0.044655398, 0.0029990398, 0.99602795, 0.8333333, 1, 0.1011371, 0.034127947, 0.011630059, 0.99421895, 0.8666667, 1, 0.10712618, 0.022891533, 0.024948193, 0.99366874, 0.9, 1, 0.089699246, 0.013891457, 0.038650848, 0.9951217, 0.93333334, 1, 0.048893925, 0.010291241, 0.050276875, 0.9974847, 0.96666664, 1, -0.028877184, 0.008261432, 0.053923205, 0.99809325, 1, 1, -0.08601126, 0.025554601, 0.0546303, 0.99446696, 1.0333333, 1, -0.12991896, 0.055305023, 0.052379288, 0.9885944, 1.0666667, 1, -0.17169152, 0.08886572, 0.04635572, 0.9800388, 1.1, 1, -0.20330155, 0.11874317, 0.03712569, 0.9711798)
+tracks/16/type = "rotation_3d"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("Skeleton3D:LeftLeg")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = PackedFloat32Array(0, 1, 0.4950687, -0.04002313, -0.0564109, 0.8660964, 0.033333335, 1, 0.44003975, -0.05576123, -0.053050548, 0.8946739, 0.06666667, 1, 0.36472312, -0.07759386, -0.04391546, 0.92683744, 0.1, 1, 0.28455293, -0.09363617, -0.027812727, 0.953671, 0.13333334, 1, 0.21153882, -0.09428143, -0.01309894, 0.97272336, 0.16666667, 1, 0.1659695, -0.07218483, -0.0016340546, 0.983484, 0.2, 1, 0.13812965, -0.048452154, 0.004097479, 0.9892198, 0.23333333, 1, 0.12543795, -0.021513853, 0.006860147, 0.9918445, 0.26666668, 1, 0.16180855, 0.0038618413, 0.007210845, 0.9867883, 0.3, 1, 0.2183211, 0.0063410364, 0.0009881906, 0.9758559, 0.33333334, 1, 0.2620561, -0.007901869, -0.009711714, 0.9649714, 0.36666667, 1, 0.31019256, -0.014345149, -0.01587908, 0.95043284, 0.4, 1, 0.33885258, -0.019779177, -0.01932187, 0.9404331, 0.43333334, 1, 0.34780395, -0.024039874, -0.01987094, 0.9370484, 0.46666667, 1, 0.33968368, -0.026380688, -0.019423163, 0.939969, 0.5, 1, 0.31831565, -0.026125686, -0.018384162, 0.9474464, 0.53333336, 1, 0.2866844, -0.02604897, -0.017981779, 0.95750207, 0.56666666, 1, 0.2562627, -0.02579224, -0.017114213, 0.9661114, 0.6, 1, 0.22558463, -0.025509723, -0.01622952, 0.9737543, 0.6333333, 1, 0.20014197, -0.023671601, -0.015014625, 0.9793658, 0.6666667, 1, 0.18494073, -0.021400172, -0.0142999105, 0.9824126, 0.7, 1, 0.18288483, -0.020066021, -0.014659024, 0.9828203, 0.73333335, 1, 0.1969196, -0.020995045, -0.016743515, 0.9800518, 0.76666665, 1, 0.2210928, -0.026059834, -0.021130567, 0.97467554, 0.8, 1, 0.23649861, -0.02433796, -0.022477573, 0.9710669, 0.8333333, 1, 0.23887427, -0.027193693, -0.023433402, 0.9703868, 0.8666667, 1, 0.26303208, -0.03939387, -0.026788576, 0.96361023, 0.9, 1, 0.31759596, -0.060262904, -0.040871575, 0.9454262, 0.93333334, 1, 0.39984915, -0.07623446, -0.057687532, 0.9115817, 0.96666664, 1, 0.50516003, -0.048125304, -0.055117916, 0.85991824, 1, 1, 0.5474515, -0.029225249, -0.047121458, 0.8349984, 1.0333333, 1, 0.5505441, -0.026882568, -0.04778632, 0.83300364, 1.0666667, 1, 0.533229, -0.029083768, -0.049939897, 0.8439947, 1.1, 1, 0.4950687, -0.04002313, -0.0564109, 0.8660964)
+tracks/17/type = "rotation_3d"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("Skeleton3D:LeftFoot")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = PackedFloat32Array(0, 1, -0.051866185, -6.553917e-05, 0.0053809234, 0.9986395, 0.033333335, 1, -0.037628327, -0.0024430058, 0.011317638, 0.9992247, 0.06666667, 1, -0.0350518, -0.003166267, 0.016462967, 0.99924487, 0.1, 1, -0.034087054, -0.0019459792, 0.012585755, 0.99933773, 0.13333334, 1, -0.040200412, 0.0002860531, 0.00023466174, 0.9991916, 0.16666667, 1, -0.042269044, 0.0013762664, -0.017362554, 0.9989545, 0.2, 1, -0.047534034, 0.0026017404, -0.04152179, 0.9980029, 0.23333333, 1, -0.045608323, 0.004091006, -0.063998, 0.9968989, 0.26666668, 1, -0.035553724, 0.002937878, -0.042285714, 0.99846846, 0.3, 1, -0.0044296845, -0.0018748514, 0.013088764, 0.9999028, 0.33333334, 1, 0.031756144, -0.006879086, 0.029224064, 0.99904466, 0.36666667, 1, -0.014686513, -0.0061056465, 0.03148152, 0.9993778, 0.4, 1, -0.06109745, -0.005319018, 0.0336709, 0.9975496, 0.43333334, 1, -0.096255146, -0.0056692185, 0.033120822, 0.9947893, 0.46666667, 1, -0.12092552, -0.007073179, 0.031386465, 0.99214005, 0.5, 1, -0.1374815, -0.00857114, 0.028153664, 0.990067, 0.53333336, 1, -0.14386603, -0.009472083, 0.02074922, 0.9893343, 0.56666666, 1, -0.14322042, -0.010299984, 0.015540743, 0.98951524, 0.6, 1, -0.14616759, -0.011317096, 0.014440221, 0.98908967, 0.6333333, 1, -0.15122628, -0.012567068, 0.014134898, 0.9883182, 0.6666667, 1, -0.15875316, -0.014105899, 0.014263187, 0.9871145, 0.7, 1, -0.1686032, -0.01613679, 0.01548601, 0.98543024, 0.73333335, 1, -0.18092813, -0.019245198, 0.017902825, 0.983145, 0.76666665, 1, -0.19190878, -0.022620516, 0.021939112, 0.9809067, 0.8, 1, -0.18925498, -0.025335742, 0.027869979, 0.98120534, 0.8333333, 1, -0.16637151, -0.026487553, 0.031741124, 0.9851962, 0.8666667, 1, -0.10132617, -0.024937773, 0.037643038, 0.993828, 0.9, 1, 0.01220989, -0.018168582, 0.055723432, 0.99820626, 0.93333334, 1, 0.14014353, -0.014900504, 0.059119202, 0.98825234, 0.96666664, 1, 0.16592824, -0.009553067, 0.03217726, 0.98556644, 1, 1, 0.10450836, 0.0034564757, 0.0027383051, 0.9945143, 1.0333333, 1, 0.050468586, 0.011854393, 0.010935186, 0.9985954, 1.0666667, 1, -0.009606716, 0.010455738, 0.011141612, 0.9998371, 1.1, 1, -0.051866185, -6.553917e-05, 0.0053809234, 0.9986395)
+tracks/18/type = "rotation_3d"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("Skeleton3D:LeftToeBase")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = PackedFloat32Array(0, 1, -0.03326578, 0.029706338, -0.044561658, 0.99801064, 0.033333335, 1, -0.02357456, 0.0023494533, -0.031630863, 0.9992188, 0.06666667, 1, -0.015680585, -0.029461827, -0.019549286, 0.99925166, 0.1, 1, -0.010914418, -0.060838934, -0.010700512, 0.99803054, 0.13333334, 1, -0.008267429, -0.086095504, -0.005042058, 0.99623984, 0.16666667, 1, -0.008612519, -0.103486925, 0.0019053469, 0.9945917, 0.2, 1, -0.011346448, -0.10098291, 0.0036924034, 0.9948166, 0.23333333, 1, -0.01583422, -0.08367877, -0.0005710345, 0.9963668, 0.26666668, 1, -0.020022726, -0.07055332, -0.008935106, 0.997267, 0.3, 1, -0.024879621, -0.05464147, -0.013251394, 0.9981081, 0.33333334, 1, -0.030262906, -0.035680156, -0.0013981248, 0.99890393, 0.36666667, 1, -0.029143969, -0.033188373, 0.00033162162, 0.9990241, 0.4, 1, -0.029868301, -0.03347974, -0.0021184306, 0.9989907, 0.43333334, 1, -0.028446935, -0.03365272, -0.0050960854, 0.9990157, 0.46666667, 1, -0.026639149, -0.034084998, -0.0088182315, 0.9990249, 0.5, 1, -0.024915209, -0.034367155, -0.01281414, 0.99901646, 0.53333336, 1, -0.031143805, -0.032261394, -0.015374842, 0.9988758, 0.56666666, 1, -0.038215734, -0.028468361, -0.01959254, 0.9986717, 0.6, 1, -0.044942107, -0.023640841, -0.025062779, 0.99839526, 0.6333333, 1, -0.05292417, -0.018011982, -0.030524151, 0.9979694, 0.6666667, 1, -0.06381271, -0.011918695, -0.035215713, 0.99726915, 0.7, 1, -0.07922583, -0.0058864616, -0.038477913, 0.99609643, 0.73333335, 1, -0.10070864, 2.6933236e-05, -0.03917487, 0.9941444, 0.76666665, 1, -0.12988561, 0.0067659467, -0.036755797, 0.9908244, 0.8, 1, -0.16822807, 0.011519857, -0.036558993, 0.9850026, 0.8333333, 1, -0.2169536, 0.017124971, -0.026533922, 0.975671, 0.8666667, 1, -0.2923009, 0.03253301, 0.0019066166, 0.95577097, 0.9, 1, -0.31553623, 0.046451073, 0.012831932, 0.94768906, 0.93333334, 1, -0.25176767, 0.05501145, 0.0058804695, 0.96620506, 0.96666664, 1, -0.051563874, 0.024779806, -0.05654692, 0.99675953, 1, 1, -0.08323844, -0.007069428, -0.07069396, 0.9939938, 1.0333333, 1, -0.044076882, -0.00051510194, -0.07980462, 0.9958354, 1.0666667, 1, -0.039394394, 0.0134508815, -0.06453838, 0.9970466, 1.1, 1, -0.03326578, 0.029706338, -0.044561658, 0.99801064)
+tracks/19/type = "rotation_3d"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("Skeleton3D:RightUpLeg")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = PackedFloat32Array(0, 1, -0.17262287, -0.04916992, -0.007577183, 0.9837308, 0.033333335, 1, -0.14221422, -0.044360448, -0.013125839, 0.9887543, 0.06666667, 1, -0.12542042, -0.033649597, -0.015352653, 0.991414, 0.1, 1, -0.115639016, -0.018052613, -0.015791211, 0.9930017, 0.13333334, 1, -0.105818056, -0.0024494533, -0.016224375, 0.9942501, 0.16666667, 1, -0.09777537, 0.010892535, -0.011831473, 0.99507856, 0.2, 1, -0.09368601, 0.011861301, -0.007274763, 0.99550456, 0.23333333, 1, -0.08227532, 0.004007513, -0.007266549, 0.9965751, 0.26666668, 1, -0.06379676, -0.009720381, -0.011563394, 0.9978486, 0.3, 1, -0.049595553, -0.030897811, -0.016817495, 0.9981497, 0.33333334, 1, -0.045704532, -0.055143844, -0.013147383, 0.9973452, 0.36666667, 1, -0.05511284, -0.05966745, -0.006735669, 0.996673, 0.4, 1, -0.06451287, -0.064182065, -0.0003229401, 0.99585074, 0.43333334, 1, -0.12464999, -0.035777677, 0.008230997, 0.99152136, 0.46666667, 1, -0.19478744, -0.012340332, 0.008605541, 0.9807301, 0.5, 1, -0.24877809, -0.0039436333, -2.720344e-05, 0.9685525, 0.53333336, 1, -0.28730366, -0.008817784, -0.008983709, 0.9577568, 0.56666666, 1, -0.31488985, -0.014831601, -0.019074567, 0.9488206, 0.6, 1, -0.328878, -0.029504731, -0.026787682, 0.9435312, 0.6333333, 1, -0.32715848, -0.046123534, -0.032424215, 0.94328606, 0.6666667, 1, -0.31366053, -0.06396633, -0.033633057, 0.946781, 0.7, 1, -0.28194946, -0.07377261, -0.033575878, 0.9559994, 0.73333335, 1, -0.2464626, -0.07554124, -0.034156766, 0.96559983, 0.76666665, 1, -0.25085995, -0.07743655, -0.04081952, 0.9640574, 0.8, 1, -0.27118438, -0.07733042, -0.0428376, 0.9584592, 0.8333333, 1, -0.29496384, -0.07361146, -0.03917905, 0.95186275, 0.8666667, 1, -0.31810677, -0.06962206, -0.031833332, 0.94495904, 0.9, 1, -0.33908105, -0.06578276, -0.021369616, 0.9382111, 0.93333334, 1, -0.3345255, -0.06934677, -0.011917744, 0.9397562, 0.96666664, 1, -0.3101861, -0.081165, -0.0084348, 0.9471672, 1, 1, -0.2769606, -0.07802783, -0.0039021815, 0.95769995, 1.0333333, 1, -0.2433212, -0.069763884, -0.0036878635, 0.9674266, 1.0666667, 1, -0.20919254, -0.05875727, -0.00540673, 0.97609264, 1.1, 1, -0.17262287, -0.04916992, -0.007577183, 0.9837308)
+tracks/20/type = "rotation_3d"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("Skeleton3D:RightLeg")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = PackedFloat32Array(0, 1, 0.2813978, 0.023613544, -0.02405924, 0.95899886, 0.033333335, 1, 0.27088147, 0.02417809, -0.02212908, 0.96205455, 0.06666667, 1, 0.28497764, 0.012867956, -0.024746543, 0.9581283, 0.1, 1, 0.30924228, -0.00064140273, -0.028969273, 0.95054173, 0.13333334, 1, 0.33911645, -0.012264284, -0.03437015, 0.94003636, 0.16666667, 1, 0.3691456, -0.016032482, -0.042418893, 0.92826456, 0.2, 1, 0.40144393, -0.0069919806, -0.055120725, 0.91419667, 0.23333333, 1, 0.42456484, 0.0072681042, -0.06644247, 0.9029271, 0.26666668, 1, 0.4390429, 0.024264358, -0.075533204, 0.8949566, 0.3, 1, 0.45119032, 0.0444738, -0.08419731, 0.8873332, 0.33333334, 1, 0.4641427, 0.056901056, -0.10828133, 0.8772736, 0.36666667, 1, 0.4731659, 0.0617024, -0.13356297, 0.868601, 0.4, 1, 0.50046575, 0.04002407, -0.1424568, 0.85301715, 0.43333334, 1, 0.5636917, 0.024200076, -0.13199003, 0.8150121, 0.46666667, 1, 0.6188588, 0.02613569, -0.098608226, 0.7788499, 0.5, 1, 0.6333608, 0.024124293, -0.070167586, 0.77029127, 0.53333336, 1, 0.6143535, 0.02569397, -0.04721965, 0.7871976, 0.56666666, 1, 0.57242423, 0.02861285, -0.02649913, 0.8190297, 0.6, 1, 0.5033816, 0.02891959, -0.016407633, 0.86342424, 0.6333333, 1, 0.40998536, 0.03099865, -0.008159566, 0.91152865, 0.6666667, 1, 0.31333086, 0.024441814, -0.006477211, 0.9493073, 0.7, 1, 0.18135957, 0.00797441, -0.006587344, 0.98336244, 0.73333335, 1, 0.039195523, -0.007325669, -0.007168858, 0.99917895, 0.76666665, 1, -0.016452895, -0.009241844, -0.009851335, 0.99977344, 0.8, 1, -0.011909536, -0.010999012, -0.010412899, 0.9998144, 0.8333333, 1, 0.04510294, -0.0024186014, -0.009933552, 0.99893004, 0.8666667, 1, 0.1312861, -0.0067300787, -0.0117445, 0.9912521, 0.9, 1, 0.23700996, -0.011971925, -0.032348435, 0.97089475, 0.93333334, 1, 0.30151522, -0.0076561794, -0.04425771, 0.9524029, 0.96666664, 1, 0.3275413, -0.0005439535, -0.04027768, 0.94397783, 1, 1, 0.32520902, 0.0046557602, -0.037045613, 0.9449048, 1.0333333, 1, 0.31341958, 0.009503827, -0.033174463, 0.94898754, 1.0666667, 1, 0.30001855, 0.014501053, -0.029384358, 0.95337045, 1.1, 1, 0.2813978, 0.023613544, -0.02405924, 0.95899886)
+tracks/21/type = "rotation_3d"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("Skeleton3D:RightFoot")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = PackedFloat32Array(0, 1, -0.11537142, -0.0019068407, 0.026201647, 0.992975, 0.033333335, 1, -0.12668835, -0.0018596066, 0.0487546, 0.99074197, 0.06666667, 1, -0.14606118, 0.00067187153, 0.050040722, 0.9880089, 0.1, 1, -0.16854188, 0.0038108241, 0.052643683, 0.98428035, 0.13333334, 1, -0.19278997, 0.007395424, 0.052703433, 0.97979575, 0.16666667, 1, -0.21261558, 0.010846971, 0.04907666, 0.9758425, 0.2, 1, -0.21964565, 0.013397007, 0.04538326, 0.97443146, 0.23333333, 1, -0.22036296, 0.015151697, 0.039876055, 0.97448474, 0.26666668, 1, -0.21469653, 0.016149957, 0.03418617, 0.9759487, 0.3, 1, -0.19218782, 0.016693024, 0.033261407, 0.9806523, 0.33333334, 1, -0.1126542, 0.015137096, 0.057603493, 0.99184763, 0.36666667, 1, 0.0039200387, 0.012475948, 0.08526915, 0.9962721, 0.4, 1, 0.08551917, 0.011304261, 0.084140554, 0.992713, 0.43333334, 1, 0.07653653, 0.009933511, 0.07289518, 0.99434894, 0.46666667, 1, 0.012989125, 0.007322555, 0.07465723, 0.9970978, 0.5, 1, -0.031024683, 0.0050831167, 0.06465601, 0.99741226, 0.53333336, 1, -0.030988684, 0.0028654689, 0.04991057, 0.9982687, 0.56666666, 1, 0.009000228, 0.0022822106, 0.037159536, 0.9992662, 0.6, 1, 0.07028913, -0.00077349576, 0.025933355, 0.9971892, 0.6333333, 1, 0.11102546, -0.009720654, 0.025120942, 0.9934524, 0.6666667, 1, 0.113725506, -0.022739781, 0.03792656, 0.9925276, 0.7, 1, 0.10200633, -0.029253911, 0.05554173, 0.99280113, 0.73333335, 1, 0.09651153, -0.025883282, 0.06842208, 0.99263996, 0.76666665, 1, 0.07999511, -0.021104366, 0.06432712, 0.9944936, 0.8, 1, 0.082497284, -0.019635892, 0.04782352, 0.9952495, 0.8333333, 1, 0.090285406, -0.01778227, 0.017029854, 0.99561155, 0.8666667, 1, 0.13826448, -0.014163903, -0.00010417958, 0.99029404, 0.9, 1, 0.099887714, -0.009641871, 0.0117573785, 0.9948825, 0.93333334, 1, 0.034092285, -0.0073491004, 0.018053057, 0.9992286, 0.96666664, 1, -0.011590395, -0.00073483767, 0.012362497, 0.9998562, 1, 1, -0.04051516, 0.0005755085, 0.010442211, 0.9991242, 1.0333333, 1, -0.0665794, 0.0007115469, 0.010327711, 0.99772745, 1.0666667, 1, -0.096393116, -6.941118e-05, 0.014675743, 0.99523515, 1.1, 1, -0.11537142, -0.0019068407, 0.026201647, 0.992975)
+tracks/22/type = "rotation_3d"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("Skeleton3D:RightToeBase")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = PackedFloat32Array(0, 1, 0.010050453, -0.0010666171, 0.003472506, 0.9999429, 0.033333335, 1, 0.0067751273, 0.0034163662, 0.0006499808, 0.999971, 0.06666667, 1, -0.0023752053, 0.010515506, -0.0035814438, 0.99993545, 0.1, 1, -0.015931662, 0.017188428, -0.007880146, 0.9996943, 0.13333334, 1, -0.03224441, 0.019593365, -0.009861392, 0.99923927, 0.16666667, 1, -0.055561192, 0.015739217, -0.006329016, 0.99831116, 0.2, 1, -0.09384209, 0.0060649198, 0.0018396903, 0.9955669, 0.23333333, 1, -0.13564667, -0.009529135, 0.0104935365, 0.9906559, 0.26666668, 1, -0.1774459, -0.027964419, 0.02187958, 0.9834898, 0.3, 1, -0.21641625, -0.0498695, 0.030625941, 0.9745456, 0.33333334, 1, -0.24129564, -0.07875615, 0.010533742, 0.96719337, 0.36666667, 1, -0.19542402, -0.06431796, 0.008993027, 0.97856617, 0.4, 1, -0.025891107, -0.037296243, 0.051103316, 0.9976608, 0.43333334, 1, 0.019362994, -0.040526196, 0.018279726, 0.9988236, 0.46666667, 1, -0.0030686134, -0.026115067, 0.026938887, 0.9992912, 0.5, 1, -0.0030867495, 0.0044806898, 0.09183047, 0.9957598, 0.53333336, 1, -0.008479065, 0.018331409, 0.10664411, 0.9940921, 0.56666666, 1, -0.007592143, 0.032523233, 0.090638064, 0.9953238, 0.6, 1, -0.0031636234, 0.046308473, 0.0486454, 0.99773705, 0.6333333, 1, -0.0043530124, 0.055788476, -0.0018423193, 0.99843144, 0.6666667, 1, -0.0077564856, 0.061723568, -0.03749563, 0.99735856, 0.7, 1, -0.014562944, 0.057753056, -0.05319295, 0.9968064, 0.73333335, 1, -0.021105662, 0.03980942, -0.057895444, 0.99730533, 0.76666665, 1, -0.018026402, 0.022884903, -0.060647193, 0.99773407, 0.8, 1, -0.019588012, 0.019942353, -0.056028157, 0.9980378, 0.8333333, 1, -0.019768052, 0.015423444, -0.051794354, 0.998343, 0.8666667, 1, -0.0193073, 0.012330073, -0.045274355, 0.9987119, 0.9, 1, -0.012076153, 0.011349682, -0.020384103, 0.9996549, 0.93333334, 1, -0.010460101, 0.009482655, -0.017730867, 0.9997431, 0.96666664, 1, -0.0054317513, 0.008432625, -0.009229193, 0.9999071, 1, 1, -0.004070904, 0.007304865, -0.0069342707, 0.999941, 1.0333333, 1, 0.003837494, 0.00482499, -0.010198485, 0.99992895, 1.0666667, 1, 0.008563803, 0.0017481288, -0.0055307746, 0.9999465, 1.1, 1, 0.010050453, -0.0010666171, 0.003472506, 0.9999429)
+tracks/23/type = "rotation_3d"
+tracks/23/imported = false
+tracks/23/enabled = true
+tracks/23/path = NodePath("Skeleton3D:socket_weapon.R")
+tracks/23/interp = 1
+tracks/23/loop_wrap = true
+tracks/23/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/24/type = "rotation_3d"
+tracks/24/imported = false
+tracks/24/enabled = true
+tracks/24/path = NodePath("Skeleton3D:skirt_F1")
+tracks/24/interp = 1
+tracks/24/loop_wrap = true
+tracks/24/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/25/type = "rotation_3d"
+tracks/25/imported = false
+tracks/25/enabled = true
+tracks/25/path = NodePath("Skeleton3D:skirt_F2")
+tracks/25/interp = 1
+tracks/25/loop_wrap = true
+tracks/25/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/26/type = "rotation_3d"
+tracks/26/imported = false
+tracks/26/enabled = true
+tracks/26/path = NodePath("Skeleton3D:skirt_F3")
+tracks/26/interp = 1
+tracks/26/loop_wrap = true
+tracks/26/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/27/type = "rotation_3d"
+tracks/27/imported = false
+tracks/27/enabled = true
+tracks/27/path = NodePath("Skeleton3D:skirt_B1")
+tracks/27/interp = 1
+tracks/27/loop_wrap = true
+tracks/27/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/28/type = "rotation_3d"
+tracks/28/imported = false
+tracks/28/enabled = true
+tracks/28/path = NodePath("Skeleton3D:skirt_B2")
+tracks/28/interp = 1
+tracks/28/loop_wrap = true
+tracks/28/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/29/type = "rotation_3d"
+tracks/29/imported = false
+tracks/29/enabled = true
+tracks/29/path = NodePath("Skeleton3D:skirt_B3")
+tracks/29/interp = 1
+tracks/29/loop_wrap = true
+tracks/29/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/30/type = "rotation_3d"
+tracks/30/imported = false
+tracks/30/enabled = true
+tracks/30/path = NodePath("Skeleton3D:skirt_L1")
+tracks/30/interp = 1
+tracks/30/loop_wrap = true
+tracks/30/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/31/type = "rotation_3d"
+tracks/31/imported = false
+tracks/31/enabled = true
+tracks/31/path = NodePath("Skeleton3D:skirt_L2")
+tracks/31/interp = 1
+tracks/31/loop_wrap = true
+tracks/31/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/32/type = "rotation_3d"
+tracks/32/imported = false
+tracks/32/enabled = true
+tracks/32/path = NodePath("Skeleton3D:skirt_L3")
+tracks/32/interp = 1
+tracks/32/loop_wrap = true
+tracks/32/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/33/type = "rotation_3d"
+tracks/33/imported = false
+tracks/33/enabled = true
+tracks/33/path = NodePath("Skeleton3D:skirt_R1")
+tracks/33/interp = 1
+tracks/33/loop_wrap = true
+tracks/33/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/34/type = "rotation_3d"
+tracks/34/imported = false
+tracks/34/enabled = true
+tracks/34/path = NodePath("Skeleton3D:skirt_R2")
+tracks/34/interp = 1
+tracks/34/loop_wrap = true
+tracks/34/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/35/type = "rotation_3d"
+tracks/35/imported = false
+tracks/35/enabled = true
+tracks/35/path = NodePath("Skeleton3D:skirt_R3")
+tracks/35/interp = 1
+tracks/35/loop_wrap = true
+tracks/35/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, 0, 0, 0, 1, 0.1, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0, 0, 1, 0.16666667, 1, 0, 0, 0, 1, 0.2, 1, 0, 0, 0, 1, 0.23333333, 1, 0, 0, 0, 1, 0.26666668, 1, 0, 0, 0, 1, 0.3, 1, 0, 0, 0, 1, 0.33333334, 1, 0, 0, 0, 1, 0.36666667, 1, 0, 0, 0, 1, 0.4, 1, 0, 0, 0, 1, 0.43333334, 1, 0, 0, 0, 1, 0.46666667, 1, 0, 0, 0, 1, 0.5, 1, 0, 0, 0, 1, 0.53333336, 1, 0, 0, 0, 1, 0.56666666, 1, 0, 0, 0, 1, 0.6, 1, 0, 0, 0, 1, 0.6333333, 1, 0, 0, 0, 1, 0.6666667, 1, 0, 0, 0, 1, 0.7, 1, 0, 0, 0, 1, 0.73333335, 1, 0, 0, 0, 1, 0.76666665, 1, 0, 0, 0, 1, 0.8, 1, 0, 0, 0, 1, 0.8333333, 1, 0, 0, 0, 1, 0.8666667, 1, 0, 0, 0, 1, 0.9, 1, 0, 0, 0, 1, 0.93333334, 1, 0, 0, 0, 1, 0.96666664, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1.0333333, 1, 0, 0, 0, 1, 1.0666667, 1, 0, 0, 0, 1, 1.1, 1, 0, 0, 0, 1)
+tracks/36/type = "position_3d"
+tracks/36/imported = false
+tracks/36/enabled = true
+tracks/36/path = NodePath("Skeleton3D:Hips")
+tracks/36/interp = 1
+tracks/36/loop_wrap = true
+tracks/36/keys = PackedFloat32Array(0, 1, -0.00030618816, 0.961473, 0.029688444, 0.033333335, 1, -0.0017253325, 0.9679947, 0.026374077, 0.06666667, 1, -0.0028885026, 0.97059125, 0.023832198, 0.1, 1, -0.003687074, 0.96940625, 0.022937192, 0.13333334, 1, -0.003979113, 0.96428514, 0.022161508, 0.16666667, 1, -0.0037889073, 0.9566941, 0.023331087, 0.2, 1, -0.002059236, 0.94739395, 0.024646927, 0.23333333, 1, 0.0020088947, 0.93808043, 0.02778808, 0.26666668, 1, 0.008472238, 0.92958033, 0.034886517, 0.3, 1, 0.015940249, 0.9228284, 0.043736376, 0.33333334, 1, 0.02292487, 0.91987985, 0.051407423, 0.36666667, 1, 0.028739732, 0.92102814, 0.056737076, 0.4, 1, 0.033698924, 0.92423725, 0.060214955, 0.43333334, 1, 0.03770115, 0.9296644, 0.06093123, 0.46666667, 1, 0.040934965, 0.93741924, 0.059590798, 0.5, 1, 0.043757424, 0.9466267, 0.057339113, 0.53333336, 1, 0.046085674, 0.95616555, 0.05418287, 0.56666666, 1, 0.047523256, 0.9642335, 0.050043546, 0.6, 1, 0.04828731, 0.9692199, 0.046116088, 0.6333333, 1, 0.048058454, 0.97001594, 0.042005006, 0.6666667, 1, 0.046712942, 0.9667897, 0.03779324, 0.7, 1, 0.044513684, 0.9603593, 0.03382323, 0.73333335, 1, 0.04140013, 0.9498512, 0.031240353, 0.76666665, 1, 0.03721105, 0.93463135, 0.03219112, 0.8, 1, 0.03318324, 0.9211358, 0.03497373, 0.8333333, 1, 0.028512523, 0.91100395, 0.03979413, 0.8666667, 1, 0.023247529, 0.9067389, 0.042733945, 0.9, 1, 0.017728359, 0.90404665, 0.044575695, 0.93333334, 1, 0.012875959, 0.9065548, 0.044369873, 0.96666664, 1, 0.008430732, 0.9142643, 0.043117773, 1, 1, 0.0048771487, 0.9266845, 0.040283464, 1.0333333, 1, 0.0026404164, 0.9396369, 0.036206625, 1.0666667, 1, 0.0011761093, 0.9512619, 0.032645848, 1.1, 1, -0.00030618816, 0.961473, 0.029688444)
 
 [sub_resource type="Animation" id="Animation_d2ge7"]
 loop_mode = 1
@@ -2601,6 +3082,7 @@ tracks/36/keys = PackedFloat32Array(0, 1, -0.00030618816, 0.961473, 0.029688444,
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xuvn2"]
 _data = {
+&"aim_walk": SubResource("Animation_xuvn2"),
 &"aim_xbow": SubResource("Animation_d2ge7"),
 &"attack_blade": SubResource("Animation_qc1g2"),
 &"death": SubResource("Animation_ig23o"),
@@ -2893,38 +3375,221 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9945693, 1.5614252, 0.02)
 bone_name = "socket_weapon.R"
 bone_idx = 23
 
-[node name="Crossbow" type="Node3D" parent="Skeleton3D/WeaponAttachment" unique_id=1811152869]
+[node name="XbowPivot" type="Node3D" parent="Skeleton3D/WeaponAttachment" unique_id=769764636]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0.04, 0)
+
+[node name="Crossbow" type="Node3D" parent="Skeleton3D/WeaponAttachment/XbowPivot" unique_id=1501224378]
+transform = Transform3D(0.047889665, 0.09683762, -0.9941474, 0.09535509, 0.9903005, 0.1010563, 0.9942907, -0.09963657, 0.0381912, -0.01165175, 0.02119667, -0.11270529)
 visible = false
 
-[node name="@MeshInstance3D@2" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/Crossbow" unique_id=363525155]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.11)
-material_override = SubResource("StandardMaterial3D_2n0bv")
-mesh = SubResource("BoxMesh_n8d1j")
-
-[node name="@MeshInstance3D@3" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/Crossbow" unique_id=1733491743]
-transform = Transform3D(1, 0, 0, 0, 0.9781476, 0.2079117, 0, -0.2079117, 0.9781476, 0, -0.085, -0.03)
-material_override = SubResource("StandardMaterial3D_2n0bv")
-mesh = SubResource("BoxMesh_ljbeo")
-
-[node name="@MeshInstance3D@4" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/Crossbow" unique_id=737071207]
-transform = Transform3D(0.9659258, 0, -0.25881904, 0, 1, 0, 0.25881904, 0, 0.9659258, -0.135, 0.012, 0.29)
-material_override = SubResource("StandardMaterial3D_pr54d")
-mesh = SubResource("BoxMesh_1ecln")
-
-[node name="@MeshInstance3D@5" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/Crossbow" unique_id=1939028158]
-transform = Transform3D(0.9659258, 0, 0.25881904, 0, 1, 0, -0.25881904, 0, 0.9659258, 0.135, 0.012, 0.29)
-material_override = SubResource("StandardMaterial3D_pr54d")
-mesh = SubResource("BoxMesh_rp7os")
-
-[node name="@MeshInstance3D@6" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/Crossbow" unique_id=2005950425]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0.2)
-material_override = SubResource("StandardMaterial3D_pr54d")
+[node name="Stock" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=540018422]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.1)
+material_override = SubResource("StandardMaterial3D_rp7os")
 mesh = SubResource("BoxMesh_tgfd7")
 
-[node name="@MeshInstance3D@7" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/Crossbow" unique_id=1333944602]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0.048, 0.2)
+[node name="RailL" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=253263437]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.014, 0.058, 0.15)
 material_override = SubResource("StandardMaterial3D_8rf7n")
-mesh = SubResource("CylinderMesh_yq8u8")
+mesh = SubResource("BoxMesh_yq8u8")
+
+[node name="RailR" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=60904835]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.014, 0.058, 0.15)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_oc057")
+
+[node name="TriggerHousing" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1246439893]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.045, 0.03)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_tavii")
+
+[node name="Trigger" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=459788796]
+transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.34202012, 0, -0.34202012, 0.9396926, 0, -0.062, 0.055)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_qu70a")
+
+[node name="TriggerGuard" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=552473031]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.072, 0.062)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("TorusMesh_ng8y6")
+
+[node name="Grip" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1760305732]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, -0.085, -0.02)
+material_override = SubResource("StandardMaterial3D_v886r")
+mesh = SubResource("BoxMesh_n2w8h")
+
+[node name="ProdMount" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1811445557]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0.285)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_7vh0m")
+
+[node name="Sight" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=972558106]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.076, 0.265)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_8b8fk")
+
+[node name="Limb0L" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=2012967918]
+transform = Transform3D(0.9781476, 0, -0.2079117, 0, 1, 0, 0.2079117, 0, 0.9781476, -0.052, 0.03, 0.3)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_vd2ws")
+
+[node name="Limb1L" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1860934659]
+transform = Transform3D(0.88294756, 0, -0.46947157, 0, 1, 0, 0.46947157, 0, 0.88294756, -0.133, 0.03, 0.318)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_mc3l1")
+
+[node name="Limb2L" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=4315407]
+transform = Transform3D(0.6946584, 0, -0.7193398, 0, 1, 0, 0.7193398, 0, 0.6946584, -0.203, 0.03, 0.352)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_otm3w")
+
+[node name="TipL" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1049027274]
+transform = Transform3D(0.66913056, 0, -0.74314487, 0, 1, 0, 0.74314487, 0, 0.66913056, -0.238, 0.03, 0.392)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_x1ywa")
+
+[node name="Limb0R" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=915231754]
+transform = Transform3D(0.9781476, 0, 0.2079117, 0, 1, 0, -0.2079117, 0, 0.9781476, 0.052, 0.03, 0.3)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_etvyh")
+
+[node name="Limb1R" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=2015127495]
+transform = Transform3D(0.88294756, 0, 0.46947157, 0, 1, 0, -0.46947157, 0, 0.88294756, 0.133, 0.03, 0.318)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_llud8")
+
+[node name="Limb2R" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=593491525]
+transform = Transform3D(0.6946584, 0, 0.7193398, 0, 1, 0, -0.7193398, 0, 0.6946584, 0.203, 0.03, 0.352)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("BoxMesh_inkoc")
+
+[node name="TipR" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1485005909]
+transform = Transform3D(0.66913056, 0, 0.74314487, 0, 1, 0, -0.74314487, 0, 0.66913056, 0.238, 0.03, 0.392)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_t7ca2")
+
+[node name="StringL" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=598216276]
+transform = Transform3D(0.79969716, 0, -0.6004036, 0, 1, 0, 0.6004036, 0, 0.79969716, -0.119, 0.03, 0.2335)
+material_override = SubResource("StandardMaterial3D_soghf")
+mesh = SubResource("BoxMesh_g5ak5")
+
+[node name="StringR" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1195893901]
+transform = Transform3D(0.79969716, 0, 0.6004036, 0, 1, 0, -0.6004036, 0, 0.79969716, 0.119, 0.03, 0.2335)
+material_override = SubResource("StandardMaterial3D_soghf")
+mesh = SubResource("BoxMesh_vdgc3")
+
+[node name="Bind0" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=431339737]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.02, -0.03)
+material_override = SubResource("StandardMaterial3D_l01lg")
+mesh = SubResource("TorusMesh_3vrrf")
+
+[node name="Bind1" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=992524707]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.02, 0.08)
+material_override = SubResource("StandardMaterial3D_l01lg")
+mesh = SubResource("TorusMesh_t53k4")
+
+[node name="Bind2" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=233843893]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.02, 0.19)
+material_override = SubResource("StandardMaterial3D_l01lg")
+mesh = SubResource("TorusMesh_igu0a")
+
+[node name="Bolt" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1483028961]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.052, 0.17)
+material_override = SubResource("StandardMaterial3D_soghf")
+mesh = SubResource("CylinderMesh_n0pov")
+
+[node name="BoltHead" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1992094598]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.052, 0.335)
+material_override = SubResource("StandardMaterial3D_k6tm3")
+mesh = SubResource("CylinderMesh_x4b6b")
+
+[node name="Ember" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=1253607825]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.026, -0.045, 0.03)
+material_override = SubResource("StandardMaterial3D_hj0w6")
+mesh = SubResource("BoxMesh_g2jjt")
+
+[node name="Muzzle" type="Marker3D" parent="Skeleton3D/WeaponAttachment/XbowPivot/Crossbow" unique_id=746160414]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.3)
+
+[node name="AxePivot" type="Node3D" parent="Skeleton3D/WeaponAttachment" unique_id=2041751710]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+
+[node name="Axe" type="Node3D" parent="Skeleton3D/WeaponAttachment/AxePivot" unique_id=1482462330]
+transform = Transform3D(0.78, 0, 0, 0, 0.78, 0, 0, 0, 0.78, 0, 0, 0)
+visible = false
+
+[node name="Handle" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=390332608]
+transform = Transform3D(1.12, 0, 0, 0, 1, 0, 0, 0, 0.88, 0, 0.1, 0)
+material_override = SubResource("StandardMaterial3D_v886r")
+mesh = SubResource("CylinderMesh_0b3t8")
+
+[node name="Collar0" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=1825634577]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("CylinderMesh_i4cpn")
+
+[node name="Collar1" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=677031552]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.545, 0)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("CylinderMesh_g6tk1")
+
+[node name="Blade" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=1761817437]
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("ArrayMesh_tmxij")
+
+[node name="EdgeHighlight" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=536345084]
+transform = Transform3D(0.99026805, -0.1391731, 0, 0.1391731, 0.99026805, 0, 0, 0, 1, 0.425, 0.66, 0)
+material_override = SubResource("StandardMaterial3D_k6tm3")
+mesh = SubResource("BoxMesh_b1k1k")
+
+[node name="HookA" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=1975806305]
+transform = Transform3D(0, 0.42579725, 0.9048186, 0, 0.9048186, -0.42579725, -1, 0, 0, -0.0625, 0.58000004, 0)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_eyxk8")
+
+[node name="HookB" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=509458528]
+transform = Transform3D(0, 0.97014254, 0.24253564, 0, 0.24253564, -0.97014254, -1, 0, 0, -0.1125, 0.63, 0)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_kolmr")
+
+[node name="Wrap0" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=444199390]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.13, 0)
+material_override = SubResource("StandardMaterial3D_l01lg")
+mesh = SubResource("TorusMesh_1xn3a")
+
+[node name="Wrap1" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=627314794]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.065, 0)
+material_override = SubResource("StandardMaterial3D_l01lg")
+mesh = SubResource("TorusMesh_wfnw3")
+
+[node name="Wrap2" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=507614879]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_l01lg")
+mesh = SubResource("TorusMesh_66cut")
+
+[node name="Wrap3" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=1817649931]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.065, 0)
+material_override = SubResource("StandardMaterial3D_l01lg")
+mesh = SubResource("TorusMesh_re5vh")
+
+[node name="WedgeA" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=99559745]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_cvsap")
+
+[node name="WedgeB" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=1165973309]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+material_override = SubResource("StandardMaterial3D_8rf7n")
+mesh = SubResource("BoxMesh_j6blk")
+
+[node name="Pommel" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=1091295285]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.305, 0)
+material_override = SubResource("StandardMaterial3D_rp7os")
+mesh = SubResource("TorusMesh_snsks")
+
+[node name="Ember" type="MeshInstance3D" parent="Skeleton3D/WeaponAttachment/AxePivot/Axe" unique_id=667008027]
+transform = Transform3D(0.9781476, 0.2079117, 0, -0.2079117, 0.9781476, 0, 0, 0, 1, 0.07, 0.72, 0)
+material_override = SubResource("StandardMaterial3D_hj0w6")
+mesh = SubResource("BoxMesh_tohxd")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1107210502]
 libraries/ = SubResource("AnimationLibrary_xuvn2")

@@ -1,0 +1,8 @@
+phase=final
+visible=1680x720
+route=main_aisle,north_aisle,shrine,south_aisle,return
+frames=1662
+average_ms=6.045
+worst_ms=8.605
+worst_position=(1.00,0.00,0.78)
+waypoints_reached=14/14

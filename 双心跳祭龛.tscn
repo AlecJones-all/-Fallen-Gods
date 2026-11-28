@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://art/environments/白洗礼拜堂/双心跳祭龛-游戏.glb" id="1_shrine"]
+[ext_resource type="Script" path="res://双心跳祭龛.gd" id="2_script"]
+
+[node name="DoubleHeartbeatShrine" type="Node3D"]
+script = ExtResource("2_script")
+
+[node name="ShrineModel" parent="." instance=ExtResource("1_shrine")]
+
+[node name="UpperHeartbeatLight" type="OmniLight3D" parent="."]
+position = Vector3(0.53, 1.20, 0)
+light_color = Color(0.72, 0.84, 1, 1)
+light_energy = 0.04
+omni_range = 0.65
+
+[node name="LowerHeartbeatLight" type="OmniLight3D" parent="."]
+position = Vector3(0.53, 0.58, 0)
+light_color = Color(1, 0.66, 0.50, 1)
+light_energy = 0.04
+omni_range = 0.65
