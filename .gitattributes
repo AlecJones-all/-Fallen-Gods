@@ -1,2 +1,17 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+
+# Character deliverables: route to Git LFS.
+# Scoped to art/ on purpose, so already-tracked textures elsewhere are not re-filtered.
+/art/characters/**/*.glb filter=lfs diff=lfs merge=lfs -text
+/art/characters/**/*.png filter=lfs diff=lfs merge=lfs -text
+/art/environments/**/*.glb filter=lfs diff=lfs merge=lfs -text
+/art/environments/**/*.png filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.fbx filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.glb filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.gltf filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.png filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.jpeg filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.tga filter=lfs diff=lfs merge=lfs -text
+/art/references/**/*.psd filter=lfs diff=lfs merge=lfs -text

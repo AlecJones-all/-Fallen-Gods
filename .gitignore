@@ -15,3 +15,13 @@ assets/anim_src/*/
 # Development screenshots and reference renders are kept local only
 docs/**/*.png
 docs/**/*.png.import
+
+# Character deliverables live under art/ only. No stray models or boards at repo root.
+/*.glb
+/*.glb.import
+/*.png
+/*.png.import
+
+# Third-party reference models (Warcraft fan remake, Hircine, etc.) are licensed
+# for internal shape study only. Never commit them to a public repo.
+/art/references/
