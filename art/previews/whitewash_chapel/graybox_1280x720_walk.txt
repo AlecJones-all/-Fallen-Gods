@@ -1,0 +1,8 @@
+phase=graybox
+visible=1280x720
+route=main_aisle,north_aisle,shrine,south_aisle,return
+frames=1661
+average_ms=6.054
+worst_ms=36.452
+worst_position=(1.24,0.00,-4.57)
+waypoints_reached=14/14

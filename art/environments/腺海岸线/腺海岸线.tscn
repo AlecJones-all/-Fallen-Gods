@@ -1,0 +1,237 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://art/environments/腺海岸线/腺海岸线.gd" id="1_script"]
+[ext_resource type="Shader" path="res://art/environments/腺海岸线/岸线水面.gdshader" id="2_water"]
+
+[sub_resource type="PlaneMesh" id="GroundMesh"]
+size = Vector2(36, 17)
+
+[sub_resource type="BoxShape3D" id="GroundCollision"]
+size = Vector3(48, 0.4, 26.4)
+
+[sub_resource type="PlaneMesh" id="WaterMesh"]
+size = Vector2(48, 17)
+
+[sub_resource type="ShaderMaterial" id="WaterMaterial"]
+shader = ExtResource("2_water")
+
+[sub_resource type="PlaneMesh" id="ShallowsMesh"]
+size = Vector2(36, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="ShallowMaterial"]
+transparency = 1
+albedo_color = Color(0.20, 0.17, 0.23, 0.28)
+roughness = 0.2
+
+[node name="GlandCoast" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("GroundMesh")
+
+[node name="WalkableGround" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WalkableGround"]
+position = Vector3(0, -0.2, 8.8)
+shape = SubResource("GroundCollision")
+
+[node name="Water" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.05, -12.5)
+mesh = SubResource("WaterMesh")
+material_override = SubResource("WaterMaterial")
+cast_shadow = 0
+
+[node name="Shallows" type="MeshInstance3D" parent="."]
+mesh = SubResource("ShallowsMesh")
+material_override = SubResource("ShallowMaterial")
+cast_shadow = 0
+
+[node name="Assets" type="Node3D" parent="."]
+
+[node name="Bank01" type="Node3D" parent="Assets"]
+position = Vector3(-18, 0, -7.3)
+rotation = Vector3(0, 1.55, 0)
+scale = Vector3(6, 6, 6)
+metadata/asset_kind = "bank"
+
+[node name="Bank02" type="Node3D" parent="Assets"]
+position = Vector3(-12, 0, -7.4)
+rotation = Vector3(0, 1.62, 0)
+scale = Vector3(6, 6, 6)
+metadata/asset_kind = "bank"
+
+[node name="Bank03" type="Node3D" parent="Assets"]
+position = Vector3(-6, 0, -7.4)
+rotation = Vector3(0, 1.53, 0)
+scale = Vector3(6, 6, 6)
+metadata/asset_kind = "bank"
+
+[node name="Bank04" type="Node3D" parent="Assets"]
+position = Vector3(0, 0, -7.3)
+rotation = Vector3(0, 1.57, 0)
+scale = Vector3(6, 6, 6)
+metadata/asset_kind = "bank"
+
+[node name="Bank05" type="Node3D" parent="Assets"]
+position = Vector3(6, 0, -7.4)
+rotation = Vector3(0, 1.62, 0)
+scale = Vector3(6, 6, 6)
+metadata/asset_kind = "bank"
+
+[node name="Bank06" type="Node3D" parent="Assets"]
+position = Vector3(12, 0, -7.4)
+rotation = Vector3(0, 1.53, 0)
+scale = Vector3(6, 6, 6)
+metadata/asset_kind = "bank"
+
+[node name="Bank07" type="Node3D" parent="Assets"]
+position = Vector3(18, 0, -7.3)
+rotation = Vector3(0, 1.58, 0)
+scale = Vector3(6, 6, 6)
+metadata/asset_kind = "bank"
+
+[node name="ShoreRock01" type="Node3D" parent="Assets"]
+position = Vector3(-16, 0, -5.8)
+rotation = Vector3(0, 0.3, 0)
+scale = Vector3(2.0, 2.0, 2.0)
+metadata/asset_kind = "rock"
+
+[node name="ShoreRock02" type="Node3D" parent="Assets"]
+position = Vector3(-10.5, 0, -5.9)
+rotation = Vector3(0, 1.2, 0)
+scale = Vector3(2.6, 2.6, 2.6)
+metadata/asset_kind = "rock"
+
+[node name="ShoreRock03" type="Node3D" parent="Assets"]
+position = Vector3(-5, 0, -6.0)
+rotation = Vector3(0, -0.5, 0)
+scale = Vector3(1.9, 1.9, 1.9)
+metadata/asset_kind = "rock"
+
+[node name="ShoreRock04" type="Node3D" parent="Assets"]
+position = Vector3(0.8, 0, -6.1)
+rotation = Vector3(0, 2.1, 0)
+scale = Vector3(2.4, 2.4, 2.4)
+metadata/asset_kind = "rock"
+
+[node name="ShoreRock05" type="Node3D" parent="Assets"]
+position = Vector3(6.8, 0, -5.9)
+rotation = Vector3(0, 0.6, 0)
+scale = Vector3(2.2, 2.2, 2.2)
+metadata/asset_kind = "rock"
+
+[node name="ShoreRock06" type="Node3D" parent="Assets"]
+position = Vector3(12.5, 0, -6.0)
+rotation = Vector3(0, -1.1, 0)
+scale = Vector3(2.7, 2.7, 2.7)
+metadata/asset_kind = "rock"
+
+[node name="ShoreRock07" type="Node3D" parent="Assets"]
+position = Vector3(17, 0, -5.8)
+rotation = Vector3(0, 1.5, 0)
+scale = Vector3(1.6, 1.6, 1.6)
+metadata/asset_kind = "rock"
+
+[node name="InlandRock01" type="Node3D" parent="Assets"]
+position = Vector3(-15, 0, 7.2)
+rotation = Vector3(0, 2.4, 0)
+scale = Vector3(2.1, 2.1, 2.1)
+metadata/asset_kind = "rock"
+
+[node name="InlandRock02" type="Node3D" parent="Assets"]
+position = Vector3(-8.8, 0, 7.4)
+rotation = Vector3(0, -0.9, 0)
+scale = Vector3(2.5, 2.5, 2.5)
+metadata/asset_kind = "rock"
+
+[node name="InlandRock03" type="Node3D" parent="Assets"]
+position = Vector3(-2.0, 0, 7.1)
+rotation = Vector3(0, 0.2, 0)
+scale = Vector3(2.0, 2.0, 2.0)
+metadata/asset_kind = "rock"
+
+[node name="InlandRock04" type="Node3D" parent="Assets"]
+position = Vector3(4.5, 0, 7.3)
+rotation = Vector3(0, 1.6, 0)
+scale = Vector3(2.5, 2.5, 2.5)
+metadata/asset_kind = "rock"
+
+[node name="InlandRock05" type="Node3D" parent="Assets"]
+position = Vector3(11.3, 0, 7.2)
+rotation = Vector3(0, -0.3, 0)
+scale = Vector3(2.3, 2.3, 2.3)
+metadata/asset_kind = "rock"
+
+[node name="InlandRock06" type="Node3D" parent="Assets"]
+position = Vector3(16.5, 0, 7.1)
+rotation = Vector3(0, 2.7, 0)
+scale = Vector3(1.8, 1.8, 1.8)
+metadata/asset_kind = "rock"
+
+[node name="Gland01" type="Node3D" parent="Assets"]
+position = Vector3(-13.2, 0, -5.5)
+rotation = Vector3(0, 0.8, 0)
+scale = Vector3(1.8, 1.8, 1.8)
+metadata/asset_kind = "gland"
+
+[node name="Gland02" type="Node3D" parent="Assets"]
+position = Vector3(-7.6, 0, -5.7)
+rotation = Vector3(0, -0.6, 0)
+scale = Vector3(2.0, 2.0, 2.0)
+metadata/asset_kind = "gland"
+
+[node name="Gland03" type="Node3D" parent="Assets"]
+position = Vector3(-2.3, 0, -5.7)
+rotation = Vector3(0, 2.1, 0)
+scale = Vector3(1.6, 1.6, 1.6)
+metadata/asset_kind = "gland"
+
+[node name="Gland04" type="Node3D" parent="Assets"]
+position = Vector3(4.0, 0, -5.7)
+rotation = Vector3(0, 1.5, 0)
+scale = Vector3(2.2, 2.2, 2.2)
+metadata/asset_kind = "gland"
+
+[node name="Gland05" type="Node3D" parent="Assets"]
+position = Vector3(9.6, 0, -5.5)
+rotation = Vector3(0, -0.3, 0)
+scale = Vector3(1.7, 1.7, 1.7)
+metadata/asset_kind = "gland"
+
+[node name="Gland06" type="Node3D" parent="Assets"]
+position = Vector3(15.3, 0, -5.6)
+rotation = Vector3(0, 2.6, 0)
+scale = Vector3(1.8, 1.8, 1.8)
+metadata/asset_kind = "gland"
+
+[node name="Gland07" type="Node3D" parent="Assets"]
+position = Vector3(-11.8, 0, 6.9)
+rotation = Vector3(0, 1.0, 0)
+scale = Vector3(1.8, 1.8, 1.8)
+metadata/asset_kind = "gland"
+
+[node name="Gland08" type="Node3D" parent="Assets"]
+position = Vector3(-5.3, 0, 6.9)
+rotation = Vector3(0, -0.5, 0)
+scale = Vector3(1.9, 1.9, 1.9)
+metadata/asset_kind = "gland"
+
+[node name="Gland09" type="Node3D" parent="Assets"]
+position = Vector3(1.1, 0, 6.9)
+rotation = Vector3(0, 2.7, 0)
+scale = Vector3(1.8, 1.8, 1.8)
+metadata/asset_kind = "gland"
+
+[node name="Gland10" type="Node3D" parent="Assets"]
+position = Vector3(7.7, 0, 6.8)
+rotation = Vector3(0, 0.3, 0)
+scale = Vector3(1.9, 1.9, 1.9)
+metadata/asset_kind = "gland"
+
+[node name="Gland11" type="Node3D" parent="Assets"]
+position = Vector3(14.0, 0, 6.8)
+rotation = Vector3(0, 1.8, 0)
+scale = Vector3(1.6, 1.6, 1.6)
+metadata/asset_kind = "gland"
