@@ -6,6 +6,10 @@ const FALLBACK_ORTHO_SIZE := 12.0
 const FALLBACK_FIT_ASPECT := 16.0 / 9.0
 const FALLBACK_FIT_MAX := 1.5
 
+## Per-level override so a single large room can widen the frame without
+## touching the shared tuning values. 0 keeps the global ortho size.
+@export var ortho_override: float = 0.0
+
 @onready var _camera: Camera3D = $Camera3D
 
 var _follow_speed: float = 10.0
@@ -36,6 +40,8 @@ func _ready() -> void:
 	_camera.position = _base_camera_position
 	_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	_base_ortho_size = maxf(float(Tuning.value("camera", "ortho_size", FALLBACK_ORTHO_SIZE)), 0.1)
+	if ortho_override > 0.0:
+		_base_ortho_size = ortho_override
 	_fit_aspect = maxf(float(Tuning.value("camera", "fit_aspect", FALLBACK_FIT_ASPECT)), 0.1)
 	_fit_max = maxf(float(Tuning.value("camera", "fit_max", FALLBACK_FIT_MAX)), 1.0)
 	_update_projection()

@@ -8,6 +8,8 @@ const CLIP_RUN := "run"
 const CLIP_STRAFE := "strafe"
 const CLIP_ATTACK_BLADE := "attack_blade"
 const CLIP_FIRE_XBOW := "fire_xbow"
+const CLIP_AIM_XBOW := "aim_xbow"
+const CLIP_AIM_WALK := "aim_walk"
 const CLIP_HIT := "hit"
 const CLIP_DEATH := "death"
 
@@ -20,6 +22,12 @@ const IDLE_SPEED := 0.25
 const RUN_SPEED := 3.4
 const WALK_SCALE_MAX := 2.0
 const RUN_SCALE_MAX := 2.2
+## aim_walk 是慢速瞄准步，基准速度比普通走低
+const AIM_WALK_REF_SPEED := 1.7
+## 开火后维持瞄准姿态的时间（含冷却与松手缓冲）
+const AIM_HOLD_MSEC := 420
+## fire_xbow 只播到后坐结束就交回状态机（整段 0.70s 会锁腿）
+const FIRE_HOLD_SEC := 0.30
 
 @onready var _anim: AnimationPlayer = find_child("AnimationPlayer", true, false)
 
@@ -31,6 +39,7 @@ var _dead := false
 var _last_hp := -1.0
 var _sword: Node3D
 var _crossbow: Node3D
+var _last_shot_msec: int = -100000
 
 
 func _ready() -> void:
@@ -45,6 +54,8 @@ func _ready() -> void:
 			_body.hp_changed.connect(_on_hp_changed)
 		if _body.has_signal("died"):
 			_body.died.connect(_on_died)
+		if _body.has_signal("fired"):
+			_body.fired.connect(_on_fired)
 	_sword = find_child("Cube_009", true, false)
 	_crossbow = find_child("Crossbow", true, false)
 	_apply_weapon_visual()
@@ -52,6 +63,11 @@ func _ready() -> void:
 		for to_clip in [CLIP_IDLE, CLIP_WALK, CLIP_RUN, CLIP_STRAFE]:
 			if from_clip != to_clip:
 				_anim.set_blend_time(from_clip, to_clip, 0.16)
+	# 瞄准态与基础态之间也要柔和过渡，否则切弩/松手会硬切
+	for from_clip in [CLIP_AIM_XBOW, CLIP_AIM_WALK]:
+		for to_clip in [CLIP_IDLE, CLIP_WALK, CLIP_RUN, CLIP_STRAFE, CLIP_AIM_XBOW, CLIP_AIM_WALK]:
+			if from_clip != to_clip:
+				_anim.set_blend_time(from_clip, to_clip, 0.14)
 	_play(CLIP_IDLE)
 
 
@@ -66,9 +82,9 @@ func _process(delta: float) -> void:
 		else:
 			return
 
-	if _attack_pressed():
-		var clip := CLIP_FIRE_XBOW if _weapon != WEAPON_BLADE else CLIP_ATTACK_BLADE
-		_play_one_shot(clip)
+	# 长剑：按下即挥；弩的后坐由 fired 信号驱动（连发才有动画）
+	if _weapon == WEAPON_BLADE and _attack_pressed():
+		_play_one_shot(CLIP_ATTACK_BLADE)
 		return
 
 	var v := _body.velocity
@@ -84,8 +100,26 @@ func _process(delta: float) -> void:
 		want = lat if lat != "" else CLIP_WALK
 		scale = clampf(speed / WALK_REF_SPEED, 0.8, WALK_SCALE_MAX)
 
+	# 拿弩时：按住攻击或刚开过火 → 锁在瞄准姿态，不回到持剑的 idle
+	if _is_aiming():
+		if speed > IDLE_SPEED:
+			want = CLIP_AIM_WALK
+			scale = clampf(speed / AIM_WALK_REF_SPEED, 0.7, 1.8)
+		else:
+			want = CLIP_AIM_XBOW
+			scale = 1.0
+
 	_play(want)
 	_anim.speed_scale = lerpf(_anim.speed_scale, scale, 1.0 - exp(-8.0 * delta))
+
+
+## 是否处于瞄准态：拿弩 + (按住攻击 或 刚开过火)
+func _is_aiming() -> bool:
+	if _weapon == WEAPON_BLADE:
+		return false
+	if InputMap.has_action("attack") and Input.is_action_pressed("attack"):
+		return true
+	return Time.get_ticks_msec() - _last_shot_msec < AIM_HOLD_MSEC
 
 
 ## 侧向移动时用 strafe 片段（角色朝向锁定鼠标，所以横移很常见）
@@ -110,14 +144,20 @@ func _play(clip: String) -> void:
 	_anim.play(clip)
 
 
-func _play_one_shot(clip: String) -> void:
+func _play_one_shot(clip: String, hold_sec: float = -1.0) -> void:
 	var a: Animation = _anim.get_animation(clip)
 	if a == null:
 		return
 	_current = clip
 	_anim.speed_scale = 1.0
 	_anim.play(clip)
-	_one_shot_left = a.length
+	_one_shot_left = a.length if hold_sec < 0.0 else minf(hold_sec, a.length)
+
+
+## 每次真实开火都重播后坐；fire_xbow 的 t=0 本来就是瞄准姿态，重播不会跳
+func _on_fired() -> void:
+	_last_shot_msec = Time.get_ticks_msec()
+	_play_one_shot(CLIP_FIRE_XBOW, FIRE_HOLD_SEC)
 
 
 func _attack_pressed() -> bool:

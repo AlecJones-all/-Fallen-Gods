@@ -1,0 +1,890 @@
+"""第5关「沉没大教堂」高模重建 —— Blender 5.3 bpy 脚本
+
+用法（无头）:
+  blender -b -P tools/blender/l5_build.py -- altar
+  blender -b -P tools/blender/l5_build.py -- cage|nave|choir
+
+约定: 底部中心为原点、正面朝 +X、单位米、Z 轴向上（导出时转 Y-up）。
+产出: art/environments/<名称>/<名称>.glb + 模型预览-高模.png
+"""
+
+import bpy
+import bmesh
+import math
+import os
+import sys
+from mathutils import Vector, Matrix, Euler
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+OUT_ROOT = os.path.join(ROOT, "art", "environments")
+
+TAU = math.pi * 2.0
+
+
+# ---------------------------------------------------------------- 基础工具
+
+def clear_scene():
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+
+
+def make_mat(name, color, rough=0.8, metal=0.0, alpha=1.0):
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    bsdf = m.node_tree.nodes.get("Principled BSDF")
+    bsdf.inputs["Base Color"].default_value = (color[0], color[1], color[2], 1.0)
+    bsdf.inputs["Roughness"].default_value = rough
+    bsdf.inputs["Metallic"].default_value = metal
+    if alpha < 1.0:
+        bsdf.inputs["Alpha"].default_value = alpha
+        try:
+            m.blend_method = 'BLEND'
+        except Exception:
+            pass
+        try:
+            m.surface_render_method = 'BLENDED'
+        except Exception:
+            pass
+    m.diffuse_color = (color[0], color[1], color[2], 1.0)
+    return m
+
+
+def obj_from_bm(bm, name, material):
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.collection.objects.link(ob)
+    if material:
+        ob.data.materials.append(material)
+    return ob
+
+
+def box(name, material, center, size, rot=None):
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    m = Matrix.Diagonal(Vector((size[0], size[1], size[2], 1.0)))
+    if rot is not None:
+        m = rot.to_matrix().to_4x4() @ m
+    m = Matrix.Translation(Vector(center)) @ m
+    bmesh.ops.transform(bm, matrix=m, verts=bm.verts)
+    return obj_from_bm(bm, name, material)
+
+
+def cyl(name, material, a, b, r0, r1=None, seg=16):
+    """由两点定义的圆柱/圆锥"""
+    if r1 is None:
+        r1 = r0
+    a = Vector(a)
+    b = Vector(b)
+    d = b - a
+    L = d.length
+    if L < 1e-6:
+        return None
+    bm = bmesh.new()
+    bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=seg,
+                          radius1=r0, radius2=r1, depth=L)
+    # 局部 Z 对齐到 d
+    z = d.normalized()
+    up = Vector((0, 0, 1))
+    if abs(z.dot(up)) > 0.999:
+        R = Matrix.Identity(4)
+    else:
+        axis = up.cross(z).normalized()
+        ang = math.acos(max(-1.0, min(1.0, up.dot(z))))
+        R = Matrix.Rotation(ang, 4, axis)
+    bmesh.ops.transform(bm, matrix=Matrix.Translation((a + b) * 0.5) @ R, verts=bm.verts)
+    ob = obj_from_bm(bm, name, material)
+    return ob
+
+
+def torus(name, material, center, axis, R, r, seg_major=24, seg_minor=10):
+    bm = bmesh.new()
+    ax = Vector(axis).normalized()
+    up = Vector((0, 0, 1))
+    if abs(ax.dot(up)) > 0.999:
+        rot = Matrix.Identity(3)
+    else:
+        a = up.cross(ax).normalized()
+        rot = Matrix.Rotation(math.acos(max(-1.0, min(1.0, up.dot(ax)))), 3, a)
+    rings = []
+    for i in range(seg_major):
+        t = TAU * i / seg_major
+        c = Vector((math.cos(t) * R, math.sin(t) * R, 0.0))
+        rad = Vector((math.cos(t), math.sin(t), 0.0))
+        ring = []
+        for j in range(seg_minor):
+            p = TAU * j / seg_minor
+            v = c + rad * (math.cos(p) * r) + Vector((0, 0, math.sin(p) * r))
+            ring.append(bm.verts.new(rot @ v + Vector(center)))
+        rings.append(ring)
+    for i in range(seg_major):
+        r0 = rings[i]
+        r1 = rings[(i + 1) % seg_major]
+        for j in range(seg_minor):
+            j2 = (j + 1) % seg_minor
+            bm.faces.new((r0[j], r0[j2], r1[j2], r1[j]))
+    bm.normal_update()
+    ob = obj_from_bm(bm, name, material)
+    return ob
+
+
+def lancet_points(span, spring, apex_scale=1.0, steps=24):
+    """等边尖拱中心线，返回 (u, z)，u 以跨中为 0。
+    左半：圆心在 (+span/2, spring)，180°→120°；
+    右半：圆心在 (-span/2, spring)，60°→0°。"""
+    half = span * 0.5
+    R = span
+    n = max(steps // 2, 6)
+    pts = []
+    for i in range(n + 1):
+        ang = math.radians(180.0 - 60.0 * i / n)
+        pts.append((half + R * math.cos(ang), spring + R * math.sin(ang) * apex_scale))
+    for i in range(1, n + 1):
+        ang = math.radians(60.0 - 60.0 * i / n)
+        pts.append((-half + R * math.cos(ang), spring + R * math.sin(ang) * apex_scale))
+    return pts
+
+
+def sweep_rect(name, material, pts, plane_normal, u_half, w_half, cap=True):
+    """沿平面折线扫掠矩形截面。pts 为 3D 点，plane_normal 为拱面法线。"""
+    n = Vector(plane_normal).normalized()
+    bm = bmesh.new()
+    rings = []
+    for i, p in enumerate(pts):
+        if i == 0:
+            t = (Vector(pts[1]) - Vector(pts[0]))
+        elif i == len(pts) - 1:
+            t = (Vector(pts[-1]) - Vector(pts[-2]))
+        else:
+            t = (Vector(pts[i + 1]) - Vector(pts[i - 1]))
+        t = t.normalized()
+        r = t.cross(n).normalized()
+        c = Vector(p)
+        ring = [
+            bm.verts.new(c + r * (-u_half) + n * (-w_half)),
+            bm.verts.new(c + r * (u_half) + n * (-w_half)),
+            bm.verts.new(c + r * (u_half) + n * (w_half)),
+            bm.verts.new(c + r * (-u_half) + n * (w_half)),
+        ]
+        rings.append(ring)
+    for i in range(len(rings) - 1):
+        a = rings[i]
+        b = rings[i + 1]
+        for j in range(4):
+            j2 = (j + 1) % 4
+            bm.faces.new((a[j], a[j2], b[j2], b[j]))
+    if cap:
+        bm.faces.new(tuple(reversed(rings[0])))
+        bm.faces.new(tuple(rings[-1]))
+    bm.normal_update()
+    return obj_from_bm(bm, name, material)
+
+
+def prism_polygon(name, material, poly_xz, y0, y1):
+    """把 XZ 多边形沿 Y 拉伸成实体（用于开洞刀具体）"""
+    bm = bmesh.new()
+    front = [bm.verts.new(Vector((p[0], y0, p[1]))) for p in poly_xz]
+    back = [bm.verts.new(Vector((p[0], y1, p[1]))) for p in poly_xz]
+    bm.faces.new(front)
+    bm.faces.new(tuple(reversed(back)))
+    n = len(poly_xz)
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((front[i], front[j], back[j], back[i]))
+    bm.normal_update()
+    return obj_from_bm(bm, name, material)
+
+
+def bevel(ob, width=0.02, segments=2, limit_angle=45.0):
+    m = ob.modifiers.new("bevel", 'BEVEL')
+    m.width = width
+    m.segments = segments
+    m.limit_method = 'ANGLE'
+    m.angle_limit = math.radians(limit_angle)
+    m.harden_normals = False
+    return m
+
+
+def boolean_cut(target, cutter):
+    m = target.modifiers.new("bool", 'BOOLEAN')
+    m.operation = 'DIFFERENCE'
+    m.object = cutter
+    m.solver = 'EXACT'
+    bpy.context.view_layer.objects.active = target
+    bpy.ops.object.modifier_apply(modifier=m.name)
+    bpy.data.objects.remove(cutter, do_unlink=True)
+
+
+def subsurf(ob, levels=1):
+    m = ob.modifiers.new("subsurf", 'SUBSURF')
+    m.levels = levels
+    m.render_levels = levels
+    return m
+
+
+def apply_all(ob):
+    bpy.context.view_layer.objects.active = ob
+    for m in list(ob.modifiers):
+        try:
+            bpy.ops.object.modifier_apply(modifier=m.name)
+        except RuntimeError:
+            ob.modifiers.remove(m)
+
+
+def smooth(ob, angle=35.0):
+    me = ob.data
+    for p in me.polygons:
+        p.use_smooth = True
+    m = ob.modifiers.new("smooth_by_angle", 'NODES')
+    ng = bpy.data.node_groups.get("Smooth by Angle")
+    if ng is None:
+        try:
+            bpy.ops.object.modifier_remove(modifier=m.name)
+        except Exception:
+            pass
+        return
+    m.node_group = ng
+
+
+def join_objects(objs, name):
+    objs = [o for o in objs if o is not None]
+    if not objs:
+        return None
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in objs:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = objs[0]
+    bpy.ops.object.join()
+    ob = bpy.context.view_layer.objects.active
+    ob.name = name
+    return ob
+
+
+
+
+def prism_yz(name, material, poly_yz, x0, x1):
+    """把 YZ 平面多边形沿 X 拉伸（用于侧墙开洞刀具体）"""
+    bm = bmesh.new()
+    a = [bm.verts.new(Vector((x0, p[0], p[1]))) for p in poly_yz]
+    b = [bm.verts.new(Vector((x1, p[0], p[1]))) for p in poly_yz]
+    bm.faces.new(a)
+    bm.faces.new(tuple(reversed(b)))
+    n = len(poly_yz)
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((a[i], a[j], b[j], b[i]))
+    bm.normal_update()
+    return obj_from_bm(bm, name, material)
+
+
+def prism_xy(name, material, poly_xy, z0, z1):
+    bm = bmesh.new()
+    a = [bm.verts.new(Vector((p[0], p[1], z0))) for p in poly_xy]
+    b = [bm.verts.new(Vector((p[0], p[1], z1))) for p in poly_xy]
+    bm.faces.new(tuple(reversed(a)))
+    bm.faces.new(b)
+    n = len(poly_xy)
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((a[i], a[j], b[j], b[i]))
+    bm.normal_update()
+    return obj_from_bm(bm, name, material)
+
+
+def lancet_poly(center, span, spring, bottom, scale=1.0):
+    pts = [(center - span * 0.5, bottom), (center - span * 0.5, spring)]
+    for u, z in lancet_points(span, spring, scale):
+        pts.append((center + u, z))
+    pts.append((center + span * 0.5, spring))
+    pts.append((center + span * 0.5, bottom))
+    # 去重相邻重复点
+    out = []
+    for p in pts:
+        if not out or (abs(out[-1][0] - p[0]) > 1e-5 or abs(out[-1][1] - p[1]) > 1e-5):
+            out.append(p)
+    return out
+
+
+def ico(name, material, center, radius, scale=(1, 1, 1), rot_z=0.0, subdiv=1):
+    bm = bmesh.new()
+    bmesh.ops.create_icosphere(bm, subdivisions=subdiv, radius=radius)
+    m = Matrix.Translation(Vector(center)) @ Matrix.Rotation(rot_z, 4, 'Z') @ \
+        Matrix.Diagonal(Vector((scale[0], scale[1], scale[2], 1.0)))
+    bmesh.ops.transform(bm, matrix=m, verts=bm.verts)
+    return obj_from_bm(bm, name, material)
+
+
+# ---------------------------------------------------------------- 渲染
+
+def setup_render(bg=(0.169, 0.184, 0.224), samples=40, res=900):
+    scene = bpy.context.scene
+    scene.render.engine = 'CYCLES'
+    scene.cycles.device = 'CPU'
+    scene.cycles.samples = samples
+    scene.cycles.use_denoising = True
+    scene.cycles.max_bounces = 4
+    scene.render.resolution_x = res
+    scene.render.resolution_y = res
+    scene.render.resolution_percentage = 100
+    scene.render.film_transparent = False
+    scene.view_settings.view_transform = 'Standard'
+    scene.view_settings.look = 'None'
+
+    world = bpy.data.worlds.new("w")
+    world.use_nodes = True
+    bgn = world.node_tree.nodes["Background"]
+    # sRGB → 线性
+    lin = tuple(((c / 12.92) if c <= 0.04045 else (((c + 0.055) / 1.055) ** 2.4)) for c in bg)
+    bgn.inputs[0].default_value = (lin[0], lin[1], lin[2], 1.0)
+    bgn.inputs[1].default_value = 0.32
+    scene.world = world
+
+
+def add_lights():
+    key = bpy.data.lights.new("key", 'SUN')
+    key.energy = 1.7
+    key.angle = math.radians(12.0)
+    key.color = (1.0, 0.96, 0.90)
+    ko = bpy.data.objects.new("key", key)
+    bpy.context.collection.objects.link(ko)
+    ko.rotation_euler = Euler((math.radians(48), 0.0, math.radians(-128)), 'XYZ')
+
+    fill = bpy.data.lights.new("fill", 'SUN')
+    fill.energy = 0.35
+    fill.angle = math.radians(40.0)
+    fill.color = (0.72, 0.80, 0.95)
+    fo = bpy.data.objects.new("fill", fill)
+    bpy.context.collection.objects.link(fo)
+    fo.rotation_euler = Euler((math.radians(62), 0.0, math.radians(70)), 'XYZ')
+
+
+def add_camera(center, extent, yaw=45.0, pitch=45.0, margin=1.10):
+    cam_data = bpy.data.cameras.new("cam")
+    cam_data.type = 'ORTHO'
+    cam_data.clip_start = 0.1
+    cam_data.clip_end = 1000.0
+    cam = bpy.data.objects.new("cam", cam_data)
+    bpy.context.collection.objects.link(cam)
+
+    yr = math.radians(yaw)
+    pr = math.radians(pitch)
+    d = Vector((math.cos(pr) * math.cos(yr), math.cos(pr) * math.sin(yr), math.sin(pr)))
+    cam.location = Vector(center) + d * (extent * 6.0 + 40.0)
+    # 朝向中心
+    direction = Vector(center) - cam.location
+    cam.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+
+    bpy.context.view_layer.update()
+    # 用包围盒在相机空间的投影定正交尺寸
+    inv = cam.matrix_world.inverted()
+    hx = hy = 0.0
+    for o in bpy.data.objects:
+        if o.type != 'MESH':
+            continue
+        for corner in o.bound_box:
+            p = inv @ (o.matrix_world @ Vector(corner))
+            hx = max(hx, abs(p.x))
+            hy = max(hy, abs(p.y))
+    cam_data.ortho_scale = 2.0 * max(hx, hy) * margin
+    bpy.context.scene.camera = cam
+    return cam
+
+
+def render_to(path):
+    bpy.context.scene.render.filepath = path
+    bpy.context.scene.render.image_settings.file_format = 'PNG'
+    bpy.ops.render.render(write_still=True)
+
+
+def scene_bounds():
+    lo = Vector((1e9, 1e9, 1e9))
+    hi = Vector((-1e9, -1e9, -1e9))
+    for o in bpy.data.objects:
+        if o.type != 'MESH':
+            continue
+        for c in o.bound_box:
+            w = o.matrix_world @ Vector(c)
+            for i in range(3):
+                lo[i] = min(lo[i], w[i])
+                hi[i] = max(hi[i], w[i])
+    return lo, hi
+
+
+# ---------------------------------------------------------------- 素材
+
+def build_materials():
+    return {
+        "stone": make_mat("stone", (0.58, 0.57, 0.52), 0.85),
+        "stone_dark": make_mat("stone_dark", (0.30, 0.30, 0.31), 0.80),
+        "stone_wet": make_mat("stone_wet", (0.40, 0.42, 0.41), 0.58),
+        "stone_deep": make_mat("stone_deep", (0.12, 0.12, 0.13), 0.9),
+        "wood": make_mat("wood", (0.17, 0.13, 0.10), 0.9),
+        "iron": make_mat("iron", (0.33, 0.32, 0.31), 0.58, 0.55),
+        "wax": make_mat("wax", (0.72, 0.66, 0.54), 0.45),
+        "water": make_mat("water", (0.16, 0.20, 0.20), 0.12, 0.0),
+        "cloth": make_mat("cloth", (0.70, 0.68, 0.62), 0.9, 0.0, 0.55),
+    }
+
+
+# ---------------------------------------------------------------- 2. 主教祭坛
+
+def build_altar(M):
+    parts = []
+    S = M["stone_dark"]
+    P = M["stone"]
+
+    # 两级台阶（只在正面 +X 探出）
+    parts.append(box("step1", S, (0.30, 0, 0.075), (2.50, 1.30, 0.15)))
+    parts.append(box("step2", S, (0.15, 0, 0.225), (2.42, 1.24, 0.15)))
+    # 台座
+    base = box("base", S, (0, 0, 0.57), (2.16, 1.16, 0.54))
+    parts.append(base)
+    # 台座正面两个凹龛（布尔开洞后回填暗面）
+    for i in range(3):
+        zc = -0.36 + i * 0.36
+        poly = [(1.07, 0.42), (1.07, 0.66), (1.10, 0.72), (1.13, 0.66), (1.16, 0.66),
+                (1.16, 0.42)]
+        cut = prism_polygon("niche_cut", None, [(p[0], p[1]) for p in poly], zc - 0.11, zc + 0.11)
+        boolean_cut(base, cut)
+    # 收分线脚 + 台面石板
+    parts.append(box("cornice_a", S, (0, 0, 0.855), (2.20, 1.18, 0.05)))
+    parts.append(box("cornice_b", S, (0, 0, 0.900), (2.30, 1.24, 0.05)))
+    parts.append(box("cornice_c", S, (0, 0, 0.938), (2.24, 1.20, 0.03)))
+    mensa = box("mensa", S, (0, 0, 1.02), (2.44, 1.30, 0.16))
+    parts.append(mensa)
+    # 台面四周凸起窄框（留出中间的凹面）
+    for sy in (-0.575, 0.575):
+        parts.append(box("rim_y", S, (0, sy, 1.112), (2.36, 0.09, 0.030)))
+    for sx in (-1.18, 1.18):
+        parts.append(box("rim_x", S, (sx, 0, 1.112), (0.09, 1.10, 0.030)))
+    # 角部小柱（贴台座，柱身 + 柱础 + 柱头）
+    for sx in (-1.07, 1.07):
+        for sy in (-0.57, 0.57):
+            parts.append(box("post_base", S, (sx, sy, 0.30), (0.21, 0.21, 0.10)))
+            parts.append(cyl("post_shaft", S, (sx, sy, 0.35), (sx, sy, 1.08), 0.062, 0.058, 12))
+            parts.append(box("post_head", S, (sx, sy, 1.12), (0.20, 0.20, 0.06)))
+    # 台面刻槽（布尔挖浅槽）
+    groove_cutters = []
+    for i in range(4):
+        y = -0.30 + i * 0.20
+        groove_cutters.append(box("g%d" % i, None, (0, y, 1.11), (1.70, 0.026, 0.048)))
+    groove_cutters.append(box("gx", None, (0, 0.0, 1.11), (0.026, 0.90, 0.048)))
+    for cut in groove_cutters:
+        boolean_cut(mensa, cut)
+    # 蜡泪
+    W = M["wax"]
+    for i, y in enumerate([-0.48, -0.30, -0.09, 0.13, 0.32, 0.50]):
+        ln = 0.10 + (0.5 + 0.5 * math.sin(i * 2.7)) * 0.20
+        r = 0.013 + (0.5 + 0.5 * math.cos(i * 1.9)) * 0.010
+        parts.append(cyl("wax%d" % i, W, (1.215, y, 0.94), (1.213, y, 0.94 - ln), r, r * 0.55, 8))
+        parts.append(cyl("waxb%d" % i, W, (1.20, y, 0.945), (1.20, y, 0.925), r * 1.9, r * 1.3, 8))
+    # 台阶上的凝蜡
+    parts.append(cyl("wax_pool", W, (1.30, 0.24, 0.0), (1.30, 0.24, 0.02), 0.11, 0.10, 12))
+
+    for p in parts:
+        if p:
+            bevel(p, 0.012, 2, 40.0)
+    ob = join_objects(parts, "主教祭坛")
+    bpy.context.view_layer.objects.active = ob
+    bpy.ops.object.modifier_apply(modifier=ob.modifiers[0].name) if ob.modifiers else None
+    for m in list(ob.modifiers):
+        try:
+            bpy.ops.object.modifier_apply(modifier=m.name)
+        except RuntimeError:
+            ob.modifiers.remove(m)
+    return ob
+
+
+BUILDERS = {
+    "altar": (build_altar, "主教祭坛"),
+}
+
+
+def main():
+    argv = sys.argv
+    key = "altar"
+    if "--" in argv:
+        rest = argv[argv.index("--") + 1:]
+        if rest:
+            key = rest[0]
+
+    clear_scene()
+    M = build_materials()
+    fn, cn = BUILDERS[key]
+    bpy.context.scene.unit_settings.system = 'METRIC'
+    ob = fn(M)
+    apply_all(ob)
+
+    # 统一：最低点落到 z=0（模型底部中心为原点）
+    lo, hi = scene_bounds()
+    ob.location.z -= lo.z
+    bpy.context.view_layer.objects.active = ob
+    bpy.ops.object.transform_apply(location=True, rotation=False, scale=True)
+    lo, hi = scene_bounds()
+    center = (lo + hi) * 0.5
+    extent = (hi - lo).length * 0.5
+    print("BOUNDS", lo, hi, "extent", extent)
+
+    dir_path = os.path.join(OUT_ROOT, cn)
+    os.makedirs(dir_path, exist_ok=True)
+    glb = os.path.join(dir_path, cn + ".glb")
+    bpy.ops.object.select_all(action='DESELECT')
+    ob.select_set(True)
+    bpy.context.view_layer.objects.active = ob
+    bpy.ops.export_scene.gltf(filepath=glb, export_format='GLB', use_selection=True,
+                              export_apply=True, export_yup=True)
+    tris = sum(len(p.vertices) - 2 for p in ob.data.polygons)
+    print("EXPORT", glb, "tris=", tris)
+
+    setup_render()
+    add_lights()
+    add_camera(center, extent)
+    render_to(os.path.join(dir_path, "模型预览-高模.png"))
+    print("DONE", cn)
+
+
+
+
+# ---------------------------------------------------------------- 3. 悬挂圣徒铁笼
+
+def build_cage(M):
+    I = M["iron"]
+    parts = []
+    half = 0.75
+    body_h = 2.0
+    ring_h = 2.80
+    corners = [(-half, -half), (half, -half), (half, half), (-half, half)]
+
+    # 底框 + 底板格栅
+    for i in range(4):
+        a = corners[i]
+        b = corners[(i + 1) % 4]
+        p = box("base_beam", I, ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, 0.02),
+                (abs(b[0] - a[0]) + 0.085, abs(b[1] - a[1]) + 0.085, 0.10))
+        parts.append(p)
+    for i in range(5):
+        y = -half + 0.30 * i
+        parts.append(box("grate", I, (0, y, 0.055), (2 * half, 0.045, 0.045)))
+
+    # 竖条
+    for i in range(4):
+        a = corners[i]
+        b = corners[(i + 1) % 4]
+        parts.append(cyl("corner_post", I, (a[0], a[1], 0.06), (a[0], a[1], body_h), 0.042, 0.042, 12))
+        for k in range(1, 4):
+            t = k / 4.0
+            x = a[0] + (b[0] - a[0]) * t
+            y = a[1] + (b[1] - a[1]) * t
+            parts.append(cyl("bar", I, (x, y, 0.04), (x, y, body_h), 0.028, 0.028, 10))
+
+    # 横箍
+    for z in (0.62, 1.32, body_h):
+        for i in range(4):
+            a = corners[i]
+            b = corners[(i + 1) % 4]
+            parts.append(box("hoop", I, ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, z),
+                             (abs(b[0] - a[0]) + 0.07, abs(b[1] - a[1]) + 0.07, 0.055)))
+
+    # 笼门（+X 面）
+    dx = half
+    for y in (-0.30, 0.30):
+        parts.append(cyl("door_jamb", I, (dx, y, 0.08), (dx, y, body_h - 0.02), 0.030, 0.030, 10))
+    for z in (0.10, body_h - 0.05):
+        parts.append(box("door_rail", I, (dx, 0, z), (0.055, 0.62, 0.055)))
+    for k in range(1, 4):
+        y = -0.30 + 0.15 * k
+        parts.append(cyl("door_bar", I, (dx, y, 0.10), (dx, y, body_h - 0.05), 0.022, 0.022, 8))
+    for z in (0.45, 1.10, 1.70):
+        parts.append(box("door_cross", I, (dx + 0.02, 0, z), (0.045, 0.58, 0.040)))
+    # 铰链与锁扣
+    for z in (0.22, 1.75):
+        parts.append(torus("hinge", I, (dx - 0.01, -0.30, z), (0, 0, 1), 0.045, 0.016, 12, 8))
+    parts.append(box("latch_plate", I, (dx + 0.045, 0.06, 1.05), (0.09, 0.07, 0.26)))
+    parts.append(cyl("latch_pin", I, (dx + 0.03, 0.06, 1.20), (dx + 0.20, 0.10, 1.20), 0.018, 0.018, 8))
+
+    # 穹顶：8 根肋
+    apex = Vector((0, 0, ring_h))
+    base_pts = []
+    for i in range(4):
+        a = Vector((corners[i][0], corners[i][1], body_h))
+        b = Vector((corners[(i + 1) % 4][0], corners[(i + 1) % 4][1], body_h))
+        base_pts.append(a)
+        base_pts.append((a + b) * 0.5)
+    ring_levels = []
+    for idx, p in enumerate(base_pts):
+        out = Vector((p.x, p.y, 0)).normalized()
+        nrm = Vector((-p.y, p.x, 0)).normalized()
+        pts = []
+        for k in range(7):
+            t = k / 6.0
+            q = p.lerp(apex, t) + out * (math.sin(t * math.pi) * 0.07)
+            pts.append(q)
+        parts.append(sweep_rect("dome_rib", I, pts, nrm, 0.030, 0.030))
+        if idx == 0:
+            pass
+        ring_levels.append(pts)
+    # 两圈水平环箍
+    for frac_i in (2, 4):
+        for i in range(8):
+            p0 = ring_levels[i][frac_i]
+            p1 = ring_levels[(i + 1) % 8][frac_i]
+            parts.append(cyl("dome_ring", I, p0, p1, 0.026, 0.026, 8))
+
+    # 吊环、吊钩、锁链
+    parts.append(cyl("collar", I, (0, 0, ring_h), (0, 0, ring_h + 0.16), 0.070, 0.052, 12))
+    parts.append(torus("hook", I, (0, 0, ring_h + 0.30), (0, 1, 0), 0.13, 0.036, 16, 8))
+    ly = ring_h + 0.44
+    for i in range(6):
+        link = torus("chain", I, (0, 0, ly + 0.140 * i), (0, 1, 0) if i % 2 else (1, 0, 0),
+                     0.070, 0.024, 12, 8)
+        link.scale = (1.0, 1.0, 1.35)
+        parts.append(link)
+
+    # 外侧纱幔（薄布片）
+    parts.append(cloth("veil_a", M["cloth"], (0.06, 0.80, 2.45), 0.20, 1.55, 0.30, 0.04))
+    parts.append(cloth("veil_b", M["cloth"], (0.83, -0.06, 2.30), 0.16, 1.25, 0.26, 0.035))
+
+    for p in parts:
+        if p is not None and p.name.startswith(("base_beam", "hoop", "door_rail", "door_cross",
+                                                "latch_plate", "grate")):
+            bevel(p, 0.008, 1, 40.0)
+    ob = join_objects(parts, "悬挂圣徒铁笼")
+    apply_all(ob)
+    return ob
+
+
+def cloth(name, material, top_center, half_w, drop, drift, thick):
+    """从一点垂下的薄布：网格 + 波浪 + 厚度"""
+    bm = bmesh.new()
+    nu, nv = 8, 12
+    top = Vector(top_center)
+    verts = []
+    for j in range(nv + 1):
+        t = j / nv
+        row = []
+        for i in range(nu + 1):
+            u = i / nu - 0.5
+            x = top.x + u * 2 * half_w + math.sin(t * 3.2) * drift * 0.6
+            y = top.y + t * drift
+            z = top.z - t * drop
+            wob = math.sin(u * 6.0 + t * 4.0) * 0.035 * t + math.sin(t * 9.0) * 0.012
+            row.append(bm.verts.new(Vector((x, y + wob, z))))
+        verts.append(row)
+    for j in range(nv):
+        for i in range(nu):
+            bm.faces.new((verts[j][i], verts[j][i + 1], verts[j + 1][i + 1], verts[j + 1][i]))
+    bm.normal_update()
+    ob = obj_from_bm(bm, name, material)
+    for p in ob.data.polygons:
+        p.use_smooth = True
+    m = ob.modifiers.new("solid", 'SOLIDIFY')
+    m.thickness = thick
+    m.offset = 0.0
+    return ob
+
+
+# ---------------------------------------------------------------- 1. 沉没大教堂中殿
+
+def build_nave(M):
+    S = M["stone"]
+    W = M["stone_wet"] if "stone_wet" in M else S
+    parts = []
+    LEN = 12.0
+    WID = 9.6
+    wall_x = -WID * 0.5 + 0.42
+    wall_h = 7.2
+    col_h = 4.20
+    ax = WID * 0.5 - 0.55
+    bays = 3
+    bay = LEN / bays
+
+    # 地面
+    parts.append(box("floor_slab", M["stone_wet"], (0, LEN * 0.5, -0.15), (WID, LEN, 0.30)))
+    tile = 1.55
+    nx = int(WID / tile)
+    ny = int(LEN / tile)
+    for ix in range(nx):
+        for iy in range(ny):
+            tx = -WID * 0.5 + tile * (ix + 0.5)
+            ty = tile * (iy + 0.5)
+            h = 0.05 + 0.012 * math.sin(ix * 2.3 + iy * 1.7)
+            parts.append(box("tile", M["stone_wet"], (tx, ty, h * 0.5), (tile - 0.06, tile - 0.06, h)))
+
+    # 侧墙（布尔开三扇尖拱窗）
+    wall = box("wall", S, (wall_x, LEN * 0.5, wall_h * 0.5), (0.84, LEN, wall_h))
+    for b in range(bays):
+        yc = bay * (b + 0.5)
+        poly = lancet_poly(yc, bay * 0.46, 3.10, 2.20)
+        boolean_cut(wall, prism_yz("cut_w", None, poly, wall_x - 0.6, wall_x + 0.6))
+    parts.append(wall)
+    # 墙基座、檐口、扶壁
+    parts.append(box("wall_plinth", S, (wall_x, LEN * 0.5, 0.36), (1.14, LEN, 0.72)))
+    parts.append(box("wall_cornice_a", S, (wall_x, LEN * 0.5, wall_h - 0.30), (1.02, LEN, 0.14)))
+    parts.append(box("wall_cornice_b", S, (wall_x, LEN * 0.5, wall_h - 0.12), (1.24, LEN, 0.26)))
+    for b in range(bays + 1):
+        y = bay * b
+        parts.append(box("buttress", S, (wall_x - 0.1, y, (wall_h - 0.4) * 0.5),
+                         (1.60, 0.80, wall_h - 0.4)))
+        parts.append(box("buttress_cap", S, (wall_x - 0.1, y, wall_h - 0.42), (1.72, 0.92, 0.16)))
+
+    # 开敞拱廊：束柱
+    for b in range(bays + 1):
+        y = bay * b
+        broken = (b == 1)
+        h = 2.10 if broken else col_h
+        parts.append(box("col_plinth", S, (ax, y, 0.16), (0.96, 0.96, 0.32)))
+        parts.append(cyl("col_core", S, (ax, y, 0.30), (ax, y, h), 0.33, 0.29, 20))
+        for k in range(4):
+            ang = TAU * k / 4.0 + math.pi * 0.25
+            ox = math.cos(ang) * 0.29
+            oy = math.sin(ang) * 0.29
+            parts.append(cyl("col_shaft", S, (ax + ox, y + oy, 0.30), (ax + ox, y + oy, h),
+                             0.125, 0.115, 12))
+        if broken:
+            parts.append(cyl("col_broken", S, (ax, y, h), (ax, y, h + 0.10), 0.30, 0.24, 16))
+            for i in range(3):
+                parts.append(ico("chunk", S, (ax + 0.5 + 0.2 * i, y + 0.4 - 0.3 * i, 0.10 + 0.06 * i),
+                                 0.16, (1.3, 1.0, 0.7), i * 1.1, 1))
+        else:
+            parts.append(box("col_capital_a", S, (ax, y, h - 0.14), (0.86, 0.86, 0.14)))
+            parts.append(box("col_capital_b", S, (ax, y, h - 0.04), (0.96, 0.96, 0.10)))
+
+    # 拱廊尖拱（沿 Z 扫掠）
+    span = bay * 0.94
+    for b in range(bays):
+        yc = bay * (b + 0.5)
+        pts = []
+        for u, z in lancet_points(span, col_h, 0.40):
+            pts.append(Vector((ax, yc + u, z)))
+        if b == 1:
+            pts = pts[:len(pts) * 2 // 3]
+        parts.append(sweep_rect("arcade_arch", S, pts, (1, 0, 0), 0.20, 0.34))
+    # 拱肩墙：拱脚以上到压顶，按尖拱开洞
+    arc_top = wall_h
+    arcade = box("arcade_wall", S, (ax, LEN * 0.5, (col_h + arc_top) * 0.5),
+                 (0.60, LEN, arc_top - col_h))
+    for b in range(bays):
+        yc = bay * (b + 0.5)
+        poly = lancet_poly(yc, span, col_h, col_h - 0.30, 0.40)
+        boolean_cut(arcade, prism_yz("cut_a", None, poly, ax - 0.5, ax + 0.5))
+    parts.append(arcade)
+    # 拱脚线脚 + 压顶
+    parts.append(box("string_course", S, (ax, LEN * 0.5, col_h + 0.05), (0.80, LEN, 0.18)))
+    parts.append(box("arcade_cornice", S, (ax, LEN * 0.5, arc_top + 0.10), (0.86, LEN, 0.20)))
+
+    # 碎石
+    for i in range(12):
+        t = i / 12.0
+        px = -WID * 0.40 + WID * 0.82 * (0.5 + 0.5 * math.sin(t * 7.0))
+        py = 0.9 + (LEN - 1.8) * (0.5 + 0.5 * math.cos(t * 3.3))
+        s = 0.16 + 0.22 * (0.5 + 0.5 * math.sin(t * 5.1))
+        parts.append(ico("rubble", S, (px, py, s * 0.45), s, (1.4, 1.1, 0.8), t * 2.0, 1))
+
+    # 积水
+    for i in range(6):
+        px = -WID * 0.40 + WID * 0.80 * (0.5 + 0.5 * math.sin(i * 1.7))
+        py = 1.6 + (LEN - 3.2) * (0.5 + 0.5 * math.cos(i * 2.3))
+        sx = 1.4 + 1.6 * (0.5 + 0.5 * math.sin(i * 3.1))
+        sy = 1.3 + 1.8 * (0.5 + 0.5 * math.cos(i * 1.3))
+        parts.append(box("puddle", M["water"], (px, py, 0.062), (sx, sy, 0.012)))
+
+    for p in parts:
+        if p is not None:
+            bevel(p, 0.010, 2, 42.0)
+    ob = join_objects(parts, "沉没大教堂中殿")
+    ob.location.y -= LEN * 0.5
+    apply_all(ob)
+    return ob
+
+
+# ---------------------------------------------------------------- 4. 唱诗班楼上层
+
+def build_choir(M):
+    S = M["stone"]
+    WD = M["wood"]
+    parts = []
+    WID = 2.60
+    LEN = 6.40
+    deck = 0.38
+    front_x = WID * 0.5 - 0.14
+    back_x = -WID * 0.5 + 0.14
+
+    # 楼板与托梁
+    parts.append(box("deck", S, (0, 0, deck * 0.5), (WID, LEN, deck)))
+    parts.append(box("deck_under", S, (0, 0, -0.02), (WID * 0.94, LEN * 0.98, 0.10)))
+    for i in range(5):
+        y = -LEN * 0.42 + i * LEN * 0.21
+        parts.append(box("joist", S, (0, y, -0.11), (WID * 0.92, 0.16, 0.14)))
+
+    # 栏杆
+    rail_top = deck + 1.04
+    parts.append(box("rail_bottom", S, (front_x, 0, deck + 0.07), (0.30, LEN, 0.14)))
+    parts.append(box("rail_top", S, (front_x, 0, rail_top), (0.36, LEN, 0.16)))
+    n = 9
+    pitch = LEN / n
+    for i in range(n + 1):
+        y = -LEN * 0.5 + pitch * i
+        parts.append(box("bal_base", S, (front_x, y, deck + 0.17), (0.20, 0.20, 0.08)))
+        parts.append(cyl("baluster", S, (front_x, y, deck + 0.20), (front_x, y, rail_top - 0.08),
+                         0.068, 0.058, 14))
+        parts.append(torus("bal_ring", S, (front_x, y, deck + 0.28), (0, 0, 1), 0.062, 0.020, 12, 8))
+    # 栏板小尖拱
+    for i in range(n):
+        yc = -LEN * 0.5 + pitch * (i + 0.5)
+        sp = pitch * 0.86
+        base_z = deck + 0.24
+        pts = []
+        for u, z in lancet_points(sp, base_z, 0.80):
+            pts.append(Vector((front_x, yc + u, z)))
+        parts.append(sweep_rect("rail_arch", S, pts, (1, 0, 0), 0.055, 0.115))
+
+    # 后端拱壁
+    wall_h = 4.30
+    wall = box("back_wall", S, (back_x, 0, deck + wall_h * 0.5), (0.52, LEN, wall_h))
+    bw = LEN / 3.0
+    for b in range(3):
+        yc = -LEN * 0.5 + bw * (b + 0.5)
+        poly = lancet_poly(yc, bw * 0.66, deck + 1.90, deck - 0.20)
+        boolean_cut(wall, prism_yz("cut_c", None, poly, back_x - 0.5, back_x + 0.5))
+    parts.append(wall)
+    parts.append(box("wall_plinth", S, (back_x, 0, deck + 0.30), (0.72, LEN, 0.60)))
+    parts.append(box("wall_cornice", S, (back_x, 0, deck + wall_h - 0.12), (0.80, LEN, 0.24)))
+    # 端头收边
+    for sy in (-1, 1):
+        y = sy * (LEN * 0.5 - 0.11)
+        parts.append(box("end_rail", S, (0, y, deck + 0.07), (WID, 0.26, 0.14)))
+        parts.append(box("end_post", S, (front_x - 0.04, y, rail_top), (0.40, 0.34, 0.34)))
+
+    # 木长凳
+    seat_x = back_x + 0.88
+    for seg in range(2):
+        y0 = -LEN * 0.40 + seg * LEN * 0.42
+        seg_len = LEN * 0.34
+        yc = y0 + seg_len * 0.5
+        parts.append(box("bench_seat", WD, (seat_x, yc, deck + 0.46), (0.60, seg_len, 0.09)))
+        # 凳腿 / 侧板
+        for lx in (seat_x - 0.20, seat_x + 0.20):
+            for ly in (y0 + 0.10, y0 + seg_len - 0.10):
+                parts.append(box("bench_leg", WD, (lx, ly, deck + 0.21), (0.08, 0.10, 0.42)))
+        parts.append(box("bench_lip", WD, (seat_x + 0.12, yc, deck + 0.40), (0.10, seg_len, 0.16)))
+        parts.append(box("bench_back", WD, (seat_x - 0.26, yc, deck + 0.76), (0.10, seg_len * 0.72, 0.62)))
+        parts.append(box("bench_cap", WD, (seat_x - 0.26, yc, deck + 1.10), (0.15, seg_len * 0.78, 0.09)))
+        for k in range(3):
+            yy = y0 + seg_len * (k / 2.0)
+            parts.append(box("armrest", WD, (seat_x - 0.04, yy, deck + 0.62), (0.58, 0.07, 0.34)))
+    parts.append(box("bench_broken", WD, (seat_x + 0.30, -LEN * 0.02, deck + 0.52), (0.50, 0.34, 0.08)))
+    parts.append(box("bench_broken_b", WD, (seat_x + 0.44, -LEN * 0.02, deck + 0.60), (0.10, 0.34, 0.20)))
+
+    for p in parts:
+        bevel(p, 0.010, 2, 42.0)
+    ob = join_objects(parts, "唱诗班楼上层")
+    apply_all(ob)
+    return ob
+
+
+BUILDERS["cage"] = (build_cage, "悬挂圣徒铁笼")
+BUILDERS["nave"] = (build_nave, "沉没大教堂中殿")
+BUILDERS["choir"] = (build_choir, "唱诗班楼上层")
+
+
+main()

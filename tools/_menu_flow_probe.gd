@@ -23,11 +23,18 @@ func _run() -> void:
 	await tree.process_frame
 	await tree.process_frame
 
-	var start := menu.find_child("Start", true, false) as Button
+	var start := menu.find_child("Levels", true, false) as Button
 	if start == null:
-		_fail("start button missing")
+		_fail("levels button missing")
 		return
 	start.emit_signal("pressed")
+	await tree.process_frame
+	await tree.process_frame
+	var card := menu.find_child("L02", true, false) as Button
+	if card == null:
+		_fail("level 2 card missing")
+		return
+	card.emit_signal("pressed")
 	await tree.create_timer(1.5).timeout
 
 	var router: Node = tree.root.get_node_or_null(^"Router")

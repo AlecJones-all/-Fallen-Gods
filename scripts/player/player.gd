@@ -4,6 +4,7 @@ signal hp_changed(current: float, maximum: float)
 signal dash_state_changed(remaining: float, total: float)
 signal aim_point_changed(point: Vector3)
 signal weapon_changed(index: int, label: String)
+signal fired
 signal damaged_from(source_position: Vector3)
 signal died
 
@@ -22,7 +23,7 @@ const WEAPON_CROSSBOW: int = 1
 const WEAPON_COUNT: int = 2
 const WEAPON_LABELS: Array[String] = ["长剑", "连弩"]
 
-const MUZZLE_FORWARD: float = 0.9
+const MUZZLE_FORWARD: float = 0.35
 const MUZZLE_HEIGHT: float = 0.9
 const HIT_FLASH_TINT: Color = Color(1.0, 0.25, 0.2)
 const GHOST_INTERVAL: float = 0.045
@@ -69,6 +70,7 @@ var _reported_cooldown: float = 0.0
 var _ghost_left: float = 0.0
 
 var _weapon_index: int = WEAPON_BLADE
+var _muzzle: Node3D = null
 var _attack_left: float = 0.0
 var _swing_elapsed: float = -1.0
 var _swing_direction: Vector3 = Vector3.FORWARD
@@ -434,14 +436,47 @@ func _do_ranged(direction: Vector3) -> void:
 	if parent == null:
 		return
 
+	# 从弩口出膛；贴墙时枪口可能已在墙里，退回胸口
+	var origin := _muzzle_origin()
+	var aim := dir
+	if not origin.is_equal_approx(_chest_origin()):
+		var to_aim := _aim_point - origin
+		to_aim.y = 0.0
+		if to_aim.length_squared() > AIM_EPSILON:
+			aim = to_aim.normalized()
+			dir = aim
+
 	var shot = PROJECTILE_SCENE.instantiate()
 	if shot == null:
 		return
 	shot.configure(dir, _bolt_speed, _bolt_damage, false, _bolt_lifetime)
 	parent.add_child(shot)
-	shot.global_position = global_position + Vector3.UP * MUZZLE_HEIGHT
-	shot.sweep_to(shot.global_position + dir * MUZZLE_FORWARD)
+	shot.global_position = origin
+	shot.sweep_to(origin + dir * MUZZLE_FORWARD)
 	Audio.play(&"crossbow_fire")
+	fired.emit()
+
+
+## 角色胸口（旧的手雷点）：弩口不可用时退回这里
+func _chest_origin() -> Vector3:
+	return global_position + Vector3.UP * MUZZLE_HEIGHT
+
+
+## 弩口世界坐标；节点缺失或被墙挡住时返回胸口
+func _muzzle_origin() -> Vector3:
+	var chest := _chest_origin()
+	if _muzzle == null or not is_instance_valid(_muzzle) or not _muzzle.is_inside_tree():
+		_muzzle = find_child("Muzzle", true, false) as Node3D
+	if _muzzle == null or not _muzzle.is_inside_tree():
+		return chest
+	var p := _muzzle.global_position
+	if p.distance_squared_to(chest) <= AIM_EPSILON:
+		return chest
+	var query := PhysicsRayQueryParameters3D.create(chest, p, LAYER_WORLD)
+	query.collide_with_areas = false
+	if not get_world_3d().direct_space_state.intersect_ray(query).is_empty():
+		return chest
+	return p
 
 
 func _projectile_parent() -> Node3D:

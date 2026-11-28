@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/weapons/xbow_steampunk/tex/part_0_albedo.png" id="1_cw52b"]
+[ext_resource type="ArrayMesh" path="res://assets/weapons/xbow_steampunk/mesh/part_0.res" id="1_xqj1k"]
+[ext_resource type="ArrayMesh" path="res://assets/weapons/xbow_steampunk/mesh/part_1.res" id="2_jotd6"]
+[ext_resource type="Texture2D" path="res://assets/weapons/xbow_steampunk/tex/part_1_albedo.png" id="3_uhlt7"]
+[ext_resource type="ArrayMesh" path="res://assets/weapons/xbow_steampunk/mesh/part_2.res" id="3_v00np"]
+[ext_resource type="ArrayMesh" path="res://assets/weapons/xbow_steampunk/mesh/part_3.res" id="4_cnmhf"]
+[ext_resource type="ArrayMesh" path="res://assets/weapons/xbow_steampunk/mesh/part_4.res" id="5_88151"]
+[ext_resource type="Texture2D" path="res://assets/weapons/xbow_steampunk/tex/part_2_albedo.png" id="5_ppnvp"]
+[ext_resource type="Texture2D" path="res://assets/weapons/xbow_steampunk/tex/part_3_albedo.png" id="7_6mr1w"]
+[ext_resource type="Texture2D" path="res://assets/weapons/xbow_steampunk/tex/part_4_albedo.png" id="9_bu1eb"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cw52b"]
+albedo_color = Color(1, 0.78, 0.62, 1)
+albedo_texture = ExtResource("1_cw52b")
+metallic = 0.08
+metallic_specular = 0.45
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uhlt7"]
+albedo_color = Color(1, 0.78, 0.62, 1)
+albedo_texture = ExtResource("3_uhlt7")
+metallic = 0.08
+metallic_specular = 0.45
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ppnvp"]
+albedo_color = Color(1, 0.78, 0.62, 1)
+albedo_texture = ExtResource("5_ppnvp")
+metallic = 0.08
+metallic_specular = 0.45
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6mr1w"]
+albedo_color = Color(1, 0.78, 0.62, 1)
+albedo_texture = ExtResource("7_6mr1w")
+metallic = 0.08
+metallic_specular = 0.45
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bu1eb"]
+albedo_color = Color(1, 0.78, 0.62, 1)
+albedo_texture = ExtResource("9_bu1eb")
+metallic = 0.08
+metallic_specular = 0.45
+roughness = 0.9
+
+[node name="XbowSteampunk" type="Node3D" unique_id=2083829621]
+transform = Transform3D(0.29890525, 0, 0, 0, 0.29890525, 0, 0, 0, 0.29890525, 0, 0, 0)
+
+[node name="Model" type="Node3D" parent="." unique_id=2098003048]
+transform = Transform3D(0.68902904, -1.4901161e-08, -0.72473365, -0.36775297, 0.86169183, -0.34963533, 0.6244972, 0.50743186, 0.5937308, -0.020676374, 0.09850973, 0.6629309)
+
+[node name="Part_0" type="MeshInstance3D" parent="Model" unique_id=1593512846]
+material_override = SubResource("StandardMaterial3D_cw52b")
+mesh = ExtResource("1_xqj1k")
+
+[node name="Part_1" type="MeshInstance3D" parent="Model" unique_id=710218940]
+material_override = SubResource("StandardMaterial3D_uhlt7")
+mesh = ExtResource("2_jotd6")
+
+[node name="Part_2" type="MeshInstance3D" parent="Model" unique_id=70834387]
+material_override = SubResource("StandardMaterial3D_ppnvp")
+mesh = ExtResource("3_v00np")
+
+[node name="Part_3" type="MeshInstance3D" parent="Model" unique_id=589721916]
+material_override = SubResource("StandardMaterial3D_6mr1w")
+mesh = ExtResource("4_cnmhf")
+
+[node name="Part_4" type="MeshInstance3D" parent="Model" unique_id=647841608]
+material_override = SubResource("StandardMaterial3D_bu1eb")
+mesh = ExtResource("5_88151")

@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/weapons/xbow_zhuge/tex/body_albedo.png" id="1_5aqqv"]
+[ext_resource type="ArrayMesh" path="res://assets/weapons/xbow_zhuge/zhuge_lp.res" id="2_w2skh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5aqqv"]
+albedo_color = Color(1, 0.78, 0.62, 1)
+albedo_texture = ExtResource("1_5aqqv")
+metallic = 0.08
+roughness = 0.9
+
+[node name="XbowZhuge" type="Node3D" unique_id=814004300]
+transform = Transform3D(0.52, 0, 0, 0, 0.52, 0, 0, 0, 0.52, 0, 0, 0)
+
+[node name="Model" type="Node3D" parent="." unique_id=743670664]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0, 0.16)
+
+[node name="Body" type="MeshInstance3D" parent="Model" unique_id=516280116]
+material_override = SubResource("StandardMaterial3D_5aqqv")
+mesh = ExtResource("2_w2skh")
