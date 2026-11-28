@@ -25,3 +25,19 @@ docs/**/*.png.import
 # Third-party reference models (Warcraft fan remake, Hircine, etc.) are licensed
 # for internal shape study only. Never commit them to a public repo.
 /art/references/
+
+# Root-level files inside assets/anim_src belong to the same third-party source
+# packs as assets/anim_src/*/ above (Mixamo / Sketchfab imports and their
+# extracted textures). Rule `assets/anim_src/*/` only matches directories, so
+# these siblings have to be excluded explicitly. Build tooling under tools/
+# reads them as local input; no runtime scene references them.
+assets/anim_src/*.glb
+assets/anim_src/*.png
+assets/anim_src/*.png.import
+assets/anim_src/*.rar
+assets/anim_src/*.zip
+assets/anim_src/*.blend
+assets/anim_src/*.blend1
+
+# Build output of tools/build_anim_pack.gd (regenerated, not a deliverable).
+/dist/
